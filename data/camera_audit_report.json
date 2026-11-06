@@ -1,0 +1,354 @@
+[
+  {
+    "ip": "10.110.1.11",
+    "name": "Camera Hikvision 10.110.1.11",
+    "vendor": "Hangzhou Hikvision Digital",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": true,
+      "dahua_37777": false
+    },
+    "webStatus": 200,
+    "serverHeader": "webserver",
+    "authRequired": "Digest qop=\"auth\", realm=\"IP Camera(AF814)\", nonce=\"633834313a61646637623934623a1111c9b58531e9fdaba298314c66a906\", stale=\"FALSE\"",
+    "rtspReply": "RTSP/1.0 200 OK",
+    "snapshotStatus": "401 (text/html)"
+  },
+  {
+    "ip": "10.110.1.13",
+    "name": "Đầu Ghi NVR Trung Tâm (camera.hepco.com.vn)",
+    "vendor": "Hangzhou Hikvision Digital",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": true,
+      "dahua_37777": false
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"503083c361b1edf5cedc627d\", domain=\"/\", qop=\"auth\", nonce=\"04270f9903d47391:503083c361b1edf5cedc627d:1a1adea460d:0\", opaque=\"799d5\", algorithm=\"MD5\", stale=\"FALSE\"",
+    "rtspReply": "RTSP/1.0 404 Not Found",
+    "snapshotStatus": "401 (text/html)"
+  },
+  {
+    "ip": "10.110.1.21",
+    "name": "Camera An Ninh 10.110.1.21",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": false,
+      "rtsp_554": false,
+      "hikvision_8000": false,
+      "dahua_37777": false
+    },
+    "webStatus": "Closed",
+    "serverHeader": "",
+    "authRequired": "",
+    "rtspReply": "Port 554 Closed",
+    "snapshotStatus": "N/A"
+  },
+  {
+    "ip": "10.110.1.23",
+    "name": "Camera An Ninh 10.110.1.23",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to 5G00501PAG3A6D4\", qop=\"auth\", nonce=\"423963367\", opaque=\"\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.55",
+    "name": "Camera An Ninh 10.110.1.55",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to 02BF91B4759BC68F\", qop=\"auth\", nonce=\"c95e77c9-b7cc-4143-8f69-53a2be487051\", opaque=\"\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.56",
+    "name": "Camera An Ninh 10.110.1.56",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to EA3414895C21A82C\", qop=\"auth\", nonce=\"3e82538a-e007-457b-9bf1-0625d3f6faf7\", opaque=\"\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.57",
+    "name": "Camera An Ninh 10.110.1.57",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to 64E386C5F9824215\", qop=\"auth\", nonce=\"39121855-78e8-4e92-81f0-aa5744980fc4\", opaque=\"\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.80",
+    "name": "Camera Hikvision 10.110.1.80",
+    "vendor": "Hangzhou Hikvision Digital",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": true,
+      "dahua_37777": false
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"664f4b7451a39a2ac44ebbed\", domain=\"/\", qop=\"auth\", nonce=\"ac300a3cf0c6e904:664f4b7451a39a2ac44ebbed:1a1abab8242:0\", opaque=\"799d5\", algorithm=\"MD5\", stale=\"FALSE\"",
+    "rtspReply": "RTSP/1.0 404 Not Found",
+    "snapshotStatus": "401 (text/html)"
+  },
+  {
+    "ip": "10.110.1.82",
+    "name": "Camera An Ninh 10.110.1.82",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to 2CB049D527B0FEF6\", qop=\"auth\", nonce=\"20c3732d-040d-4c21-84aa-6b489d504519\", opaque=\"\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.83",
+    "name": "Camera An Ninh 10.110.1.83",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": false,
+      "rtsp_554": false,
+      "hikvision_8000": false,
+      "dahua_37777": false
+    },
+    "webStatus": "Closed",
+    "serverHeader": "",
+    "authRequired": "",
+    "rtspReply": "Port 554 Closed",
+    "snapshotStatus": "N/A"
+  },
+  {
+    "ip": "10.110.1.84",
+    "name": "Camera An Ninh 10.110.1.84",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to AE9D8E52794FE623\", qop=\"auth\", nonce=\"99999464-b04f-4abc-8218-e5b48a2fcf85\", opaque=\"\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.85",
+    "name": "Camera An Ninh 10.110.1.85",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": false,
+      "rtsp_554": false,
+      "hikvision_8000": false,
+      "dahua_37777": false
+    },
+    "webStatus": "Closed",
+    "serverHeader": "",
+    "authRequired": "",
+    "rtspReply": "Port 554 Closed",
+    "snapshotStatus": "N/A"
+  },
+  {
+    "ip": "10.110.1.87",
+    "name": "Camera An Ninh 10.110.1.87",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to 48267603420a8b1a0f0c3fd51ac4f18e\", qop=\"auth\", nonce=\"1487456063\", opaque=\"5e87e2f191197bade196fbb5b4f6874eef9cffc6\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.88",
+    "name": "Camera An Ninh 10.110.1.88",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to E7A650E558CF9C44\", qop=\"auth\", nonce=\"3f13a6b8-5815-4654-9eed-cf8758a666d7\", opaque=\"\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.89",
+    "name": "Camera An Ninh 10.110.1.89",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": false,
+      "rtsp_554": false,
+      "hikvision_8000": false,
+      "dahua_37777": false
+    },
+    "webStatus": "Closed",
+    "serverHeader": "",
+    "authRequired": "",
+    "rtspReply": "Port 554 Closed",
+    "snapshotStatus": "N/A"
+  },
+  {
+    "ip": "10.110.1.101",
+    "name": "Camera An Ninh 10.110.1.101",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to 89822beb3ca48c95c87d200c0f57e904\", qop=\"auth\", nonce=\"1100554885\", opaque=\"dc3508fefed6960bca8f67d24e02bd9a2867cb9a\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.102",
+    "name": "Camera An Ninh 10.110.1.102",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": false,
+      "rtsp_554": false,
+      "hikvision_8000": false,
+      "dahua_37777": false
+    },
+    "webStatus": "Closed",
+    "serverHeader": "",
+    "authRequired": "",
+    "rtspReply": "Port 554 Closed",
+    "snapshotStatus": "N/A"
+  },
+  {
+    "ip": "10.110.1.103",
+    "name": "Camera An Ninh 10.110.1.103",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to 3413452FB7487621\", qop=\"auth\", nonce=\"be123056-52e0-4a34-ac51-1d84e9a4fb71\", opaque=\"\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.135",
+    "name": "Camera An Ninh 10.110.1.135",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": false,
+      "rtsp_554": false,
+      "hikvision_8000": false,
+      "dahua_37777": false
+    },
+    "webStatus": "Closed",
+    "serverHeader": "",
+    "authRequired": "",
+    "rtspReply": "Port 554 Closed",
+    "snapshotStatus": "N/A"
+  },
+  {
+    "ip": "10.110.1.136",
+    "name": "Camera An Ninh 10.110.1.136",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": true,
+      "rtsp_554": true,
+      "hikvision_8000": false,
+      "dahua_37777": true
+    },
+    "webStatus": 200,
+    "serverHeader": "",
+    "authRequired": "Digest realm=\"Login to b5c92feddb4e4cea476d5cf2a5749a6b\", qop=\"auth\", nonce=\"107048814\", opaque=\"af59bb076a10e633b638f60e347829a8bbebe4e2\"",
+    "rtspReply": "RTSP/1.0 401 Unauthorized",
+    "snapshotStatus": "401 (N/A)"
+  },
+  {
+    "ip": "10.110.1.137",
+    "name": "Camera An Ninh 10.110.1.137",
+    "vendor": "Dahua / KBVision",
+    "ports": {
+      "http_80": false,
+      "rtsp_554": false,
+      "hikvision_8000": false,
+      "dahua_37777": false
+    },
+    "webStatus": "Closed",
+    "serverHeader": "",
+    "authRequired": "",
+    "rtspReply": "Port 554 Closed",
+    "snapshotStatus": "N/A"
+  },
+  {
+    "ip": "10.110.1.22",
+    "name": "Camera An Ninh Zhejiang (10.110.1.22)",
+    "vendor": "Zhejiang Dahua / KBVision Camera",
+    "ports": {
+      "http_80": false,
+      "rtsp_554": false,
+      "hikvision_8000": false,
+      "dahua_37777": false
+    },
+    "webStatus": "Closed",
+    "serverHeader": "",
+    "authRequired": "",
+    "rtspReply": "Port 554 Closed",
+    "snapshotStatus": "N/A"
+  }
+]

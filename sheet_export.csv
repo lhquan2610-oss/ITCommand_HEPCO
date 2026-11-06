@@ -1,0 +1,100 @@
+TỔNG HỢP THIẾT BỊ VĂN PHÒNG,,,,,,,,,,,,,,,
+STT,Người sử dụng,Mã số,Năm trang cấp,CPU,Main,,Ổ Cứng,,RAM,,,Màn hình,Phím,Chuột,Khác
+,,,,,Loại,Hãng,Loại,Dung lượng,Loại,Dung lượng,SL,,,,
+Ban Lãnh Đạo,,,,,,,,,,,,,,,
+1,Phan Lê Hiến,CTHĐQT,2023,i5,B760,Giga,HDD,1T,DDR4,8GB,2,DELL ULTRA,Logitech K580,Logitech M650,"Máy in Canon LBP 233DW, Loa Logitech Z407"
+,,,,,,,SSD,256GB,,,,,,,
+2,Dương Thị Huệ,TTHĐQT,2019,i5,Dell,Dell,HDD,500GB,DDR4,8GB,1,DELL ULTRA,Dell,Dell,HP 4003
+,,,,,,,,,,,,,,,
+3,Trần Quốc Khánh,TGĐ,2022,i5,H510,Dell,HDD,1T,DDR4,8GB,2,DELL P2422H,DELL,G304,Máy in HP 404dn
+,,,,,,,SSD,256GB,,,,,,,
+4,Lê Vĩnh Thắng,PTGĐ02,2023,i5,H510,Giga,HDD,1T,DDR4,8GB,2,DELL P2422H,Logitech MK200,Logitech M650,Máy in HP 402dn
+,,,,,,,SSD,256GB,DDR4,8GB,2,DELL P2422H,,,
+5,Trần Hữu Ân,PTGĐ03,2023,I5,H510,Giga,SSD,256GB,DDR4,8GB,2,DELL P2422H,Logitech K580,Logitech M650,Máy in HP 402dn
+,,,,,,,HDD,1T,,,,,,,
+,,nthha@hepco.com.vn,,,,,,,,,,,,,
+Phòng Tổ chức - hành chính,,,,,,,,,,,,,,,
+6,Trần Ngọc Huy Vũ,TC01,2021,i3-10150,H510M,Giga,WD,1T,DDR4,8GB,1,DELL P2422H,Logi K580,Logi M650,HP 402dn
+7,Nguyễn Thị Hải Hà,TC02,2020,i3-9100,H310-S2H,Giga,WD,1T,DDR4,8GB,1,DELL P2219H,Logi MK200,Logi MK200,
+,,,,,,,SSD,120GB,,,,,,,Scan HP/Ricoh 7502
+8,Trần Hữu Nhân,TC03,2024,i3,H510,Giga,SSD,500GB,DDR4,16GB,1,DELL P2422H,Logi MK200,Logi MK200,
+9,Đặng Lam Trà,TC04,2024,i3,H510,Giga,SSD,500GB,DDR4,16GB,1,DELL P2422H,Logi MK200,Logi MK200,
+10,Nguyễn Trần Minh Châu,TC05,2025,i3,H510,Giga,SSD,500GB,DDR4,16GB,1,DELL P2522H,LogiMK200,LogiMK200,
+11,Võ Thị Hồng Nhung,TC06,2023,i5,H510,Giga,WD,1T,DDR4,8GB,2,DELL P2422H,Logitech MK200,Logitech G102,
+,,,,,,,SSD,256GB,,,,,,,
+12,Huỳnh Phương,TC07,2023,i5,H510,MSI,SSD,512GB,DDR4,8GB,1,DELL P2422H,Logitech MK200,Logitech MK200,
+13,Lê Hồng Quân,TC08,2019,i5,B365,Giga,SSD,256GB,DDR4,8GB,1,DELL E2016Hv,Newmen,Newmen,
+Phòng Kế toán - Tài vụ,,,,,,,,,,,,,,,
+14,Lê Phi Hải,TV01,2023,i5,B760,Giga,HDD,1T,DDR4,8GB,2,DELL ULTRA,Logitech K580,Logitech M650,Canon HP 4003
+,,,,,,,SSD,256GB,,,,,,,
+15,Hoàng Thị Mỹ Hảo,TV02,2019,i3-9100,H310-S2H,Giga,SSD,500GB,DDR4,8GB,1,DELL P2219H,Logitech MK200,Logitech MK200,Canon 3300
+16,Trương Thị Lan Hương,TV03,2022,i3,H510M,Giga,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,Canon 2900
+17,Hồ Thị Xuân Hòa,TV04,2022,i3-10,H510M PRO,MSI,HDD,1T,DDR4,8GB,1,DELL P2422H,Logitech MK200,Logitech MK200,HP 404dn
+18,Phan Thị Trang,TV06,2022,i3-10,H510M,MSI,SSD,1T,DDR4,8GB,1,DELL P2422H,Logitech MK200,Logitech MK200,Canon 3500
+19,Nguyễn Minh Châu,TV07,2024,i3-12,H610M PRO,Giga,SSD,512GB,DDR4,16,1,DELL P2422H,Logitech MK200,Logitech MK200,
+20,Nguyễn Thị Khánh Thu,KH07,2022,i3,H510,Giga,HDD,1T,DDR4,8GB,1,DELL P2219H,Logitech MK220,Logitech MK220,
+Phòng Kế hoạch,,,,,,,,,,,,,,,
+21,Nguyễn Vũ Chánh Nghĩa,KH01,2023,i3,H510,MSI,SSD,256GB,DDR4,8GB,2,DELL P2422H,Logitech MK220,Logitech M650,HP 404dn
+,,,,,,,HDD,1T,,,,,,,
+22,Đào Nhật Quang,KH02,2021,i5,H410,Giga,HDD,1T,DDR4,8GB,1,DELL P2419H,Logitech MK220,Logitech MK220,Canon LBP 243
+23,Đinh Hoàng Dũng,KH03,2021,i5,H410,Giga,SSD,500GB,DDR4,8GB,2,DELL P2419H,Logitech MK220,Logitech MK220,
+24,Trần Ngọc Thành,KH04,2023,i3,H510,Giga,HDD,1T,DDR4,8GB,1,DELL P2422H,Logitech MK220,Logitech MK220,
+25,Lê Phước Quang,KH05,2021,i3,H510M Pro,MSI,HDD,1T,DDR4,8GB,1,DELL P2219H,Logitech MK220,Logitech MK220,
+26,Trần Trung Đức,KH06,2023,i3,H510M Pro,Giga,HDD,1T,DDR4,8GB,1,DELL P2422H,Logitech MK220,Logitech MK220,
+27,Trương Quốc Cường,KH08,2021,i3,H410M-S2H,Giga,HDD,1T,DDR4,8GB,1,DELL E2216Hv,Logitech MK220,Logitech MK220,Canon 3300
+28,Hồ Thị Hoàng Thanh,KH09,2018,G5400,H310,Giga,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Newmen,Logitech,Canon 2900
+29,Đăng Lê Phương Nhi,KH10,2023,i3,H310,DELL,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech,Logitech,
+30,Phạm Việt Huy,NSH08,2019,i3,H110,ASUS,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech,Logitech,
+31,Cao Minh Hiền,TT05,2026,i3,H510,Giga,HDD,1TB,DDR4,8GB,1,DELL P2419H,Logitech MK220,Logitech MK220,
+Phòng Kỹ thuật,,,,,,,,,,,,,,,
+32,Hoàng Ngọc Tú,KH01,2023,i5,H510,MSI,SSD,256GB,DDR4,8GB,2,DELL P2422H,Logitech MK220,Logitech M650,
+,,,,,,,HDD,1T,,,,,,,
+33,Hồ Văn Quyền,KT02,2021,i5,H510M PRO,MSI,HDD,1T,DDR4,8GB,1,DELL P2219H,Logitech MK200,Logitech MK200,HP 404dn/Canon 8780
+34,Nguyễn Hoàng Phúc,KT03,2025,i5,H510,Giga,SSD,500GB,DDR4,8GB,2,DELL P2522H,Logitech,Logitech,
+35,Huỳnh Tấn Thanh,KT04,2018,i3,H310,Giga,HDD,1T,DDR4,8GB,2,DELL P2219H,Vietcom,Vietcom,
+36,Trịnh Lê Nhân,KT05,2018,i3,H310,Giga,HDD,1T,DDR4,8GB,1,DELL P2219H,Vietcom,Vietcom,
+37,Phan Lê Minh Hoàng,KT06,2021,i5,H410,Giga,HDD,1T,DDR4,8GB,1,DELL P2419H,Logitech MK220,Logitech MK220,
+38,Lê Mạnh Hùng,KT07,2018,i3,H310,Giga,HDD,1T,DDR4,8GB,1,DELL P2219H,Vietcom,Vietcom,
+39,Lê Trung,KT08,2026,i5,h510,giga,SSD,500GB,DDR4,16GB,1,Samsung 24 inch,Logitech MK220,Logitech MK220,
+Xí nghiệp Bắc sông Hương,,,,,,,,,,,,,,,
+40,Đinh Ngọc Tuấn,BSH01,2021,i3,H410,Giga,HDD,1T,DDR4,8GB,1,Samsung 23.5,Logitech MK200,Logitech MK200,Canon 2900
+41,Trần Đức Hân,BSH02,2025,i3,H510,MSI,SSD,500GB,DDR4,8GB,1,Samsung 23.5,Logitech MK200,Logitech MK200,
+42,Võ Thị Diệu Phương,BSH03,2023,i3,H510,ASUS,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,Canon 2900
+43,Lê Viết Minh Trí,BSH04,2022,i3,H510,Giga,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,
+44,Nguyễn Đăng Đô,BSH05,2019,i3,H81,Giga,SSD,128GB,DDR3,8GB,1,DELL E2016Hv,Logitech,Logitech,
+45,Nguyễn Lê Tuấn,BSH06,2017,i3,H81,Giga,HDD,500GB,DDR4,8,1,DELL E2016Hv,Logitech,Logitech,
+46,Ngô Văn Cư,BSH07,2025,i3,H510,Giga,HDD,1T,DDR4,8GB,1,Samsung 23.5,Logitech,Logitech,
+Xí nghiệp Nam sông Hương,,,,,,,,,,,,,,,
+47,Dương Nhật Quang,NSH01,2024,i3,H510,Giga,HDD,500GB,DDR4,16GB,1,Samsung,Logitech MK200,Logitech MK200,
+48,Trần Hữu Hóa,NSH02,2020,i3-10100,H410M-S2H,Giga,HDD,1T,DDR4,8GB,1,DELL E2219Hn,Philip,Philip,Canon 2900
+49,Lê Quang Long,NSH03,2024,i3,H510,Giga,SSD,500GB,DDR4,16GB,1,Samsung,Logitech MK200,Logitech MK200,
+50,Nguyễn Văn Chiến,NSH04,2017,G4400,H110,ASUS,HDD,1T,DDR4,4GB,1,Samsung,Philip,Philip,
+51,Nguyễn Văn Nguyên,NSH05,2021,i3,H410M PRO,Giga,HDD,1T,DDR4,8GB,1,DELL E2219Hn,Logitech MK200,Logitech MK200,
+52,Đàm Thị Minh Thảo,NSH06,2021,i3,H510M Bomber,MSI,HDD,1T,DDR4,8GB,1,DELL E2219Hn,Logitech MK200,Logitech MK200,Máy in brother
+53,Vũ Duy Việt,NSH07,2019,G4400,H110,ASUS,HDD,500GB,DDR4,4GB,1,Dell E2016Hv,Mitsubishi,Eblue,
+Xí nghiệp Thoát nước,,,,,,,,,,,,,,,
+54,Đỗ Minh Quảng,TN01,2023,i3,H510M,Giga,HDD,1T,DDR4,8GB,1,DELL P2422H,Logitech MK200,Logitech MK200,HP A3
+55,Nguyễn Xuân Tiến,TN02,2021,i3,H510M PRO,MSI,HDD,1T,DDR4,8GB,1,DELL E2216Hv,Logitech MK200,Logitech MK200,
+56,Nguyễn Trần Thanh Hoàng,TN03,2022,i3,H510M PRO,MSI,HDD,1T,DDR4,8GB,1,DELL E2216Hv,Logitech MK200,Logitech MK200,
+57,Võ Trần Hoàng Chương,TN04,2019,i3,H310,Giga,HDD,1T,DDR4,8GB,1,DELL E2216Hv,Logitech MK200,Logitech MK200,
+Xí nghiệp Xử lý chất thải,,,,,,,,,,,,,,,
+58,Trạm quan trắc,XLCT01,2021,i3,H510M Pro,MSI,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,Canon 2900
+59,Văn Bảo Lân,XLCT02,2021,i3,H510M Pro,MSI,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,
+60,Kiểm toán,XLCT03,2023,i3,H510,Giga,HDD,1T,DDR4,8GB,1,Samsung,Logitech MK200,Logitech MK200,
+61,Trạm cân,XLCT04,2015,G3200,Intel,Intel,HDD,250GB,DDR4,8GB,1,Samsung,Philip,Philip,Canon 2900
+Ban quản trang,,,,,,,,,,,,,,,
+62,Phía Bắc,BQT01,2023,i3,H510M Pro,MSI,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,
+63,Phía Nam,BQT02,2022,i3,H510M H,GIGA,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,
+64,Phía Nam mới,BQT03,2021,i3,H410,Giga,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,
+Xí nghiệp Điện Chiếu sáng,,,,,,,,,,,,,,,
+65,Hoàng Văn Tiến,DCS01,2025,i3,H410,Giga,HDD,1T,DDR4,8GB,1,Samsung 23.5,Logitech MK200,Logitech MK200,Brother máy photo và in
+66,Nguyễn Hữu Thế,DCS02,2022,i3,H410,Giga,HDD,120GB,DDR4,8GB,1,Dell E2219Hv,Logitech MK200,Logitech MK200,Canon LBP2900
+67,Nguyễn Văn Trung,DCS03,2023,i3,H410,Giga,HDD,120GB,DDR4,8GB,1,Dell E2219Hv,Logitech MK200,Logitech MK200,
+Xí nghiệp Cơ khí - Xây lắp,,,,,,,,,,,,,,,
+68,Trần Ngọc Vỹ,CK01,2022,i3,H510M,MSI,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,Canon 2900
+69,Nguyễn Hoàng Phương,CK02,2024,i5 12400,H610M,MSI,SSD,500GB,DDR4,8GB,2,DELL P2422H,Logitech MK200,Logitech MK200,HP404dn
+70,Nguyễn Thị Quy,CK03,2021,i3,H510M Bomber,MSI,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,Canon 2900
+71,Nguyễn Hữu Phương,CK04,2022,i3,H510M,MSI,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,
+72,Ngô Văn Trung,CK05,2021,i3,H510,MSI,HDD,1T,DDR4,8GB,1,DELL E2222HS,Logitech MK200,Logitech MK200,Canon 2900
+Lăng Cô,,,,,,,,,,,,,,,
+1,Hoàng Quang Hưng,LC01,2022,i3,H510,GIGA,HDD,1T,DDR4,8GB,1,DELL E2016Hv,Logitech MK200,Logitech MK200,

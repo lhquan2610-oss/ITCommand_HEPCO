@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after {
+  font-family: 'Times New Roman', Times, serif !important;
+}
+
+html, body {
+  font-family: 'Times New Roman', Times, serif !important;
+}
+
+@layer base {
+  body {
+    background-color: #f8fafc;
+    color: #1e293b;
+    user-select: none;
+    overflow-x: hidden;
+    font-family: 'Times New Roman', Times, serif !important;
+  }
+  .dark body {
+    background-color: #020617;
+    color: #f8fafc;
+  }
+}
+
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Custom scrollbar for White & Environmental Green theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+.glow-green {
+  box-shadow: 0 4px 20px -2px rgba(16, 185, 129, 0.25);
+}
+
+.card-shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card-hover-shadow {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover-shadow:hover {
+  box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.1), 0 8px 10px -6px rgba(5, 150, 105, 0.06);
+  transform: translateY(-2px);
+}
