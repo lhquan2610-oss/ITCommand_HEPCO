@@ -513,11 +513,11 @@ export const SettingsPage: React.FC = () => {
       {/* 1. Header Banner */}
       <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
-            <Settings className="w-5 h-5 text-emerald-600" /> Cài Đặt Hệ Thống & Cập Nhật Live OTA
+          <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 font-['Times_New_Roman']">
+            <Settings className="w-5 h-5 text-emerald-600" /> Cài Đặt Hệ Thống & Bảo Mật
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            Trung tâm kiểm soát tham số quét mạng an toàn (Subnet Guard), tối ưu hiệu năng phần cứng và cập nhật trực tuyến.
+            Trung tâm kiểm soát bảo mật truy cập IP, phân quyền chức năng, quét mạng an toàn và cập nhật trực tuyến.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -542,8 +542,8 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-bold text-slate-800">
-                  Kiểm Soát & Khóa Truy Cập Theo Địa Chỉ IP (IP Whitelist Guard)
+                <h3 className="text-base font-bold text-slate-800 font-['Times_New_Roman']">
+                  Bảo Mật Truy Cập Theo Địa Chỉ IP
                 </h3>
                 <span
                   className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
@@ -556,7 +556,7 @@ export const SettingsPage: React.FC = () => {
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Chỉ cho phép duy nhất các địa chỉ IP được cấp phép (máy tính của bạn) khởi chạy và sử dụng phần mềm HEPCO COMMAND. Các máy tính khác sẽ bị khóa màn hình truy cập ngay lập tức.
+                Chỉ cho phép duy nhất các địa chỉ IP được cấp phép (máy tính của bạn) khởi chạy và sử dụng phần mềm HEPCO COMMAND.
               </p>
             </div>
           </div>
@@ -736,15 +736,15 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-bold text-slate-800">
-                  Phân Quyền Chức Năng Theo Từng Địa Chỉ IP (Role-Based IP Delegation)
+                <h3 className="text-base font-bold text-slate-800 font-['Times_New_Roman']">
+                  Phân Quyền Chức Năng Theo Địa Chỉ IP
                 </h3>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 font-mono">
-                  {userPermissions.length} Người Dùng & Thiết Bị
+                  {userPermissions.length} Người Dùng
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Chia sẻ quyền truy cập giới hạn theo từng địa chỉ IP cụ thể (Ví dụ: Cho phép anh <strong>Trần Ngọc Huy Vũ</strong> (IP <code>10.1.1.88</code>) chỉ được xem <strong>Camera IP</strong>, <strong>Danh sách máy tính</strong> và <strong>Quản lý công văn</strong>).
+                Chỉ định cụ thể từng menu chức năng được phép xem cho từng địa chỉ IP nội bộ HEPCO.
               </p>
             </div>
           </div>
@@ -756,17 +756,17 @@ export const SettingsPage: React.FC = () => {
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-600/20 transition cursor-pointer active:scale-95 shrink-0"
             >
               <Plus className="w-4 h-4" />
-              <span>+ Phân Quyền Cho IP Mới</span>
+              <span>+ Phân Quyền IP Mới</span>
             </button>
           </div>
         </div>
 
         {/* Live Simulation Switcher Callout */}
-        <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
               <Eye className="w-4 h-4 text-indigo-600" />
-              <span>Chế Độ Mô Phỏng Trực Tiếp Giao Diện (Admin Simulation Preview):</span>
+              <span>Chế Độ Mô Phỏng Giao Diện Theo Góc Nhìn Người Dùng:</span>
             </div>
             {simulatedUserIp && (
               <button
@@ -778,9 +778,6 @@ export const SettingsPage: React.FC = () => {
               </button>
             )}
           </div>
-          <p className="text-[11px] text-slate-500 leading-relaxed">
-            Admin có thể bấm vào nút <strong>"Mô Phỏng Giao Diện"</strong> dưới đây để kiểm tra trực tiếp xem màn hình của anh <strong>Trần Ngọc Huy Vũ</strong> hoặc người khác sẽ hiển thị ra sao mà không cần phải chạy sang máy tính của họ.
-          </p>
 
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <button
@@ -793,7 +790,7 @@ export const SettingsPage: React.FC = () => {
               }`}
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Admin Thật (Mặc Định Toàn Quyền)</span>
+              <span>Admin Thật (Toàn Quyền)</span>
             </button>
 
             {userPermissions
@@ -825,13 +822,13 @@ export const SettingsPage: React.FC = () => {
             <table className="w-full text-left text-xs border-collapse font-['Times_New_Roman']">
               <thead>
                 <tr className="bg-[#13522C] text-white font-bold text-[11px] uppercase tracking-wider border-b border-[#0F4022]">
-                  <th className="py-2.5 px-3 text-center w-12 border-r border-[#0F4022]">STT</th>
-                  <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[180px]">Họ và Tên Nhân Viên</th>
-                  <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[150px]">Phòng Ban / Đơn Vị</th>
-                  <th className="py-2.5 px-3 text-center border-r border-[#0F4022] min-w-[110px]">Địa Chỉ IP</th>
-                  <th className="py-2.5 px-3 text-center border-r border-[#0F4022] min-w-[100px]">Vai Trò</th>
-                  <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[280px]">Quyền Xem Chức Năng (Menu)</th>
-                  <th className="py-2.5 px-3 text-right min-w-[160px]">Thao Tác</th>
+                  <th className="py-2.5 px-3 text-center w-12 border-r border-[#0F4022] whitespace-nowrap">STT</th>
+                  <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[200px] whitespace-nowrap">Họ và Tên Nhân Viên</th>
+                  <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[170px] whitespace-nowrap">Phòng Ban / Đơn Vị</th>
+                  <th className="py-2.5 px-3 text-center border-r border-[#0F4022] min-w-[120px] whitespace-nowrap">Địa Chỉ IP</th>
+                  <th className="py-2.5 px-3 text-center border-r border-[#0F4022] min-w-[130px] whitespace-nowrap">Vai Trò</th>
+                  <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[320px] whitespace-nowrap">Quyền Xem Chức Năng (Menu)</th>
+                  <th className="py-2.5 px-3 text-right min-w-[140px] whitespace-nowrap">Thao Tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -847,51 +844,51 @@ export const SettingsPage: React.FC = () => {
                       <td className="py-2.5 px-3 text-center font-mono text-slate-500 border-r border-slate-100">
                         {idx + 1}
                       </td>
-                      <td className="py-2.5 px-3 font-bold text-slate-800 border-r border-slate-100">
-                        <div className="flex items-center gap-1.5">
-                          <span>{u.name}</span>
+                      <td className="py-2.5 px-3 border-r border-slate-100">
+                        <div className="flex items-center gap-1.5 whitespace-nowrap">
+                          <span className="font-bold text-slate-800 text-xs">{u.name}</span>
                           {u.ip === currentIp && (
-                            <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 font-sans font-bold border border-emerald-200">
+                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-sans font-bold border border-emerald-300 whitespace-nowrap">
                               Máy của bạn
                             </span>
                           )}
                         </div>
                         {u.note && (
-                          <div className="text-[11px] text-slate-400 font-normal italic mt-0.5">
+                          <div className="text-[10px] text-slate-400 font-sans italic mt-0.5 max-w-[240px] truncate" title={u.note}>
                             {u.note}
                           </div>
                         )}
                       </td>
-                      <td className="py-2.5 px-3 text-slate-600 border-r border-slate-100">
+                      <td className="py-2.5 px-3 text-slate-600 border-r border-slate-100 whitespace-nowrap">
                         {u.department || 'Bộ phận nội bộ HEPCO'}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-mono font-bold text-indigo-700 border-r border-slate-100">
+                      <td className="py-2.5 px-3 text-center font-mono font-bold text-indigo-700 border-r border-slate-100 whitespace-nowrap">
                         {u.ip}
                       </td>
-                      <td className="py-2.5 px-3 text-center border-r border-slate-100">
+                      <td className="py-2.5 px-3 text-center border-r border-slate-100 whitespace-nowrap min-w-[130px]">
                         <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold font-sans ${
+                          className={`px-3 py-1 rounded-full text-[10px] font-bold font-sans whitespace-nowrap inline-flex items-center justify-center border shadow-2xs ${
                             u.role === 'admin'
-                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                              : 'bg-indigo-100 text-indigo-800 border border-indigo-300'
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                              : 'bg-indigo-50 text-indigo-800 border-indigo-300'
                           }`}
                         >
                           {u.role === 'admin' ? 'Quản Trị Viên' : 'Xem Giới Hạn'}
                         </span>
                       </td>
                       <td className="py-2.5 px-3 border-r border-slate-100">
-                        {u.role === 'admin' ? (
-                          <span className="text-emerald-700 font-bold text-[11px]">
+                        {u.role === 'admin' || u.allowedFeatures.length >= ALL_FEATURES.length ? (
+                          <span className="text-emerald-700 font-bold text-[11px] whitespace-nowrap">
                             ★ Toàn quyền xem & chỉnh sửa toàn bộ 12 phân hệ
                           </span>
                         ) : (
-                          <div className="flex flex-wrap gap-1 font-sans">
+                          <div className="flex flex-wrap gap-1.5 font-sans items-center">
                             {u.allowedFeatures.map((fKey) => {
                               const featureObj = ALL_FEATURES.find((f) => f.key === fKey);
                               return (
                                 <span
                                   key={fKey}
-                                  className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-300"
+                                  className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-300 whitespace-nowrap inline-flex items-center"
                                 >
                                   {featureObj?.label || fKey}
                                 </span>
@@ -900,13 +897,13 @@ export const SettingsPage: React.FC = () => {
                           </div>
                         )}
                       </td>
-                      <td className="py-2.5 px-3 text-right whitespace-nowrap font-sans">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="py-2.5 px-3 text-right whitespace-nowrap font-sans min-w-[140px]">
+                        <div className="flex items-center justify-end gap-1.5 whitespace-nowrap shrink-0">
                           {u.role !== 'admin' && (
                             <button
                               type="button"
                               onClick={() => setSimulatedUserIp(isSimulatingThis ? null : u.ip)}
-                              className={`px-2 py-1 rounded-md text-[10px] font-bold transition cursor-pointer flex items-center gap-1 ${
+                              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition cursor-pointer flex items-center gap-1 whitespace-nowrap shadow-2xs ${
                                 isSimulatingThis
                                   ? 'bg-amber-600 text-white'
                                   : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'
@@ -921,7 +918,7 @@ export const SettingsPage: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleOpenEditPerm(u)}
-                            className="p-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer"
+                            className="p-1.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 transition cursor-pointer shrink-0"
                             title="Chỉnh sửa phân quyền"
                           >
                             <Edit className="w-3.5 h-3.5" />
@@ -931,7 +928,7 @@ export const SettingsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleDeletePerm(u.id)}
-                              className="p-1 rounded-md bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                              className="p-1.5 rounded-md bg-slate-100 hover:bg-rose-100 text-slate-400 hover:text-rose-600 transition cursor-pointer shrink-0"
                               title="Xóa phân quyền IP này"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -948,7 +945,7 @@ export const SettingsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Live OTA Update Center & Audit Changelog Logs */}
+      {/* 3. Live OTA Update Center */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div className="flex items-start gap-3">
@@ -957,15 +954,60 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-bold text-slate-800">
-                  Trung Tâm Cập Nhật Trực Tuyến & Bảng Log Bản Vá (Live OTA Update Center)
+                <h3 className="text-base font-bold text-slate-800 font-['Times_New_Roman']">
+                  Cập Nhật Trực Tuyến (OTA)
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono">
-                  Phiên bản hiện tại: v{appVersion}
-                </span>
+                <div className="inline-flex items-center gap-1.5">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono">
+                    v{appVersion}
+                  </span>
+
+                  {/* Question mark with hover tooltip for changelog */}
+                  <div className="relative group inline-block">
+                    <button
+                      type="button"
+                      className="w-5 h-5 rounded-full bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-600 flex items-center justify-center text-xs font-bold transition shadow-2xs border border-slate-300 hover:border-emerald-600 cursor-help"
+                      title="Rê chuột để xem nhật ký bản vá & lịch sử cập nhật"
+                      aria-label="Xem nhật ký bản vá"
+                    >
+                      ?
+                    </button>
+
+                    {/* Floating Tooltip / Popover on hover */}
+                    <div className="absolute left-0 sm:left-1/2 sm:-translate-x-1/2 top-full mt-2 hidden group-hover:flex flex-col w-80 sm:w-96 p-3.5 bg-slate-900 text-slate-100 text-xs rounded-xl shadow-2xl border border-slate-700 z-50 pointer-events-none transition-all">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-700 font-bold text-emerald-400">
+                        <span className="flex items-center gap-1.5 font-['Times_New_Roman'] text-sm tracking-wide">
+                          <History className="w-4 h-4 text-emerald-400" />
+                          Nhật Ký Phiên Bản & Lịch Sử Bản Vá
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400">v{appVersion}</span>
+                      </div>
+
+                      <div className="mt-2.5 max-h-64 overflow-y-auto space-y-3 pr-1 font-sans">
+                        {updateHistory.map((item) => (
+                          <div key={item.id} className="border-b border-slate-800 pb-2.5 last:border-b-0 last:pb-0">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="font-bold text-amber-300 font-mono">{item.version}</span>
+                              <span className="text-[10px] text-slate-400">{item.timestamp || item.date}</span>
+                            </div>
+                            <div className="text-[11px] font-semibold text-slate-200 mt-0.5">{item.title}</div>
+                            <ul className="mt-1 space-y-0.5 text-[10px] text-slate-300 list-disc list-inside">
+                              {item.changes.map((c, i) => (
+                                <li key={i}>{c}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Pointer arrow */}
+                      <div className="w-2.5 h-2.5 bg-slate-900 border-l border-t border-slate-700 transform rotate-45 absolute -top-1.5 left-3 sm:left-1/2 sm:-translate-x-1/2"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Kiểm tra gói cập nhật từ máy chủ nội bộ LAN HEPCO, nạp tự động phân quyền IP, dữ liệu POS, công văn và lưu toàn bộ nhật ký phiên bản.
+                Kiểm tra gói cập nhật từ máy chủ nội bộ LAN HEPCO, nạp tự động phân quyền IP, dữ liệu POS và công văn.
               </p>
             </div>
           </div>
@@ -1041,89 +1083,6 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
         )}
-
-        {/* Audit Log Table: Every Update Recorded */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
-              <History className="w-4 h-4 text-emerald-700" />
-              <span>Bảng Nhật Ký Lịch Sử Cập Nhật & Bản Vá (Update Changelog & Audit Logs)</span>
-            </div>
-            <span className="text-[11px] font-mono text-slate-500 font-normal">
-              Đã ghi nhận: {updateHistory.length} phiên bản
-            </span>
-          </div>
-
-          <div className="rounded-xl border border-slate-200 overflow-hidden shadow-2xs">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-collapse font-['Times_New_Roman']">
-                <thead>
-                  <tr className="bg-[#13522C] text-white font-bold text-[11px] uppercase tracking-wider border-b border-[#0F4022]">
-                    <th className="py-2.5 px-3 text-center w-12 border-r border-[#0F4022]">STT</th>
-                    <th className="py-2.5 px-3 text-center border-r border-[#0F4022] min-w-[95px]">Phiên Bản</th>
-                    <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[130px]">Thời Gian</th>
-                    <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[320px]">Nội Dung Cập Nhật & Tính Năng Mới</th>
-                    <th className="py-2.5 px-3 text-center border-r border-[#0F4022] min-w-[110px]">Phân Loại</th>
-                    <th className="py-2.5 px-3 border-r border-[#0F4022] min-w-[170px]">Người Thực Hiện</th>
-                    <th className="py-2.5 px-3 text-center min-w-[110px]">Trạng Thái</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {updateHistory.map((item, idx) => (
-                    <tr key={item.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="py-2.5 px-3 text-center font-mono text-slate-500 border-r border-slate-100">
-                        {idx + 1}
-                      </td>
-                      <td className="py-2.5 px-3 text-center border-r border-slate-100">
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                          {item.version}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 font-mono text-slate-600 border-r border-slate-100 whitespace-nowrap">
-                        {item.timestamp}
-                      </td>
-                      <td className="py-2.5 px-3 border-r border-slate-100">
-                        <div className="font-bold text-slate-900 text-xs mb-1">
-                          {item.title}
-                        </div>
-                        <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-600 font-sans">
-                          {item.changes.map((c, cIdx) => (
-                            <li key={cIdx} className="leading-relaxed">
-                              {c}
-                            </li>
-                          ))}
-                        </ul>
-                      </td>
-                      <td className="py-2.5 px-3 text-center border-r border-slate-100 font-sans">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            item.type === 'feature'
-                              ? 'bg-blue-50 text-blue-800 border border-blue-200'
-                              : item.type === 'hotfix'
-                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                              : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                          }`}
-                        >
-                          {item.type === 'feature' ? 'Tính Năng Mới' : item.type === 'hotfix' ? 'Bản Vá Lỗi' : 'Kiến Trúc'}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 border-r border-slate-100 font-sans">
-                        <div className="font-bold text-slate-700 text-xs">{item.operator}</div>
-                        <div className="text-[10px] font-mono text-slate-400 mt-0.5">IP: {item.ip}</div>
-                      </td>
-                      <td className="py-2.5 px-3 text-center font-sans">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                          <CheckCircle className="w-3 h-3 text-emerald-600" />
-                          <span>Thành Công</span>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">

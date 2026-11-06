@@ -305,15 +305,15 @@ export const DispatchesPage: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="font-extrabold text-base text-slate-800 dark:text-slate-100 tracking-tight font-['Times_New_Roman']">
-                QUẢN LÝ CÔNG VĂN & VĂN BẢN (BASE OFFICE)
+                Quản Lý Công Văn & Văn Bản
               </h1>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1 shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Base.vn Live Token v2 (100% Real Data)
+                Base Office Live
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2 flex-wrap">
-              <span>Hệ sinh thái điều hành công văn đi, đến, nội bộ, tờ trình và nhiệm vụ HEPCO</span>
+              <span>Hệ thống điều hành công văn đi, đến, nội bộ và tờ trình HEPCO</span>
               <span className="text-slate-300 dark:text-slate-700">|</span>
               <span className="font-mono text-indigo-700 dark:text-indigo-400 font-semibold text-[11px]">
                 Token: {healthStatus?.token_preview || '9386~gzfd...usc'}

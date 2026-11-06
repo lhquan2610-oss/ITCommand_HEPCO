@@ -254,16 +254,16 @@ export const FleetTrackingPage: React.FC = () => {
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-xs">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Left: Branding & Multi-System Selector */}
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 shrink-0">
               <Truck className="w-4 h-4" />
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100 whitespace-nowrap font-['Times_New_Roman'] tracking-tight">
-                  GIÁM SÁT HÀNH TRÌNH ĐỘI XE RÁC (GPS FLEET COMMAND)
+                  Giám Sát Hành Trình Đội Xe (GPS)
                 </h1>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 inline-flex items-center gap-1 shrink-0 whitespace-nowrap">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   Trực Tuyến 24/7
                 </span>
@@ -275,7 +275,7 @@ export const FleetTrackingPage: React.FC = () => {
           </div>
 
           {/* Right: Actions - Fixed Alignment Never Broken */}
-          <div className="flex items-center gap-2 shrink-0 flex-nowrap self-end md:self-auto">
+          <div className="flex items-center gap-2 shrink-0 flex-nowrap self-start sm:self-auto">
             {activeTab === 'cmsv6' && (
               <button
                 onClick={handleLaunchCmsv6App}
@@ -291,10 +291,10 @@ export const FleetTrackingPage: React.FC = () => {
               onClick={handleLaunchDedicatedWindow}
               disabled={isLaunching}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition active:scale-95 cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
-              title="Mở cửa sổ giám sát độc lập, tự động đăng nhập"
+              title={`Mở cửa sổ ${current.name} độc lập, tự động đăng nhập`}
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>{isLaunching ? 'Đang mở...' : `Mở Cửa Sổ ${current.name} (Tự Động Đăng Nhập)`}</span>
+              <span>{isLaunching ? 'Đang mở...' : 'Mở Cửa Sổ Riêng'}</span>
             </button>
 
             <button
@@ -303,7 +303,7 @@ export const FleetTrackingPage: React.FC = () => {
               title="Mở bằng trình duyệt web bên ngoài"
             >
               <ExternalLink className="w-3.5 h-3.5 text-slate-500" />
-              <span>Mở Trình Duyệt Ngoài</span>
+              <span>Trình Duyệt Ngoài</span>
             </button>
 
             <button
