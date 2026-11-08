@@ -426,15 +426,23 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
     setImouViewMode(mode);
   };
 
-  // Filter cameras belonging to each NVR
-  const nvr1Cams = cameras.filter((c) => c.parent_nvr === '10.110.1.13' || c.ip === '10.110.1.13');
-  const nvr2Cams = cameras.filter((c) => c.parent_nvr === '10.110.1.80' || c.ip === '10.110.1.80');
-  const bairacCams = cameras.filter(
-    (c) => c.parent_nvr === '113.161.8.149' || c.ip === '113.161.8.149'
+  // Filter cameras belonging to each NVR (null-safe on display_name / name / ip)
+  const safeCameras = Array.isArray(cameras) ? cameras : [];
+  const nvr1Cams = safeCameras.filter(
+    (c) => c && (c.parent_nvr === '10.110.1.13' || c.ip === '10.110.1.13')
   );
-  const imouCams = cameras.filter(
-    (c) => c.parent_nvr === 'IMOU_CLOUD' || c.ip.includes('Imou') || c.name.includes('Imou')
+  const nvr2Cams = safeCameras.filter(
+    (c) => c && (c.parent_nvr === '10.110.1.80' || c.ip === '10.110.1.80')
   );
+  const bairacCams = safeCameras.filter(
+    (c) => c && (c.parent_nvr === '113.161.8.149' || c.ip === '113.161.8.149')
+  );
+  const imouCams = safeCameras.filter((c) => {
+    if (!c) return false;
+    const ipStr = String(c.ip || '').toLowerCase();
+    const nameStr = String(c.display_name || (c as any).name || '').toLowerCase();
+    return c.parent_nvr === 'IMOU_CLOUD' || ipStr.includes('imou') || nameStr.includes('imou');
+  });
 
   const activeNvr1Meta = NVR1_CHANNELS.find((c) => c.ch === nvr1ActiveChannel) || NVR1_CHANNELS[0];
   const activeNvr2Meta = NVR2_CHANNELS.find((c) => c.ch === nvr2ActiveChannel) || NVR2_CHANNELS[0];
@@ -589,7 +597,7 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
               className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs transition cursor-pointer flex items-center gap-1.5 border border-slate-200 dark:border-slate-700"
             >
               <List className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>Danh Sách ({cameras.length})</span>
+              <span>Danh Sách ({safeCameras.length})</span>
             </button>
           )}
         </div>
@@ -1904,7 +1912,7 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
             onClick={() => onSwitchToListMode('ALL')}
             className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition cursor-pointer flex items-center gap-2 shrink-0 active:scale-95"
           >
-            <span>Mở Danh Sách Chi Tiết ({cameras.length} Thiết Bị)</span>
+            <span>Mở Danh Sách Chi Tiết ({safeCameras.length} Thiết Bị)</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         )}
