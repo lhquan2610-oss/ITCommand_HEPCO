@@ -52,7 +52,9 @@ export const SecurityLockoutScreen: React.FC = () => {
 
           <div className="space-y-0.5">
             <div className="flex items-center justify-center gap-2">
-              <img src={HEPCO_LOGO} alt="HEPCO" className="w-5 h-5 rounded-full object-contain" />
+              <div className="w-6 h-6 p-0.5 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
+                <img src={HEPCO_LOGO} alt="HEPCO" className="w-full h-full rounded-md object-contain sharp-logo" />
+              </div>
               <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">
                 HEPCO IT COMMAND CENTER
               </span>

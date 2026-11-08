@@ -460,15 +460,15 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
   return (
     <div className="space-y-5">
       {/* 1. Global Live Stream Control & View Mode Switcher Banner */}
-      <div className="p-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-white dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 rounded-2xl border border-emerald-200 dark:border-emerald-800 shadow-xs flex flex-col xl:flex-row items-start xl:items-center justify-between gap-3 transition-colors">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold shadow-xs shrink-0">
-            <Video className="w-5 h-5 animate-pulse" />
+      <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-white dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 rounded-2xl border border-emerald-200/90 dark:border-emerald-800 shadow-sm flex flex-col xl:flex-row items-start xl:items-center justify-between gap-3.5 transition-colors">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold shadow-md shadow-emerald-600/20 shrink-0">
+            <Video className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 flex-wrap">
+            <div className="text-sm md:text-base font-black text-slate-800 dark:text-slate-100 flex items-center gap-2 flex-wrap tracking-tight">
               <span>TRUNG TÂM GIÁM SÁT AN NINH TẬP TRUNG HEPCO (02 NVR + BÃI RÁC + IMOU CLOUD)</span>
-              <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 dark:bg-emerald-900/80 dark:text-emerald-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 dark:bg-emerald-950/70 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/80 px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
                 LIVE 24/7 TRỰC TIẾP
               </span>

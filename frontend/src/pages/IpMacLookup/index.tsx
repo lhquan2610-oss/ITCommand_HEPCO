@@ -107,14 +107,14 @@ export const IpMacLookupPage: React.FC = () => {
   return (
     <div className="space-y-5 max-w-7xl mx-auto font-sans pb-10">
       {/* Header & Search Form Card */}
-      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm transition-colors">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5">
           <div className="flex items-center gap-3.5">
-            <div className="w-11 h-11 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shadow-xs shrink-0">
-              <Search className="w-5 h-5" />
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/60 dark:to-slate-800 border border-emerald-200/80 dark:border-emerald-700/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs shrink-0">
+              <Search className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+              <h2 className="text-lg md:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
                 Tra Cứu Địa Chỉ IP & Định Danh Thiết Bị MAC
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -124,8 +124,8 @@ export const IpMacLookupPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+            <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700 flex items-center gap-1.5 shadow-2xs">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>{inventory.length} Thiết Bị Đã Định Danh</span>
             </span>
           </div>

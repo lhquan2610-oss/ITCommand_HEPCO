@@ -536,17 +536,21 @@ export const ComputerInventoryPage: React.FC = () => {
       )}
 
       {/* 1. Header Banner */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4.5 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center p-1 shadow-xs shrink-0">
-            <img src={HEPCO_LOGO} alt="HEPCO Logo" className="w-full h-full object-contain rounded-full" />
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-emerald-500/30 dark:border-emerald-500/40 flex items-center justify-center p-1.5 shadow-xs shrink-0">
+            <img
+              src={HEPCO_LOGO}
+              alt="HEPCO Logo"
+              className="w-full h-full object-contain rounded-xl sharp-logo"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-lg font-black text-slate-800 dark:text-slate-100 tracking-tight">
+              <h1 className="text-lg md:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
                 Danh Sách Máy Tính, Máy Chủ & Thiết Bị Wi-Fi
               </h1>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/80 shadow-2xs">
                 {computers.length} Thiết Bị
               </span>
             </div>
@@ -560,7 +564,7 @@ export const ComputerInventoryPage: React.FC = () => {
           <button
             onClick={handleExportExcel}
             disabled={isExporting}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition cursor-pointer disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition active:scale-95 cursor-pointer disabled:opacity-50"
             title="Xuất bảng kiểm kê thiết bị máy tính, máy chủ ra file Excel chuẩn doanh nghiệp"
           >
             <Download className="w-3.5 h-3.5" />
@@ -573,10 +577,10 @@ export const ComputerInventoryPage: React.FC = () => {
       <div className="flex items-center gap-2.5 overflow-x-auto pb-1 text-xs">
         <button
           onClick={() => setSelectedDeptFilter('ALL')}
-          className={`px-3 py-1.5 rounded-xl font-bold border transition flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-xl font-bold border transition flex items-center gap-1.5 cursor-pointer ${
             selectedDeptFilter === 'ALL'
-              ? 'bg-slate-800 text-white border-slate-800'
-              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+              ? 'bg-slate-800 text-white border-slate-800 dark:bg-emerald-600 dark:border-emerald-600 shadow-xs'
+              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
           }`}
         >
           <Computer className="w-3.5 h-3.5 text-slate-400" />
@@ -585,10 +589,10 @@ export const ComputerInventoryPage: React.FC = () => {
 
         <button
           onClick={() => setSelectedDeptFilter('Máy chủ')}
-          className={`px-3 py-1.5 rounded-xl font-bold border transition flex items-center gap-1.5 ${
+          className={`px-3 py-1.5 rounded-xl font-bold border transition flex items-center gap-1.5 cursor-pointer ${
             selectedDeptFilter === 'Máy chủ'
-              ? 'bg-indigo-600 text-white border-indigo-600'
-              : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
+              ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+              : 'bg-white dark:bg-slate-800 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40'
           }`}
         >
           <Server className="w-3.5 h-3.5" />
@@ -598,13 +602,13 @@ export const ComputerInventoryPage: React.FC = () => {
         {wifiCount > 0 && (
           <button
             onClick={() => setSelectedDeptFilter('Wi-Fi')}
-            className={`px-3 py-1.5 rounded-xl font-bold border transition flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-xl font-bold border transition flex items-center gap-1.5 cursor-pointer ${
               selectedDeptFilter === 'Wi-Fi'
-                ? 'bg-sky-600 text-white border-sky-600'
-                : 'bg-white text-sky-700 border-sky-200 hover:bg-sky-50'
+                ? 'bg-sky-600 text-white border-sky-600 shadow-xs'
+                : 'bg-white dark:bg-slate-800 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800 hover:bg-sky-50 dark:hover:bg-sky-950/40'
             }`}
           >
-            <Wifi className="w-3.5 h-3.5 text-sky-600" />
+            <Wifi className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
             <span>Wi-Fi ({wifiCount})</span>
           </button>
         )}

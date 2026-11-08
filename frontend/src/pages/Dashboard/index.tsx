@@ -199,18 +199,22 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto font-sans">
       {/* Top Banner - White & Environmental Green Theme */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-6 rounded-2xl bg-white border border-slate-200 shadow-sm relative overflow-hidden">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-5 md:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm relative overflow-hidden transition-colors">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center p-2 shadow-sm shrink-0">
-            <img src={HEPCO_LOGO} alt="HEPCO Logo" className="w-full h-full object-contain rounded-full" />
+          <div className="w-13 h-13 rounded-2xl bg-white dark:bg-slate-800 border border-emerald-500/30 dark:border-emerald-500/40 flex items-center justify-center p-1.5 shadow-xs shrink-0">
+            <img
+              src={HEPCO_LOGO}
+              alt="HEPCO Logo"
+              className="w-full h-full object-contain rounded-xl sharp-logo"
+            />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
               <h2 className="text-lg md:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
                 Trung Tâm Điều Hành Hệ Thống CNTT HEPCO
               </h2>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span> SẴN SÀNG 100%
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-300 dark:border-emerald-700/80 flex items-center gap-1.5 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> SẴN SÀNG 100%
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

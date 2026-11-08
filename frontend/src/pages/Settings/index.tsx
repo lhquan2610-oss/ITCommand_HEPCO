@@ -569,25 +569,30 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="space-y-5 max-w-7xl mx-auto pb-10 font-sans">
       {/* 1. Header Banner */}
-      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-lg font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
-            <Settings className="w-5 h-5 text-emerald-600" /> Cài Đặt Hệ Thống & Phân Quyền Truy Cập
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Quản lý bảo mật địa chỉ IP, phân quyền chức năng theo người dùng và cập nhật phiên bản phần mềm
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleCheckOta}
-            title="Bấm để kiểm tra phiên bản và cập nhật mới"
-            className="text-xs px-3 py-1.5 rounded-full font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isCheckingOta ? 'animate-spin text-emerald-600' : ''}`} />
-            <span>Phiên bản: v{appVersion} (Kiểm tra cập nhật)</span>
-          </button>
+      <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
+        <div className="flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/60 dark:to-slate-800 border border-emerald-200/80 dark:border-emerald-700/60 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-xs shrink-0">
+            <Settings className="w-6 h-6 animate-[spin_10s_linear_infinite]" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-lg md:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
+                Cài Đặt Hệ Thống & Phân Quyền Truy Cập
+              </h2>
+              <button
+                type="button"
+                onClick={handleCheckOta}
+                title="Bấm để kiểm tra phiên bản và cập nhật mới"
+                className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Phiên bản: v{appVersion}</span>
+              </button>
+            </div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Quản lý bảo mật địa chỉ IP, phân quyền chức năng theo người dùng và cập nhật phiên bản phần mềm
+            </p>
+          </div>
         </div>
       </div>
 

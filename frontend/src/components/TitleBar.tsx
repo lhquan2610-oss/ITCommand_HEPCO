@@ -53,26 +53,28 @@ export const TitleBar: React.FC = () => {
   const handleClose = () => window.hiccDesktop?.close();
 
   return (
-    <div className="h-10 bg-white border-b border-slate-200 flex items-center justify-between select-none text-xs drag-region px-3 z-50 shadow-xs">
+    <div className="h-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between select-none text-xs drag-region px-3 z-50 shadow-xs transition-colors">
       {/* App Branding & Logo */}
-      <div className="flex items-center gap-2.5 font-semibold">
-        <img
-          src={HEPCO_LOGO}
-          alt="HEPCO Logo"
-          className="w-6 h-6 object-contain rounded-full shadow-xs shrink-0"
-        />
-        <span className="font-bold tracking-tight text-slate-800 text-[13px] flex items-center gap-1.5">
+      <div className="flex items-center gap-2 font-semibold">
+        <div className="w-6 h-6 p-0.5 rounded-lg bg-white dark:bg-slate-800 border border-emerald-500/30 dark:border-emerald-500/40 shadow-2xs flex items-center justify-center shrink-0">
+          <img
+            src={HEPCO_LOGO}
+            alt="HEPCO Logo"
+            className="w-full h-full object-contain rounded-md sharp-logo"
+          />
+        </div>
+        <span className="font-extrabold tracking-tight text-slate-800 dark:text-slate-100 text-[13px] flex items-center gap-1.5">
           <span>HEPCO</span>
-          <span className="text-emerald-700 font-extrabold">COMMAND</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-black">COMMAND</span>
         </span>
       </div>
 
       {/* Center Status Pill */}
-      <div className="hidden md:flex items-center gap-2 no-drag px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 font-medium">
+      <div className="hidden md:flex items-center gap-2 no-drag px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-[11px] text-emerald-900 dark:text-emerald-200 font-medium shadow-2xs">
         <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
         <span className="font-semibold">Hạ Tầng Mạng Nội Bộ HEPCO</span>
-        <span className="text-emerald-300">|</span>
-        <span className="text-emerald-700 font-bold">HOẠT ĐỘNG 100% OFFLINE</span>
+        <span className="text-emerald-300 dark:text-emerald-700">|</span>
+        <span className="text-emerald-700 dark:text-emerald-400 font-bold">HOẠT ĐỘNG 100% OFFLINE</span>
       </div>
 
       {/* Windows Window Controls */}
@@ -80,14 +82,14 @@ export const TitleBar: React.FC = () => {
         <div className="flex items-center no-drag">
           <button
             onClick={handleMinimize}
-            className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition rounded"
+            className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition rounded"
             title="Thu nhỏ"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={handleMaximize}
-            className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition rounded"
+            className="w-9 h-9 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition rounded"
             title={isMaximized ? "Thu nhỏ kích thước" : "Phóng to"}
           >
             {isMaximized ? <Copy className="w-3 h-3 rotate-180" /> : <Square className="w-3 h-3" />}
@@ -101,7 +103,7 @@ export const TitleBar: React.FC = () => {
           </button>
         </div>
       ) : (
-        <div className="text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+        <div className="text-[11px] text-emerald-700 dark:text-emerald-300 font-semibold bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
           Bản Trình Duyệt Web
         </div>
       )}

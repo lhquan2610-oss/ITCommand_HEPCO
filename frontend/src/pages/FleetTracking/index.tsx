@@ -173,24 +173,24 @@ export const FleetTrackingPage: React.FC = () => {
   return (
     <div className="flex flex-col h-full space-y-3 max-w-[1600px] mx-auto select-none">
       {/* 1. Header & System Switcher Bar */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 shadow-xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm transition-colors">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5">
           {/* Left: Branding & Multi-System Selector */}
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 shrink-0">
-              <Truck className="w-4 h-4" />
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 shrink-0">
+              <Truck className="w-6 h-6" />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="font-bold text-sm sm:text-base text-slate-800 dark:text-slate-100 whitespace-nowrap font-['Times_New_Roman'] tracking-tight">
+                <h1 className="font-black text-lg md:text-xl text-slate-800 dark:text-slate-100 tracking-tight">
                   Giám Sát Hành Trình Đội Xe (GPS)
                 </h1>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 inline-flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/80 inline-flex items-center gap-1.5 shrink-0 shadow-2xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                   Trực Tuyến 24/7
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-xl">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-xl">
                 {current.description}
               </p>
             </div>

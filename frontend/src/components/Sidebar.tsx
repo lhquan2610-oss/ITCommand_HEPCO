@@ -62,22 +62,27 @@ export const Sidebar: React.FC = () => {
       {/* Brand Header */}
       <div className={`h-14 ${isCollapsed ? 'px-2 justify-center' : 'px-3.5 justify-between'} flex items-center border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900`}>
         <div className="flex items-center gap-2.5 min-w-0">
-          <img
-            src={HEPCO_LOGO}
-            alt="HEPCO Logo"
-            className="w-9 h-9 object-contain rounded-full shadow-xs shrink-0 ring-1 ring-emerald-500/20"
-          />
+          <div className="w-9 h-9 p-0.5 rounded-xl bg-white dark:bg-slate-800 border border-emerald-500/25 dark:border-emerald-500/40 shadow-xs flex items-center justify-center shrink-0">
+            <img
+              src={HEPCO_LOGO}
+              alt="HEPCO Logo"
+              className="w-full h-full object-contain rounded-lg sharp-logo"
+            />
+          </div>
           {!isCollapsed && (
             <div className="min-w-0">
-              <div className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-100 leading-none">
-                HEPCO <span className="text-emerald-600 dark:text-emerald-400 font-bold">COMMAND</span>
+              <div className="font-extrabold text-[13px] tracking-tight text-slate-800 dark:text-slate-100 leading-none">
+                HEPCO <span className="text-emerald-600 dark:text-emerald-400 font-black">COMMAND</span>
+              </div>
+              <div className="text-[9px] font-medium text-slate-400 dark:text-slate-500 tracking-wider uppercase mt-1">
+                IT Operations Center
               </div>
             </div>
           )}
         </div>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           title={isCollapsed ? 'Mở rộng thanh menu' : 'Thu gọn thanh menu'}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
