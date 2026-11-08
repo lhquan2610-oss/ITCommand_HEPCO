@@ -39,6 +39,7 @@ import { StatusBadge } from '../../components/StatusBadge';
 import { getDashboardSummary, getStatusDistribution, getRecentActivity } from '../../services/api';
 import { DashboardSummary } from '../../types';
 import { HEPCO_LOGO } from '../../assets/logoBase64';
+import { getCachedInventorySync, loadInventoryFast } from '../../utils/inventoryCache';
 
 // Real-time Latency & Bandwidth Mock Data
 const REALTIME_LATENCY_DATA = [
@@ -100,37 +101,8 @@ export const DashboardPage: React.FC = () => {
   const [isScanningNow, setIsScanningNow] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      let rawList: any[] = [];
-      if (window.hiccDesktop?.loadInventory) {
-        try {
-          const invRes = await window.hiccDesktop.loadInventory();
-          if (invRes.success && Array.isArray(invRes.devices) && invRes.devices.length > 0) {
-            rawList = invRes.devices;
-          }
-        } catch {}
-      }
-
-      if (rawList.length === 0) {
-        const saved = localStorage.getItem('hicc_real_devices_inventory');
-        if (saved) {
-          try {
-            rawList = JSON.parse(saved);
-          } catch {}
-        }
-      }
-
-      if (rawList.length === 0) {
-        try {
-          const res = await fetch('/data/devices_inventory.json');
-          if (res.ok) {
-            rawList = await res.json();
-          }
-        } catch {}
-      }
-
+    const applyInventory = (rawList: any[]) => {
       if (rawList.length > 0) {
-        rawList = rawList.filter((d: any) => d.ip !== '10.2.1.154');
         const ws = rawList.filter((d: any) => d.category === 'WORKSTATION').length;
         const cam = rawList.filter((d: any) => d.category === 'CAMERA').length;
         const prn = rawList.filter((d: any) => d.category === 'PRINTER').length;
@@ -158,8 +130,18 @@ export const DashboardPage: React.FC = () => {
         } as any);
       }
     };
+
+    const cached = getCachedInventorySync();
+    if (cached.length > 0) {
+      applyInventory(cached);
+    }
+
+    const fetchData = async () => {
+      const rawList = await loadInventoryFast();
+      applyInventory(rawList);
+    };
     fetchData();
-    const timer = setInterval(fetchData, 15000);
+    const timer = setInterval(() => loadInventoryFast(true).then(applyInventory), 20000);
     return () => clearInterval(timer);
   }, []);
 
@@ -223,16 +205,16 @@ export const DashboardPage: React.FC = () => {
             <img src={HEPCO_LOGO} alt="HEPCO Logo" className="w-full h-full object-contain rounded-full" />
           </div>
           <div>
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-xl md:text-2xl font-black text-slate-800 tracking-tight">
-                TRUNG TÂM ĐIỀU HÀNH CNTT HEPCO
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="text-lg md:text-xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
+                Trung Tâm Điều Hành Hệ Thống CNTT HEPCO
               </h2>
               <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-300 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span> SẴN SÀNG 100%
               </span>
             </div>
-            <p className="text-xs md:text-sm text-slate-500 mt-1">
-              Hệ thống Giám sát Hạ tầng Mạng, Máy chủ và Quản lý Thiết bị CNTT Công ty Cổ phần Môi trường và Công trình Đô thị Huế.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Tổng quan trạng thái hoạt động hạ tầng mạng, máy chủ và thiết bị công nghệ thông tin toàn công ty
             </p>
           </div>
         </div>
@@ -321,12 +303,12 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <Wifi className="w-4 h-4 text-emerald-600" /> Độ Trễ Mạng Nội Bộ (Latency RTT ms)
+                <Wifi className="w-4 h-4 text-emerald-600" /> Độ Trễ Mạng Nội Bộ (Ping RTT)
               </h3>
-              <p className="text-[11px] text-slate-500">Giám sát Gateway (10.0.0.1) & DNS Server</p>
+              <p className="text-[11px] text-slate-500">Theo dõi tốc độ phản hồi kết nối đến Gateway trung tâm và Internet</p>
             </div>
             <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono font-bold">
-              Avg: 1.4ms
+              Trung bình: 1.4ms
             </span>
           </div>
           <div className="h-56 w-full">
@@ -351,13 +333,13 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-emerald-600" /> Lưu Lượng Đường Truyền Mạng (Bandwidth Mbps)
+                <TrendingUp className="w-4 h-4 text-emerald-600" /> Lưu Lượng Đường Truyền (Mbps)
               </h3>
-              <p className="text-[11px] text-slate-500">Tổng tải cổng Core Uplink Văn phòng & Chi nhánh</p>
+              <p className="text-[11px] text-slate-500">Biểu đồ băng thông tải xuống và tải lên theo thời gian thực</p>
             </div>
             <div className="flex items-center gap-2 text-[11px] font-mono font-bold">
-              <span className="text-emerald-700 flex items-center"><ArrowDownRight className="w-3.5 h-3.5" /> DL: 205 Mbps</span>
-              <span className="text-sky-700 flex items-center"><ArrowUpRight className="w-3.5 h-3.5" /> UL: 65 Mbps</span>
+              <span className="text-emerald-700 flex items-center"><ArrowDownRight className="w-3.5 h-3.5" /> Tải xuống: 205 Mbps</span>
+              <span className="text-sky-700 flex items-center"><ArrowUpRight className="w-3.5 h-3.5" /> Tải lên: 65 Mbps</span>
             </div>
           </div>
           <div className="h-56 w-full">
@@ -390,10 +372,13 @@ export const DashboardPage: React.FC = () => {
       {/* Server Health Status Grid */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <Server className="w-4 h-4 text-emerald-600" /> Tình Trạng Máy Chủ & Hạ Tầng Lõi (Servers & Core Infrastructure)
-          </h3>
-          <span className="text-xs text-slate-500 font-mono">SNMP / Agent Telemetry</span>
+          <div>
+            <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+              <Server className="w-4 h-4 text-emerald-600" /> Trạng Thái Hệ Thống Máy Chủ
+            </h3>
+            <p className="text-[11px] text-slate-500 mt-0.5">Giám sát hiệu suất CPU, RAM và dung lượng lưu trữ các máy chủ chính</p>
+          </div>
+          <span className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold">Hoạt động ổn định</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">

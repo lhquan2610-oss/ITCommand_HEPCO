@@ -454,17 +454,17 @@ export const TrafficMonitorPage: React.FC = () => {
               <Activity className="w-5 h-5 animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                  Giám Sát Lưu Lượng Mạng & Phát Hiện Bất Thường
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg md:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                  Giám Sát Lưu Lượng & Cảnh Báo Mạng
                 </h1>
                 <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                  NDIS REALTIME
+                  Trực Tuyến
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Đo lường thời gian thực qua giao diện mạng • Tự động phát hiện IP chiếm dụng băng thông, Spike Download/Upload, Broadcast Storm
+                Theo dõi băng thông thời gian thực và phát hiện sớm các kết nối tiêu thụ lưu lượng bất thường
               </p>
             </div>
           </div>

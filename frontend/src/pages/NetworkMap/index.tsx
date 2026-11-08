@@ -27,6 +27,8 @@ import {
   X,
 } from 'lucide-react';
 
+import { getCachedInventorySync, loadInventoryFast } from '../../utils/inventoryCache';
+
 interface DeviceItem {
   id: string;
   display_name: string;
@@ -45,51 +47,18 @@ interface DeviceItem {
 }
 
 export const NetworkMapPage: React.FC = () => {
-  const [devices, setDevices] = useState<DeviceItem[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [devices, setDevices] = useState<DeviceItem[]>(() => getCachedInventorySync());
+  const [loading, setLoading] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'HIERARCHY' | 'SUBNETS' | 'BRANCHES'>('HIERARCHY');
   const [selectedNode, setSelectedNode] = useState<DeviceItem | null>(null);
   const [search, setSearch] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('ALL');
 
   useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      let realList: DeviceItem[] = [];
-
-      if (window.hiccDesktop?.loadInventory) {
-        try {
-          const res = await window.hiccDesktop.loadInventory();
-          if (res.success && Array.isArray(res.devices)) {
-            realList = res.devices;
-          }
-        } catch {}
-      }
-
-      if (realList.length === 0) {
-        const saved = localStorage.getItem('hicc_real_devices_inventory');
-        if (saved) {
-          try {
-            realList = JSON.parse(saved);
-          } catch {}
-        }
-      }
-
-      if (realList.length === 0) {
-        try {
-          const res = await fetch('/data/devices_inventory.json');
-          if (res.ok) {
-            realList = await res.json();
-            localStorage.setItem('hicc_real_devices_inventory', JSON.stringify(realList));
-          }
-        } catch {}
-      }
-
-      setDevices(realList);
+    loadInventoryFast().then((realList) => {
+      if (realList.length > 0) setDevices(realList);
       setLoading(false);
-    };
-
-    load();
+    });
   }, []);
 
   const handlePing = async (ip: string) => {
@@ -159,16 +128,16 @@ export const NetworkMapPage: React.FC = () => {
             <Share2 className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                Sơ Đồ Mạng Đa Tầng L2/L3 & Ma Trận Phân Vùng HEPCO
+                Sơ Đồ Kiến Trúc Mạng & Phân Vùng Dải IP
               </h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-300">
-                100% OFFLINE LAN
+                Mạng Nội Bộ LAN
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Toàn cảnh kiến trúc kết nối: Router Gateway ➔ Core Switch L3 & Server Farm ➔ 11 Switch/Wi-Fi Chi Nhánh ➔ 2 Đầu Ghi NVR & 142 Thiết Bị Đầu Cuối
+              Cấu trúc kết nối từ Gateway trung tâm, hệ thống máy chủ đến các dải mạng phòng ban và xí nghiệp
             </p>
           </div>
         </div>

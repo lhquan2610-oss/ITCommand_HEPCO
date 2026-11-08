@@ -304,8 +304,8 @@ export const DispatchesPage: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="font-extrabold text-base text-slate-800 dark:text-slate-100 tracking-tight font-['Times_New_Roman']">
-                Quản Lý Công Văn & Văn Bản
+              <h1 className="font-extrabold text-base md:text-lg text-slate-800 dark:text-slate-100 tracking-tight">
+                Quản Lý Công Văn & Văn Bản Điều Hành
               </h1>
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1 shrink-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -313,11 +313,7 @@ export const DispatchesPage: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2 flex-wrap">
-              <span>Hệ thống điều hành công văn đi, đến, nội bộ và tờ trình HEPCO</span>
-              <span className="text-slate-300 dark:text-slate-700">|</span>
-              <span className="font-mono text-indigo-700 dark:text-indigo-400 font-semibold text-[11px]">
-                Token: {healthStatus?.token_preview || '9386~gzfd...usc'}
-              </span>
+              <span>Tra cứu công văn đến, công văn đi, văn bản nội bộ và tờ trình đồng bộ từ hệ thống Base Office</span>
             </p>
           </div>
         </div>

@@ -511,13 +511,13 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="space-y-5 max-w-7xl mx-auto pb-10 font-sans">
       {/* 1. Header Banner */}
-      <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-black text-slate-800 flex items-center gap-2 font-['Times_New_Roman']">
-            <Settings className="w-5 h-5 text-emerald-600" /> Cài Đặt Hệ Thống & Bảo Mật
+          <h2 className="text-lg font-black text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <Settings className="w-5 h-5 text-emerald-600" /> Cài Đặt Hệ Thống & Phân Quyền Truy Cập
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Trung tâm kiểm soát bảo mật truy cập IP, phân quyền chức năng, quét mạng an toàn và cập nhật trực tuyến.
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Quản lý bảo mật địa chỉ IP, phân quyền chức năng theo người dùng và cập nhật phiên bản phần mềm
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -1296,7 +1296,7 @@ export const SettingsPage: React.FC = () => {
             <form onSubmit={handleSavePermForm} className="space-y-4 text-xs font-sans">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">
+                  <label className="font-bold text-slate-700 dark:text-slate-200 block mb-1">
                     Họ và Tên Nhân Viên <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -1305,12 +1305,12 @@ export const SettingsPage: React.FC = () => {
                     placeholder="Ví dụ: Trần Ngọc Huy Vũ"
                     value={permForm.name}
                     onChange={(e) => setPermForm({ ...permForm, name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-slate-50 focus:bg-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:border-indigo-500 bg-white dark:bg-slate-800"
                   />
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">
+                  <label className="font-bold text-slate-700 dark:text-slate-200 block mb-1">
                     Địa Chỉ IP Máy Tính <span className="text-rose-500">*</span>
                   </label>
                   <input
@@ -1319,14 +1319,14 @@ export const SettingsPage: React.FC = () => {
                     placeholder="Ví dụ: 10.1.1.88"
                     value={permForm.ip}
                     onChange={(e) => setPermForm({ ...permForm, ip: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-mono focus:outline-none focus:border-indigo-500 bg-slate-50 focus:bg-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-mono font-bold focus:outline-none focus:border-indigo-500 bg-white dark:bg-slate-800"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">
+                  <label className="font-bold text-slate-700 dark:text-slate-200 block mb-1">
                     Phòng Ban / Bộ Phận
                   </label>
                   <input
@@ -1334,12 +1334,12 @@ export const SettingsPage: React.FC = () => {
                     placeholder="Ví dụ: Phòng Kế Hoạch - Nghiệp Vụ"
                     value={permForm.department}
                     onChange={(e) => setPermForm({ ...permForm, department: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-slate-50 focus:bg-white"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:border-indigo-500 bg-white dark:bg-slate-800"
                   />
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">
+                  <label className="font-bold text-slate-700 dark:text-slate-200 block mb-1">
                     Cấp Độ Quyền Hạn
                   </label>
                   <select
@@ -1347,7 +1347,7 @@ export const SettingsPage: React.FC = () => {
                     onChange={(e) =>
                       setPermForm({ ...permForm, role: e.target.value as 'admin' | 'custom' })
                     }
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-slate-50 focus:bg-white cursor-pointer"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:border-indigo-500 bg-white dark:bg-slate-800 cursor-pointer"
                   >
                     <option value="custom">Giới Hạn Tính Năng Chỉ Định (Custom)</option>
                     <option value="admin">Quản Trị Viên Toàn Quyền (Admin Full)</option>
@@ -1356,7 +1356,7 @@ export const SettingsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">
+                <label className="font-bold text-slate-700 dark:text-slate-200 block mb-1">
                   Ghi Chú Phân Quyền
                 </label>
                 <input
@@ -1364,7 +1364,7 @@ export const SettingsPage: React.FC = () => {
                   placeholder="Ví dụ: Cấp quyền xem Camera, danh sách máy tính và công văn"
                   value={permForm.note}
                   onChange={(e) => setPermForm({ ...permForm, note: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:border-indigo-500 bg-slate-50 focus:bg-white"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:border-indigo-500 bg-white dark:bg-slate-800"
                 />
               </div>
 

@@ -8,8 +8,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Times New Roman"', 'Times', 'serif'],
+        sans: ['"Segoe UI"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
         serif: ['"Times New Roman"', 'Times', 'serif'],
+        mono: ['Consolas', '"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
         hepco: {

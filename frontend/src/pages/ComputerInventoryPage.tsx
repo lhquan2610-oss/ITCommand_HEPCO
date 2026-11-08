@@ -40,6 +40,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { HEPCO_LOGO } from '../assets/logoBase64';
 import { exportComputersToExcel } from '../utils/excelExportEngine';
 import { ExportSuccessModal } from '../components/ExportSuccessModal';
+import { getCachedInventorySync, loadInventoryFast, saveInventoryFast } from '../utils/inventoryCache';
 
 // FIXED DEPARTMENTS - ORDERED STRICTLY BY HEPCO OFFICIAL INVENTORY STANDARD
 export const FIXED_DEPARTMENTS = [
@@ -205,59 +206,10 @@ export const ComputerInventoryPage: React.FC = () => {
     setTimeout(() => setSaveSuccessMsg(null), 3500);
   };
 
-  // 1. Load real inventory from File / Storage
+  // 1. Load real inventory from Memory Cache / File / Storage
   useEffect(() => {
-    const load = async () => {
-      let rawList: any[] = [];
-      if (window.hiccDesktop?.loadInventory) {
-        try {
-          const res = await window.hiccDesktop.loadInventory();
-          if (res.success && Array.isArray(res.devices) && res.devices.length > 0) {
-            rawList = res.devices;
-          }
-        } catch {}
-      }
-
-      if (rawList.length === 0) {
-        const saved = localStorage.getItem('hicc_real_devices_inventory');
-        if (saved) {
-          try {
-            rawList = JSON.parse(saved);
-          } catch {}
-        }
-      }
-
-      if (rawList.length === 0) {
-        try {
-          const res = await fetch('/data/devices_inventory.json');
-          if (res.ok) {
-            rawList = await res.json();
-            localStorage.setItem('hicc_real_devices_inventory', JSON.stringify(rawList));
-          }
-        } catch {}
-      }
-
-      rawList = rawList.filter((d) => d.ip !== '10.2.1.154');
-
-      // Ensure Ricoh printers have correct category and department
-      rawList.forEach((d) => {
-        const name = (d.display_name || d.name || '').toLowerCase();
-        if (
-          name.includes('ricoh') ||
-          name.includes('photocopy') ||
-          d.ip === '10.0.0.17' ||
-          d.ip === '10.0.0.18' ||
-          d.id === 'PRN-RICOH-7502' ||
-          d.id === 'PRN-RICOH-IM5000'
-        ) {
-          d.category = 'PRINTER';
-          d.department = 'Phòng Tổ chức - Hành chính';
-        }
-      });
-
+    const applyInventory = (rawList: any[]) => {
       setAllInventory(rawList);
-
-      // Include BOTH WORKSTATIONS AND SERVERS (and computers with unidentified names, Wi-Fi), NEVER PRINTERS / PHOTOCOPIERS
       const compList = rawList.filter(
         (d) =>
           d.category !== 'PRINTER' &&
@@ -274,10 +226,15 @@ export const ComputerInventoryPage: React.FC = () => {
             d.department === 'Wi-Fi' ||
             d.ip)
       );
-
       setComputers(compList);
     };
-    load();
+
+    const cached = getCachedInventorySync();
+    if (cached.length > 0) {
+      applyInventory(cached);
+    }
+
+    loadInventoryFast().then(applyInventory);
   }, []);
 
   // Helper: Subnet extractor
@@ -567,22 +524,22 @@ export const ComputerInventoryPage: React.FC = () => {
       )}
 
       {/* 1. Header Banner */}
-      <div className="bg-white rounded-2xl p-4.5 border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4.5 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center p-1 shadow-xs shrink-0">
             <img src={HEPCO_LOGO} alt="HEPCO Logo" className="w-full h-full object-contain rounded-full" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-black text-slate-800 tracking-tight">
-                Quản Trị Máy Tính, Máy Chủ & Cấu Hình
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg font-black text-slate-800 dark:text-slate-100 tracking-tight">
+                Danh Sách Máy Tính, Máy Chủ & Thiết Bị Wi-Fi
               </h1>
               <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
                 {computers.length} Thiết Bị
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Giao diện List tinh gọn: Click vào tên hoặc IP để mở xem chi tiết cấu hình phần cứng. Có nút <strong className="text-emerald-700">Sửa</strong> để cập nhật phòng ban.
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Quản lý thông tin người sử dụng, phòng ban và cấu hình phần cứng chi tiết của từng thiết bị
             </p>
           </div>
         </div>

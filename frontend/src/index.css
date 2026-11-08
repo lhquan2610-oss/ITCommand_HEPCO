@@ -2,26 +2,276 @@
 @tailwind components;
 @tailwind utilities;
 
-*, *::before, *::after {
-  font-family: 'Times New Roman', Times, serif !important;
-}
-
-html, body {
-  font-family: 'Times New Roman', Times, serif !important;
-}
-
 @layer base {
+  html {
+    font-family: 'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     background-color: #f8fafc;
-    color: #1e293b;
+    color: #0f172a;
     user-select: none;
     overflow-x: hidden;
-    font-family: 'Times New Roman', Times, serif !important;
+    font-family: 'Segoe UI', Inter, system-ui, -apple-system, sans-serif;
+    line-height: 1.5;
   }
+
   .dark body {
     background-color: #020617;
     color: #f8fafc;
   }
+
+  /* Ensure all form controls have high-contrast readable text in Light Mode */
+  input,
+  select,
+  textarea {
+    color: #0f172a;
+    background-color: #ffffff;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #64748b;
+    opacity: 1;
+  }
+
+  option {
+    color: #0f172a;
+    background-color: #ffffff;
+  }
+
+  /* Ensure all form controls have high-contrast readable text in Dark Mode */
+  .dark input:not([type="checkbox"]):not([type="radio"]),
+  .dark select,
+  .dark textarea {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+  }
+
+  .dark input:not([type="checkbox"]):not([type="radio"]):focus,
+  .dark select:focus,
+  .dark textarea:focus {
+    background-color: #0f172a !important;
+    border-color: #10b981 !important;
+    color: #ffffff !important;
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #94a3b8 !important;
+    opacity: 1;
+  }
+
+  .dark option {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+  }
+}
+
+/* Preserve clean monospace for IP, MAC, Serial, IMEI, and technical codes */
+.font-mono {
+  font-family: Consolas, 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace !important;
+  letter-spacing: -0.01em;
+}
+
+/* Preserve formal serif where explicitly requested */
+.font-serif,
+.font-\[\'Times_New_Roman\'\] {
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* ============================================================================
+   GLOBAL DARK MODE CONTRAST & SURFACE ADAPTATION ENGINE
+   Prevents white-on-white or dark-on-dark text across all cards, tables & modals
+   ============================================================================ */
+.dark .bg-white {
+  background-color: #0f172a !important;
+  color: #f1f5f9;
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-50\/60,
+.dark .bg-slate-50\/70,
+.dark .bg-slate-50\/80 {
+  background-color: #1e293b !important;
+  color: #e2e8f0;
+}
+
+.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+  color: #e2e8f0;
+}
+
+.dark .bg-slate-200 {
+  background-color: #334155 !important;
+  color: #f1f5f9;
+}
+
+/* Borders & Dividers in Dark Mode */
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-200\/80,
+.dark .border-slate-300 {
+  border-color: #334155 !important;
+}
+
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1e293b !important;
+}
+
+/* Hover States in Dark Mode */
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-50\/80:hover,
+.dark .hover\:bg-slate-100:hover {
+  background-color: #1e293b !important;
+}
+
+.dark .hover\:bg-slate-200:hover {
+  background-color: #334155 !important;
+}
+
+/* Text Contrast Adaptation in Dark Mode */
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-slate-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-400 {
+  color: #64748b !important;
+}
+
+/* Pastel Badges & Callout Surfaces in Dark Mode */
+.dark .bg-emerald-50,
+.dark .bg-emerald-50\/40,
+.dark .bg-emerald-50\/60,
+.dark .bg-emerald-100 {
+  background-color: rgba(6, 78, 59, 0.45) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+.dark .text-emerald-950,
+.dark .text-emerald-900,
+.dark .text-emerald-800,
+.dark .text-emerald-700 {
+  color: #6ee7b7 !important;
+}
+
+.dark .bg-indigo-50,
+.dark .bg-indigo-50\/70,
+.dark .bg-indigo-100 {
+  background-color: rgba(49, 46, 129, 0.45) !important;
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+.dark .text-indigo-950,
+.dark .text-indigo-900,
+.dark .text-indigo-800,
+.dark .text-indigo-700 {
+  color: #a5b4fc !important;
+}
+
+.dark .bg-amber-50,
+.dark .bg-amber-50\/40,
+.dark .bg-amber-50\/50,
+.dark .bg-amber-50\/70,
+.dark .bg-amber-100 {
+  background-color: rgba(120, 53, 15, 0.45) !important;
+  border-color: rgba(245, 158, 11, 0.4) !important;
+}
+
+.dark .text-amber-950,
+.dark .text-amber-900,
+.dark .text-amber-800,
+.dark .text-amber-700 {
+  color: #fcd34d !important;
+}
+
+.dark .bg-rose-50,
+.dark .bg-rose-50\/60,
+.dark .bg-rose-100 {
+  background-color: rgba(136, 19, 55, 0.45) !important;
+  border-color: rgba(244, 63, 94, 0.4) !important;
+}
+
+.dark .text-rose-950,
+.dark .text-rose-900,
+.dark .text-rose-800,
+.dark .text-rose-700 {
+  color: #fda4af !important;
+}
+
+.dark .bg-teal-50,
+.dark .bg-teal-50\/60,
+.dark .bg-teal-100 {
+  background-color: rgba(19, 78, 74, 0.45) !important;
+  border-color: rgba(20, 184, 166, 0.4) !important;
+}
+
+.dark .text-teal-900,
+.dark .text-teal-800,
+.dark .text-teal-700 {
+  color: #5eead4 !important;
+}
+
+.dark .bg-sky-50,
+.dark .bg-sky-100,
+.dark .bg-blue-50,
+.dark .bg-blue-100 {
+  background-color: rgba(12, 74, 110, 0.45) !important;
+  border-color: rgba(14, 165, 233, 0.4) !important;
+}
+
+.dark .text-sky-900,
+.dark .text-sky-800,
+.dark .text-sky-700,
+.dark .text-blue-900,
+.dark .text-blue-800,
+.dark .text-blue-700 {
+  color: #7dd3fc !important;
+}
+
+.dark .bg-purple-50,
+.dark .bg-purple-100 {
+  background-color: rgba(88, 28, 135, 0.45) !important;
+  border-color: rgba(168, 85, 247, 0.4) !important;
+}
+
+.dark .text-purple-900,
+.dark .text-purple-800,
+.dark .text-purple-700 {
+  color: #d8b4fe !important;
+}
+
+/* Recharts Dark Mode Adaptation */
+.dark .recharts-default-tooltip {
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark .recharts-cartesian-grid line {
+  stroke: #1e293b !important;
+}
+
+.dark .recharts-text {
+  fill: #94a3b8 !important;
 }
 
 .drag-region {

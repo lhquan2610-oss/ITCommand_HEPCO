@@ -552,21 +552,21 @@ export const PosDevicesPage: React.FC = () => {
             <CreditCard className="w-6 h-6" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-extrabold text-base text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-1.5 font-['Times_New_Roman']">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="font-extrabold text-base md:text-lg text-slate-800 dark:text-slate-100 tracking-tight flex items-center gap-1.5">
                 Quản Lý Thiết Bị Máy POS Thu Phí
               </h1>
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                API Live
+                Đồng Bộ Trực Tuyến
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2 flex-wrap">
-              <span>Đồng bộ 2 chiều dữ liệu máy POS thu tiền vệ sinh môi trường</span>
-              <span className="text-slate-300 dark:text-slate-700">|</span>
-              <span className="font-mono text-emerald-700 dark:text-emerald-400 font-semibold">https://hepco-api.vercel.app/api</span>
+              <span>Theo dõi cấp phát, mượn trả thiết bị POS và tồn kho giấy in nhiệt của hai xí nghiệp</span>
               {apiHealthStatus && (
-                <span className="text-[10px] text-slate-400 font-mono">({apiHealthStatus.latency}ms)</span>
+                <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-mono font-semibold">
+                  (Độ trễ: {apiHealthStatus.latency}ms)
+                </span>
               )}
             </p>
           </div>
