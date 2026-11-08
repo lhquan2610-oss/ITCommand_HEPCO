@@ -2,23 +2,15 @@ import React, { useState } from 'react';
 import {
   Truck,
   ExternalLink,
-  Copy,
-  Check,
-  Eye,
-  EyeOff,
   RefreshCw,
   ShieldCheck,
-  Compass,
   Sparkles,
-  Info,
   Navigation,
-  Layers,
-  Video,
-  Server
+  Layers
 } from 'lucide-react';
 
 interface TrackingProvider {
-  id: 'vietmap' | 'dss' | 'cmsv6';
+  id: 'vietmap' | 'dss';
   name: string;
   vendor: string;
   url: string;
@@ -30,7 +22,7 @@ interface TrackingProvider {
   description: string;
 }
 
-const PROVIDERS: Record<'vietmap' | 'dss' | 'cmsv6', TrackingProvider> = {
+const PROVIDERS: Record<'vietmap' | 'dss', TrackingProvider> = {
   vietmap: {
     id: 'vietmap',
     name: 'VietMap Tracking',
@@ -51,25 +43,11 @@ const PROVIDERS: Record<'vietmap' | 'dss' | 'cmsv6', TrackingProvider> = {
     password: 'dss@12345',
     badge: 'DSS v5.tracking.vn',
     description: 'Hệ thống định vị vệ tinh GPS V5 Tracking (v5.tracking.vn) - Giám sát vận tốc, vị trí dừng đỗ và lộ trình.'
-  },
-  cmsv6: {
-    id: 'cmsv6',
-    name: 'CMSV6 Camera Xe Trực Tuyến',
-    vendor: 'CMSV6 / 808GPS Video Gateway',
-    server: 'cam.tracking.vn (Cổng 8080 HTTPS)',
-    url: 'https://cam.tracking.vn:8080/808gps/login.html',
-    username: 'moitruonghue',
-    password: 'dss@12345',
-    badge: 'CMSV6 cam.tracking.vn:8080',
-    description: 'Hệ thống camera giám sát video hành trình và GPS trực tuyến xe rác (CMSV6) - Máy chủ: cam.tracking.vn (Hỗ trợ cả Web & App Client chuyên dụng)'
   }
 };
 
 export const FleetTrackingPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'vietmap' | 'dss' | 'cmsv6'>('vietmap');
-  const [showPassword, setShowPassword] = useState(false);
-  const [copiedUser, setCopiedUser] = useState(false);
-  const [copiedPass, setCopiedPass] = useState(false);
+  const [activeTab, setActiveTab] = useState<'vietmap' | 'dss'>('vietmap');
   const [iframeKey, setIframeKey] = useState(1);
   const [isLaunching, setIsLaunching] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -90,41 +68,7 @@ export const FleetTrackingPage: React.FC = () => {
     const runAutoFill = () => {
       try {
         let script = '';
-        if (activeTab === 'cmsv6') {
-          script = `
-            (function() {
-              try {
-                const u = document.getElementById('loginAccount');
-                const p = document.getElementById('loginPassword');
-                const code = document.getElementById('phraseLogin');
-                if (u && p) {
-                  if (!u.value) u.value = '${current.username}';
-                  if (!p.value) p.value = '${current.password}';
-                  u.dispatchEvent(new Event('input', { bubbles: true }));
-                  p.dispatchEvent(new Event('input', { bubbles: true }));
-                  if (code) {
-                    code.focus();
-                    if (!code.dataset.bound) {
-                      code.dataset.bound = '1';
-                      code.addEventListener('input', function() {
-                        if (this.value && this.value.length === 4) {
-                          const btn = document.getElementById('loginSubmit') || document.querySelector('.btn-login') || document.querySelector('button[type="submit"]');
-                          if (btn) setTimeout(() => btn.click(), 300);
-                        }
-                      });
-                      code.addEventListener('keydown', function(e) {
-                        if (e.key === 'Enter') {
-                          const btn = document.getElementById('loginSubmit') || document.querySelector('.btn-login');
-                          if (btn) btn.click();
-                        }
-                      });
-                    }
-                  }
-                }
-              } catch(e) {}
-            })();
-          `;
-        } else if (activeTab === 'vietmap') {
+        if (activeTab === 'vietmap') {
           script = `
             (function() {
               try {
@@ -185,35 +129,6 @@ export const FleetTrackingPage: React.FC = () => {
       } catch (err) {}
     };
   }, [activeTab, iframeKey, current]);
-
-  const handleCopy = (text: string, type: 'user' | 'pass') => {
-    navigator.clipboard.writeText(text);
-    if (type === 'user') {
-      setCopiedUser(true);
-      setTimeout(() => setCopiedUser(false), 2000);
-    } else {
-      setCopiedPass(true);
-      setTimeout(() => setCopiedPass(false), 2000);
-    }
-  };
-
-  const handleLaunchCmsv6App = async () => {
-    if (window.hiccDesktop?.launchCmsv6App) {
-      try {
-        const res = await window.hiccDesktop.launchCmsv6App();
-        if (res.success) {
-          setStatusMessage('Đã khởi chạy phần mềm CMSV6 Client chuyên dụng trên Windows!');
-          setTimeout(() => setStatusMessage(null), 4000);
-        } else {
-          alert(res.error || 'Chưa tìm thấy phần mềm CMSV6 trên máy tính.');
-        }
-      } catch (err: any) {
-        alert(err.message);
-      }
-    } else {
-      window.open('https://cam.tracking.vn:8080/808gps/login.html', '_blank');
-    }
-  };
 
   const handleLaunchDedicatedWindow = async () => {
     setIsLaunching(true);
@@ -283,17 +198,6 @@ export const FleetTrackingPage: React.FC = () => {
 
           {/* Right: Actions - Fixed Alignment Never Broken */}
           <div className="flex items-center gap-2 shrink-0 flex-nowrap self-start sm:self-auto">
-            {activeTab === 'cmsv6' && (
-              <button
-                onClick={handleLaunchCmsv6App}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
-                title="Khởi chạy trực tiếp phần mềm CMSV6 chuyên dụng đã cài đặt trên máy tính"
-              >
-                <Video className="w-3.5 h-3.5 text-amber-300" />
-                <span>Mở App CMSV6</span>
-              </button>
-            )}
-
             <button
               onClick={handleLaunchDedicatedWindow}
               disabled={isLaunching}
@@ -323,7 +227,7 @@ export const FleetTrackingPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Navigation between VietMap, DSS Tracking and CMSV6 */}
+        {/* Tab Navigation between VietMap and DSS Tracking */}
         <div className="mt-3 flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2 flex-wrap">
           <button
             onClick={() => { setActiveTab('vietmap'); setIframeKey(k => k + 1); }}
@@ -349,19 +253,6 @@ export const FleetTrackingPage: React.FC = () => {
             <Layers className="w-3.5 h-3.5" />
             <span>2. DSS Tracking (v5.tracking.vn)</span>
             <span className="text-[10px] px-1.5 py-0.2 rounded bg-black/20 font-mono">moitruonghue</span>
-          </button>
-
-          <button
-            onClick={() => { setActiveTab('cmsv6'); setIframeKey(k => k + 1); }}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg font-bold text-xs transition cursor-pointer ${
-              activeTab === 'cmsv6'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300'
-            }`}
-          >
-            <Video className="w-3.5 h-3.5" />
-            <span>3. CMSV6 Camera Trực Tuyến (cam.tracking.vn)</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-black/20 font-mono">cam.tracking.vn</span>
           </button>
         </div>
 
@@ -414,18 +305,6 @@ export const FleetTrackingPage: React.FC = () => {
             </button>
           </div>
         </div>
-
-        {/* Notice for CMSV6 Captcha */}
-        {activeTab === 'cmsv6' && (
-          <div className="bg-amber-50 dark:bg-amber-950/70 border-b border-amber-200 dark:border-amber-800 px-3.5 py-2 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
-              <span>
-                <strong>Hệ thống CMSV6 yêu cầu Mã Xác Nhận:</strong> Tài khoản (<code className="font-mono font-bold bg-amber-100 dark:bg-amber-900/60 px-1 rounded">moitruonghue</code>) và Mật khẩu (<code className="font-mono font-bold bg-amber-100 dark:bg-amber-900/60 px-1 rounded">dss@12345</code>) đã được hệ thống tự động điền sẵn. Bạn chỉ cần <strong>nhìn 4 chữ số trên ảnh xác nhận và gõ vào ô Mã xác nhận</strong>, hệ thống sẽ tự động đăng nhập ngay!
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Live Frame / Webview Container */}
         <div className="flex-1 w-full h-full relative bg-slate-50 dark:bg-slate-950">

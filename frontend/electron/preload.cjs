@@ -49,7 +49,6 @@ contextBridge.exposeInMainWorld('hiccDesktop', {
 
   // GPS Fleet Tracking Integration
   openTrackingWindow: (options) => ipcRenderer.invoke('tracking-open-window', options),
-  launchCmsv6App: () => ipcRenderer.invoke('tracking-launch-cmsv6-app'),
 
   // Realtime Traffic Anomaly Monitoring & Alerting
   getTrafficCurrent: () => ipcRenderer.invoke('traffic-get-current'),

@@ -74,7 +74,6 @@ declare global {
       cameraOpenViewerWindow?: (param: any) => Promise<any>;
       // Fleet & GPS
       openTrackingWindow?: (options?: any) => Promise<any>;
-      launchCmsv6App?: () => Promise<any>;
       // Traffic
       getTrafficCurrent?: () => Promise<any>;
       setTrafficThresholds?: (thresholds: any) => Promise<any>;

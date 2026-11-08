@@ -1507,14 +1507,13 @@ ipcMain.handle('camera-launch-stream', async (_, rtspUrl) => {
 });
 
 // ===========================================================================
-// GPS Fleet Tracking Window Integration (VietMap, DSS Tracking & CMSV6 Camera)
+// GPS Fleet Tracking Window Integration (VietMap & DSS Tracking)
 // ===========================================================================
 let trackingWindow = null;
 
 ipcMain.handle('tracking-open-window', async (event, options = {}) => {
   try {
     const isVietMap = options.target === 'vietmap' || (options.url && options.url.includes('quanlyxe.vn'));
-    const isCmsv6 = options.target === 'cmsv6' || (options.url && (options.url.includes('cam.tracking.vn') || options.url.includes('808gps')));
     
     let targetUrl = options.url;
     let username = options.username;
@@ -1526,11 +1525,6 @@ ipcMain.handle('tracking-open-window', async (event, options = {}) => {
       username = username || 'hepco';
       password = password || '123456';
       windowTitle = 'HEPCO - GIÁM SÁT ĐỘI XE VIETMAP (QUANLYXE.VN)';
-    } else if (isCmsv6) {
-      targetUrl = targetUrl || 'https://cam.tracking.vn:8080/808gps/login.html';
-      username = username || 'moitruonghue';
-      password = password || 'dss@12345';
-      windowTitle = 'HEPCO - CAMERA GIÁM SÁT TRỰC TUYẾN XE CMSV6 (CAM.TRACKING.VN:8080)';
     } else {
       targetUrl = targetUrl || 'https://v5.tracking.vn/Account/LogIn';
       username = username || 'moitruonghue';
@@ -1573,39 +1567,7 @@ ipcMain.handle('tracking-open-window', async (event, options = {}) => {
       trackingWindow.webContents.on('did-finish-load', () => {
         if (!trackingWindow || trackingWindow.isDestroyed()) return;
         const currentUrl = trackingWindow.webContents.getURL();
-        if (isCmsv6 || currentUrl.includes('cam.tracking.vn') || currentUrl.includes('808gps')) {
-          const injectScript = `
-            (function() {
-              try {
-                const u = document.getElementById('loginAccount');
-                const p = document.getElementById('loginPassword');
-                const code = document.getElementById('phraseLogin');
-                if (u && p) {
-                  if (!u.value) u.value = '${username}';
-                  if (!p.value) p.value = '${password}';
-                  u.dispatchEvent(new Event('input', { bubbles: true }));
-                  p.dispatchEvent(new Event('input', { bubbles: true }));
-                  if (code) {
-                    code.focus();
-                    code.addEventListener('input', function() {
-                      if (this.value && this.value.length === 4) {
-                        const btn = document.getElementById('loginSubmit') || document.querySelector('.btn-login');
-                        if (btn) setTimeout(() => btn.click(), 300);
-                      }
-                    });
-                    code.addEventListener('keydown', function(e) {
-                      if (e.key === 'Enter') {
-                        const btn = document.getElementById('loginSubmit') || document.querySelector('.btn-login');
-                        if (btn) btn.click();
-                      }
-                    });
-                  }
-                }
-              } catch(e) {}
-            })();
-          `;
-          trackingWindow.webContents.executeJavaScript(injectScript).catch(() => {});
-        } else if (isVietMap || currentUrl.includes('quanlyxe.vn')) {
+        if (isVietMap || currentUrl.includes('quanlyxe.vn')) {
           const injectScript = `
             (function() {
               try {
@@ -1654,35 +1616,6 @@ ipcMain.handle('tracking-open-window', async (event, options = {}) => {
     });
 
     return { success: true };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
-});
-
-ipcMain.handle('tracking-launch-cmsv6-app', async () => {
-  try {
-    const candidatePaths = [
-      'C:\\Program Files (x86)\\CMSV6\\cmsv6.exe',
-      'C:\\Program Files\\CMSV6\\cmsv6.exe',
-      'C:\\Users\\Public\\Desktop\\CMSV6.lnk',
-      path.join(app.getPath('downloads'), 'CMSV6_WIN_Setup.exe'),
-      path.join(__dirname, '../../dist-app/CMSV6_WIN_Setup.exe')
-    ];
-    for (const p of candidatePaths) {
-      if (fs.existsSync(p)) {
-        if (p.endsWith('.lnk')) {
-          exec(`start "" "${p}"`, () => {});
-        } else {
-          spawn(p, [], {
-            cwd: path.dirname(p),
-            detached: true,
-            stdio: 'ignore'
-          }).unref();
-        }
-        return { success: true, path: p, isInstalled: p.endsWith('cmsv6.exe') || p.endsWith('.lnk') };
-      }
-    }
-    return { success: false, error: 'Chưa tìm thấy phần mềm CMSV6 trên máy tính.' };
   } catch (err) {
     return { success: false, error: err.message };
   }
