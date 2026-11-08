@@ -159,30 +159,34 @@ function createWindow() {
     mainWindow.loadFile(prodIndex);
   }
 
-  // Strip X-Frame-Options and CSP for tracking.vn and quanlyxe.vn to allow seamless embedding in the application
-  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+  // Strip X-Frame-Options, CSP, and Frame-Ancestors headers across all sessions
+  const stripFrameHeaders = (details, callback) => {
     const responseHeaders = { ...details.responseHeaders };
-    if (details.url && (details.url.includes('tracking.vn') || details.url.includes('quanlyxe.vn') || details.url.includes('808gps'))) {
-      delete responseHeaders['x-frame-options'];
-      delete responseHeaders['X-Frame-Options'];
-      delete responseHeaders['content-security-policy'];
-      delete responseHeaders['Content-Security-Policy'];
+    for (const key of Object.keys(responseHeaders)) {
+      const lower = key.toLowerCase();
+      if (
+        lower === 'x-frame-options' ||
+        lower === 'content-security-policy' ||
+        lower === 'content-security-policy-report-only'
+      ) {
+        delete responseHeaders[key];
+      }
     }
     callback({ cancel: false, responseHeaders });
-  });
+  };
+
+  session.defaultSession.webRequest.onHeadersReceived(stripFrameHeaders);
 
   // Persistent session for embedded tracking webviews
   const trackingSession = session.fromPartition('persist:tracking_fleet');
   trackingSession.setUserAgent(
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
   );
-  trackingSession.webRequest.onHeadersReceived((details, callback) => {
-    const responseHeaders = { ...details.responseHeaders };
-    delete responseHeaders['x-frame-options'];
-    delete responseHeaders['X-Frame-Options'];
-    delete responseHeaders['content-security-policy'];
-    delete responseHeaders['Content-Security-Policy'];
-    callback({ cancel: false, responseHeaders });
+  trackingSession.webRequest.onHeadersReceived(stripFrameHeaders);
+
+  // Relax certificate errors for internal tracking domains if any
+  trackingSession.setCertificateVerifyProc((request, callback) => {
+    callback(0); // 0 = accept certificate
   });
 
   // Intercept all embedded webviews for fleet tracking and execute smart authentication

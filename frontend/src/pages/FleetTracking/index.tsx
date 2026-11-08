@@ -22,6 +22,7 @@ interface TrackingProvider {
   name: string;
   vendor: string;
   url: string;
+  fallbackUrl?: string;
   server?: string;
   username: string;
   password: string;
@@ -45,6 +46,7 @@ const PROVIDERS: Record<'vietmap' | 'dss' | 'cmsv6', TrackingProvider> = {
     name: 'DSS Tracking V5',
     vendor: 'DSS Tracking Global',
     url: 'https://v5.tracking.vn/Account/LogIn',
+    fallbackUrl: 'https://tracking.vn/Account/LogIn',
     username: 'moitruonghue',
     password: 'dss@12345',
     badge: 'DSS v5.tracking.vn',
@@ -73,7 +75,12 @@ export const FleetTrackingPage: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const webviewRef = React.useRef<any>(null);
 
+  const [dssUseFallback, setDssUseFallback] = useState(false);
+
   const current = PROVIDERS[activeTab];
+  const activeUrl = activeTab === 'dss' && dssUseFallback && current.fallbackUrl
+    ? current.fallbackUrl
+    : current.url;
 
   // Auto-fill and auto-login directly inside embedded webview
   React.useEffect(() => {
@@ -382,6 +389,18 @@ export const FleetTrackingPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            {activeTab === 'dss' && (
+              <button
+                onClick={() => {
+                  setDssUseFallback(!dssUseFallback);
+                  setIframeKey((k) => k + 1);
+                }}
+                className="flex items-center gap-1 px-2.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-800 font-bold text-[11px] cursor-pointer"
+                title="Chuyển đổi giữa v5.tracking.vn và tracking.vn"
+              >
+                <span>Cổng: {dssUseFallback ? 'tracking.vn' : 'v5.tracking.vn'} (Bấm để đổi)</span>
+              </button>
+            )}
             <span className="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:inline">
               Đang kết nối tới máy chủ GPS <strong className="text-emerald-700 dark:text-emerald-400">{current.vendor}</strong>
             </span>
@@ -413,16 +432,16 @@ export const FleetTrackingPage: React.FC = () => {
           {window.hiccDesktop ? (
             <webview
               ref={webviewRef}
-              key={`${activeTab}-${iframeKey}`}
-              src={current.url}
+              key={`${activeTab}-${activeUrl}-${iframeKey}`}
+              src={activeUrl}
               partition="persist:tracking_fleet"
               className="w-full h-full border-0 absolute inset-0"
               allowpopups="true"
             />
           ) : (
             <iframe
-              key={`${activeTab}-${iframeKey}`}
-              src={current.url}
+              key={`${activeTab}-${activeUrl}-${iframeKey}`}
+              src={activeUrl}
               className="w-full h-full border-0 absolute inset-0"
               title={`HEPCO Fleet Tracking - ${current.name}`}
               allow="geolocation; autoplay; fullscreen"
