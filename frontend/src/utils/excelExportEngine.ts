@@ -92,19 +92,40 @@ const THIN_BORDER: Partial<ExcelJS.Borders> = {
   right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
 };
 
+// Date formatting helpers aligned with ISO YYYY-MM-DD file standard
+const formatDateISO = (date: Date = new Date()) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+const formatDateTimeVi = (date: Date = new Date()) => {
+  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const y = date.getFullYear();
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  return `${d}/${m}/${y} ${hh}:${mm}`;
+};
+
 // ===========================================================================
-// 1. EXPORT POS DEVICES (Exact Match to User's Uploaded Sample Image)
+// 1. EXPORT POS DEVICES (Strictly Standardized Enterprise Excel)
 // ===========================================================================
 export const exportPosDevicesToExcel = async (
   devices: PosDevice[],
   filterEnterprise?: string
 ): Promise<ExportResult> => {
+  if (!devices || devices.length === 0) {
+    return { success: false, error: 'Không có thiết bị máy POS nào trong danh sách hiện hành để xuất Excel.' };
+  }
+
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'HEPCO COMMAND';
-  workbook.lastModifiedBy = 'Lê Hồng Quân - CNTT HEPCO';
+  workbook.lastModifiedBy = 'Bộ Phận CNTT - HEPCO';
   workbook.created = new Date();
 
-  const sheet = workbook.addWorksheet('DANH SÁCH MÁY POS', {
+  const sheet = workbook.addWorksheet('Danh Sách Máy POS', {
     pageSetup: {
       orientation: 'landscape',
       paperSize: 9, // A4
@@ -112,181 +133,240 @@ export const exportPosDevicesToExcel = async (
       fitToWidth: 1,
       fitToHeight: 0
     },
-    views: [{ showGridLines: true }]
+    views: [
+      {
+        state: 'frozen',
+        xSplit: 0,
+        ySplit: 5,
+        showGridLines: true
+      }
+    ]
   });
 
-  // Setup Column Widths
+  const TOTAL_COLS = 16;
+
+  // Setup Column Widths & Keys
   sheet.columns = [
-    { key: 'stt', width: 8 },
-    { key: 'employee_name', width: 28 },
-    { key: 'region', width: 34 },
-    { key: 'serial', width: 20 },
-    { key: 'imei', width: 22 },
-    { key: 'sim', width: 20 },
-    { key: 'sim_imei', width: 24 },
-    { key: 'plan', width: 16 },
-    { key: 'status', width: 18 },
-    { key: 'notes', width: 22 }
+    { key: 'stt', width: 8 },             // 1
+    { key: 'asset_code', width: 16 },      // 2
+    { key: 'serial', width: 22 },          // 3
+    { key: 'imei', width: 22 },            // 4
+    { key: 'device_type', width: 24 },     // 5
+    { key: 'sim_number', width: 18 },      // 6
+    { key: 'sim_imei', width: 22 },        // 7
+    { key: 'telecom_plan', width: 16 },    // 8
+    { key: 'connection_status', width: 20 },// 9
+    { key: 'enterprise', width: 34 },      // 10
+    { key: 'assigned_user', width: 28 },   // 11
+    { key: 'region', width: 30 },          // 12
+    { key: 'model', width: 26 },           // 13
+    { key: 'status', width: 22 },          // 14
+    { key: 'assigned_date', width: 18 },   // 15
+    { key: 'notes', width: 28 }            // 16
   ];
 
-  // Helper to append a Section Banner Row (e.g. XÍ NGHIỆP BẮC SÔNG HƯƠNG (KHỐI CHÍNH))
-  const appendSectionBanner = (title: string) => {
-    const bannerRow = sheet.addRow([title, '', '', '', '', '', '', '', '', '']);
-    bannerRow.height = 27;
-    sheet.mergeCells(`A${bannerRow.number}:J${bannerRow.number}`);
+  // 1. Company Header (Row 1)
+  const row1 = sheet.addRow(['CÔNG TY CỔ PHẦN MÔI TRƯỜNG VÀ CÔNG TRÌNH ĐÔ THỊ HUẾ (HEPCO)']);
+  row1.height = 22;
+  sheet.mergeCells(`A1:P1`);
+  row1.getCell(1).font = { name: FONT_FAMILY, size: 10.5, bold: true, color: { argb: 'FF0F4022' } };
+  row1.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-    for (let c = 1; c <= 10; c++) {
-      const cell = bannerRow.getCell(c);
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFEAEFF5' } // Soft gray-blue as in sample image
-      };
-      cell.border = THIN_BORDER;
-    }
+  // 2. Report Main Title (Row 2)
+  const row2 = sheet.addRow(['BÁO CÁO DANH SÁCH VÀ QUẢN LÝ MÁY POS THU PHÍ']);
+  row2.height = 36;
+  sheet.mergeCells(`A2:P2`);
+  row2.getCell(1).font = { name: FONT_FAMILY, size: 15, bold: true, color: { argb: 'FF13522C' } };
+  row2.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-    const firstCell = bannerRow.getCell(1);
-    firstCell.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FF0F172A' } };
-    firstCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+  // 3. Meta & Inventory Summary Subtitle (Row 3)
+  const inUseCount = devices.filter((d) => d.status === 'in_use').length;
+  const inStockCount = devices.filter((d) => d.status === 'in_stock').length;
+  const borrowedCount = devices.filter((d) => d.status === 'borrowed').length;
+  const brokenCount = devices.filter((d) => d.status === 'broken').length;
+
+  const row3 = sheet.addRow([
+    `Thời điểm xuất: ${formatDateTimeVi(new Date())} | Tổng số: ${devices.length} máy POS (Đang cấp phát: ${inUseCount} | Dự phòng kho: ${inStockCount} | Cho mượn: ${borrowedCount}${brokenCount > 0 ? ` | Báo hỏng: ${brokenCount}` : ''})`
+  ]);
+  row3.height = 20;
+  sheet.mergeCells(`A3:P3`);
+  row3.getCell(1).font = { name: FONT_FAMILY, size: 9.5, italic: true, color: { argb: 'FF475569' } };
+  row3.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
+
+  // 4. Spacer Row (Row 4)
+  const row4 = sheet.addRow([]);
+  row4.height = 10;
+
+  // 5. Table Header Row (Row 5)
+  const headers = [
+    'STT',
+    'Mã Máy / Mã TS',
+    'Mã Serial POS',
+    'Số IMEI POS',
+    'Loại Thiết Bị',
+    'Số Thuê Bao SIM 4G',
+    'Số Serial SIM',
+    'Gói Cước 4G',
+    'Trạng Thái Mạng',
+    'Đơn Vị Quản Lý',
+    'Nhân Viên Phụ Trách',
+    'Địa Bàn / Vị Trí Lắp Đặt',
+    'Hãng & Model',
+    'Tình Trạng Quản Lý',
+    'Ngày Bàn Giao',
+    'Ghi Chú'
+  ];
+  const headerRow = sheet.addRow(headers);
+  headerRow.height = 32;
+
+  headerRow.eachCell((c) => {
+    c.font = { name: FONT_FAMILY, size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
+    c.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF13522C' } // HEPCO Forest Green
+    };
+    c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    c.border = {
+      top: { style: 'thin', color: { argb: 'FF0F4022' } },
+      left: { style: 'thin', color: { argb: 'FF0F4022' } },
+      bottom: { style: 'thin', color: { argb: 'FF0F4022' } },
+      right: { style: 'thin', color: { argb: 'FF0F4022' } }
+    };
+  });
+
+  // Enable AutoFilter on row 5
+  sheet.autoFilter = {
+    from: { row: 5, column: 1 },
+    to: { row: 5, column: TOTAL_COLS }
   };
 
-  // Helper to append the Forest Green Table Header Row
-  const appendTableHeader = () => {
-    const headers = [
-      'STT',
-      'Họ và Tên Nhân Viên/Người Mượn',
-      'Địa Bàn Phụ Trách',
-      'Serial POS',
-      'IMEI POS',
-      'Số Điện Thoại SIM',
-      'IMEI SIM',
-      'Gói Cước',
-      'Trạng Thái',
-      'Ghi Chú'
-    ];
-    const headerRow = sheet.addRow(headers);
-    headerRow.height = 30;
+  // Sort devices logically: BSH -> NSH -> Others -> by Serial
+  const sortedDevices = [...devices].sort((a, b) => {
+    const entOrder = (ent?: string) => (ent === 'BSH' ? 1 : ent === 'NSH' ? 2 : 3);
+    const orderDiff = entOrder(a.enterprise) - entOrder(b.enterprise);
+    if (orderDiff !== 0) return orderDiff;
+    return (a.serial_number || '').localeCompare(b.serial_number || '');
+  });
 
-    headerRow.eachCell((c) => {
-      c.font = { name: FONT_FAMILY, size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
-      c.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF13522C' } // Exact Forest Green in user sample image
-      };
-      c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-      c.border = {
-        top: { style: 'thin', color: { argb: 'FF0F4022' } },
-        left: { style: 'thin', color: { argb: 'FF0F4022' } },
-        bottom: { style: 'thin', color: { argb: 'FF0F4022' } },
-        right: { style: 'thin', color: { argb: 'FF0F4022' } }
-      };
-    });
-  };
+  // 6. Data Rows (Row 6 onwards - No merged cells, no blank break lines!)
+  sortedDevices.forEach((d, idx) => {
+    const currentAssign = d.assignments && d.assignments.length > 0 ? d.assignments[0] : null;
+    const borrower = d.borrowings && d.borrowings.length > 0 ? d.borrowings[0] : null;
 
-  // Split devices by Enterprise
-  const bshDevices = devices.filter((d) => d.enterprise === 'BSH' || (!d.enterprise && d.serial_number?.startsWith('V3022')));
-  const nshDevices = devices.filter((d) => d.enterprise === 'NSH' || (!d.enterprise && !d.serial_number?.startsWith('V3022')));
-  const otherDevices = devices.filter((d) => d.enterprise !== 'BSH' && d.enterprise !== 'NSH' && !bshDevices.includes(d) && !nshDevices.includes(d));
+    const employeeName =
+      currentAssign?.employee_name ||
+      currentAssign?.employee?.full_name ||
+      (borrower ? `${borrower.borrower_name} (Mượn)` : '') ||
+      'Chưa bàn giao';
 
-  const sections: Array<{ title: string; list: PosDevice[] }> = [];
+    const enterpriseName =
+      d.enterprise === 'BSH'
+        ? 'Xí nghiệp Môi trường Bắc Sông Hương'
+        : d.enterprise === 'NSH'
+        ? 'Xí nghiệp Môi trường Nam Sông Hương'
+        : d.enterprise || 'Văn phòng Công ty';
 
-  if (filterEnterprise === 'BSH') {
-    sections.push({ title: 'XÍ NGHIỆP BẮC SÔNG HƯƠNG (KHỐI CHÍNH)', list: bshDevices });
-  } else if (filterEnterprise === 'NSH') {
-    sections.push({ title: 'XÍ NGHIỆP NAM SÔNG HƯƠNG (KHỐI CHÍNH)', list: nshDevices });
-  } else {
-    if (bshDevices.length > 0) {
-      sections.push({ title: 'XÍ NGHIỆP BẮC SÔNG HƯƠNG (KHỐI CHÍNH)', list: bshDevices });
+    const region = d.region || currentAssign?.region || 'Kho trung tâm';
+
+    const statusMap: Record<string, string> = {
+      in_use: 'Đang cấp phát sử dụng',
+      in_stock: 'Trong kho dự phòng',
+      borrowed: 'Đang cho mượn',
+      broken: 'Báo hỏng / Cần xử lý',
+      disposed: 'Đã thanh lý'
+    };
+    const statusText = statusMap[d.status] || d.status || 'Chưa cập nhật';
+
+    const connectionStatus = d.status === 'in_use' ? 'KẾT NỐI (4G ONLINE)' : 'TRONG KHO';
+
+    let assignedDate = 'Chưa cập nhật';
+    if (currentAssign?.assigned_date) {
+      try {
+        const dt = new Date(currentAssign.assigned_date);
+        assignedDate = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()}`;
+      } catch {}
+    } else if (borrower?.borrowed_date) {
+      try {
+        const dt = new Date(borrower.borrowed_date);
+        assignedDate = `${String(dt.getDate()).padStart(2, '0')}/${String(dt.getMonth() + 1).padStart(2, '0')}/${dt.getFullYear()} (Mượn)`;
+      } catch {}
     }
-    if (nshDevices.length > 0) {
-      sections.push({ title: 'XÍ NGHIỆP NAM SÔNG HƯƠNG (KHỐI CHÍNH)', list: nshDevices });
-    }
-    if (otherDevices.length > 0) {
-      sections.push({ title: 'MÁY POS DỰ PHÒNG & KHO TRUNG TÂM', list: otherDevices });
-    }
-  }
 
-  // Render each section
-  sections.forEach((sec, sIdx) => {
-    if (sIdx > 0) {
-      sheet.addRow([]); // Blank spacer row between sections
-    }
-    appendSectionBanner(sec.title);
-    appendTableHeader();
+    const row = sheet.addRow([
+      idx + 1,
+      d.asset_code || `POS-${d.id}`,
+      d.serial_number || 'Chưa cập nhật',
+      d.imei || 'Chưa cập nhật',
+      'Máy POS Thu Phí Cầm Tay',
+      d.sim_number || 'Chưa cập nhật',
+      d.sim_imei || 'Chưa cập nhật',
+      d.telecom_plan || 'Gói ezCom90',
+      connectionStatus,
+      enterpriseName,
+      employeeName,
+      region,
+      'Sunmi V2 PRO / Cầm tay',
+      statusText,
+      assignedDate,
+      d.notes || (borrower?.purpose ? `Mục đích mượn: ${borrower.purpose}` : '')
+    ]);
 
-    sec.list.forEach((d, idx) => {
-      const currentAssign = d.assignments && d.assignments.length > 0 ? d.assignments[0] : null;
-      const borrower = d.borrowings && d.borrowings.length > 0 ? d.borrowings[0] : null;
+    row.height = 24;
+    const isEven = idx % 2 === 0;
 
-      const employeeName =
-        currentAssign?.employee_name ||
-        currentAssign?.employee?.full_name ||
-        (borrower ? `${borrower.borrower_name} (Mượn)` : '') ||
-        '-';
+    row.eachCell((c, colNumber) => {
+      c.font = { name: FONT_FAMILY, size: 10, color: { argb: 'FF1E293B' } };
+      c.border = THIN_BORDER;
 
-      const region = d.region || currentAssign?.region || '-';
+      if (!isEven) {
+        c.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF8FAFC' } // Subtle alternate row tint
+        };
+      }
 
-      const statusMap: Record<string, string> = {
-        in_use: 'Đang cấp phát',
-        in_stock: 'Trong kho',
-        borrowed: 'Đang cho mượn',
-        broken: 'Báo hỏng / Sự cố',
-        disposed: 'Thanh lý'
-      };
-      const statusText = statusMap[d.status] || 'Đang cấp phát';
-
-      const row = sheet.addRow([
-        idx + 1,
-        employeeName,
-        region,
-        d.serial_number || '-',
-        d.imei || '-',
-        d.sim_number || '-',
-        d.sim_imei || '-',
-        d.telecom_plan || 'Gói ezCom90',
-        statusText,
-        d.notes || '-'
-      ]);
-
-      row.height = 23;
-      row.eachCell((c, colNumber) => {
-        c.font = { name: FONT_FAMILY, size: 10, color: { argb: 'FF1E293B' } };
-        c.border = THIN_BORDER;
-
-        // Alignment per column matching sample image
-        if (colNumber === 1) {
-          c.alignment = { vertical: 'middle', horizontal: 'center' };
-        } else if (colNumber === 2 || colNumber === 3) {
-          c.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
-        } else if (colNumber === 10) {
-          c.alignment = { vertical: 'middle', horizontal: 'left' };
-        } else {
-          c.alignment = { vertical: 'middle', horizontal: 'center' };
+      // Column Specific Alignments & Formats
+      if (colNumber === 1 || colNumber === 2 || colNumber === 8 || colNumber === 9 || colNumber === 15) {
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+      } else if (colNumber === 3 || colNumber === 4 || colNumber === 6 || colNumber === 7) {
+        // Monospace tech codes
+        c.font = { name: 'Consolas', size: 9.5, color: { argb: 'FF0F172A' } };
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+      } else if (colNumber === 14) {
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+        if (d.status === 'in_use') {
+          c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF166534' } };
+        } else if (d.status === 'broken') {
+          c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF991B1B' } };
         }
-      });
+      } else {
+        c.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+      }
     });
   });
 
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-  const fileName = `DANH_SACH_MAY_POS_HEPCO_${dateStr}.xlsx`;
-
+  const fileName = `Danh_sach_may_POS_${formatDateISO(new Date())}.xlsx`;
   return await saveAndDeliverExcel(workbook, fileName);
 };
 
 // ===========================================================================
-// 2. EXPORT COMPUTERS & SERVERS (Exact Matching Enterprise Style)
+// 2. EXPORT COMPUTERS & SERVERS (Strictly Standardized Enterprise Excel)
 // ===========================================================================
 export const exportComputersToExcel = async (
   computers: ComputerDevice[]
 ): Promise<ExportResult> => {
+  if (!computers || computers.length === 0) {
+    return { success: false, error: 'Không có thiết bị máy tính nào trong danh sách hiện hành để xuất Excel.' };
+  }
+
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'HEPCO COMMAND';
-  workbook.lastModifiedBy = 'Lê Hồng Quân - CNTT HEPCO';
+  workbook.lastModifiedBy = 'Bộ Phận CNTT - HEPCO';
   workbook.created = new Date();
 
-  const sheet = workbook.addWorksheet('KIỂM KÊ MÁY TÍNH & MÁY CHỦ', {
+  const sheet = workbook.addWorksheet('Danh Sách Máy Tính', {
     pageSetup: {
       orientation: 'landscape',
       paperSize: 9, // A4
@@ -294,168 +374,225 @@ export const exportComputersToExcel = async (
       fitToWidth: 1,
       fitToHeight: 0
     },
-    views: [{ showGridLines: true }]
+    views: [
+      {
+        state: 'frozen',
+        xSplit: 0,
+        ySplit: 5,
+        showGridLines: true
+      }
+    ]
   });
+
+  const TOTAL_COLS = 18;
 
   // Setup Column Widths
   sheet.columns = [
-    { key: 'stt', width: 7 },
-    { key: 'user', width: 26 },
-    { key: 'asset_code', width: 16 },
-    { key: 'dept', width: 26 },
-    { key: 'category', width: 16 },
-    { key: 'ip', width: 16 },
-    { key: 'mac', width: 19 },
-    { key: 'year', width: 12 },
-    { key: 'cpu', width: 24 },
-    { key: 'mainboard', width: 18 },
-    { key: 'ram', width: 14 },
-    { key: 'storage', width: 18 },
-    { key: 'monitor', width: 20 },
-    { key: 'peripherals', width: 24 },
-    { key: 'status', width: 14 },
-    { key: 'notes', width: 22 }
+    { key: 'stt', width: 7 },              // 1
+    { key: 'hostname', width: 28 },         // 2
+    { key: 'asset_code', width: 16 },       // 3
+    { key: 'category', width: 18 },         // 4
+    { key: 'ip', width: 16 },               // 5
+    { key: 'mac', width: 19 },              // 6
+    { key: 'network_status', width: 16 },   // 7
+    { key: 'department', width: 32 },       // 8
+    { key: 'user', width: 26 },             // 9
+    { key: 'location', width: 26 },         // 10
+    { key: 'vendor_model', width: 24 },     // 11
+    { key: 'cpu', width: 26 },              // 12
+    { key: 'ram', width: 16 },              // 13
+    { key: 'storage', width: 20 },          // 14
+    { key: 'monitor', width: 22 },          // 15
+    { key: 'year', width: 14 },             // 16
+    { key: 'operating_status', width: 22 }, // 17
+    { key: 'notes', width: 28 }             // 18
   ];
 
-  const appendSectionBanner = (title: string) => {
-    const bannerRow = sheet.addRow([title, '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']);
-    bannerRow.height = 27;
-    sheet.mergeCells(`A${bannerRow.number}:P${bannerRow.number}`);
+  // 1. Company Header (Row 1)
+  const row1 = sheet.addRow(['CÔNG TY CỔ PHẦN MÔI TRƯỜNG VÀ CÔNG TRÌNH ĐÔ THỊ HUẾ (HEPCO)']);
+  row1.height = 22;
+  sheet.mergeCells(`A1:R1`);
+  row1.getCell(1).font = { name: FONT_FAMILY, size: 10.5, bold: true, color: { argb: 'FF0F4022' } };
+  row1.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-    for (let c = 1; c <= 16; c++) {
-      const cell = bannerRow.getCell(c);
-      cell.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFEAEFF5' }
-      };
-      cell.border = THIN_BORDER;
-    }
+  // 2. Report Main Title (Row 2)
+  const row2 = sheet.addRow(['BÁO CÁO CHI TIẾT DANH SÁCH MÁY TÍNH & MÁY CHỦ']);
+  row2.height = 36;
+  sheet.mergeCells(`A2:R2`);
+  row2.getCell(1).font = { name: FONT_FAMILY, size: 15, bold: true, color: { argb: 'FF13522C' } };
+  row2.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-    const firstCell = bannerRow.getCell(1);
-    firstCell.font = { name: FONT_FAMILY, size: 11, bold: true, color: { argb: 'FF0F172A' } };
-    firstCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
-  };
+  // 3. Meta & Inventory Summary Subtitle (Row 3)
+  const onlineCount = computers.filter((c) => c.status === 'ONLINE').length;
+  const offlineCount = computers.length - onlineCount;
+  const serverCount = computers.filter((c) => c.category === 'SERVER' || c.department === 'Máy chủ').length;
+  const pcCount = computers.length - serverCount;
 
-  const appendTableHeader = () => {
-    const headers = [
-      'STT',
-      'Họ và Tên Cán Bộ / Người Sử Dụng',
-      'Mã Tài Sản',
-      'Đơn Vị / Phòng Ban',
-      'Phân Loại',
-      'Địa Chỉ IP',
-      'Địa Chỉ MAC',
-      'Năm Cấp',
-      'CPU / Vi Xử Lý',
-      'Mainboard',
-      'RAM',
-      'Ổ Cứng',
-      'Màn Hình',
-      'Bàn Phím Chuột & Đi Kèm',
-      'Trạng Thái',
-      'Ghi Chú'
-    ];
-    const headerRow = sheet.addRow(headers);
-    headerRow.height = 30;
+  const row3 = sheet.addRow([
+    `Thời điểm xuất: ${formatDateTimeVi(new Date())} | Tổng số: ${computers.length} thiết bị (Máy tính: ${pcCount} | Máy chủ: ${serverCount} | Đang Online: ${onlineCount} | Offline: ${offlineCount})`
+  ]);
+  row3.height = 20;
+  sheet.mergeCells(`A3:R3`);
+  row3.getCell(1).font = { name: FONT_FAMILY, size: 9.5, italic: true, color: { argb: 'FF475569' } };
+  row3.getCell(1).alignment = { vertical: 'middle', horizontal: 'center' };
 
-    headerRow.eachCell((c) => {
-      c.font = { name: FONT_FAMILY, size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
-      c.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF13522C' } // Forest Green
-      };
-      c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-      c.border = {
-        top: { style: 'thin', color: { argb: 'FF0F4022' } },
-        left: { style: 'thin', color: { argb: 'FF0F4022' } },
-        bottom: { style: 'thin', color: { argb: 'FF0F4022' } },
-        right: { style: 'thin', color: { argb: 'FF0F4022' } }
-      };
-    });
-  };
+  // 4. Spacer Row (Row 4)
+  const row4 = sheet.addRow([]);
+  row4.height = 10;
 
-  // Group computers by department
-  const deptGroups: Record<string, ComputerDevice[]> = {};
-  computers.forEach((comp) => {
-    const d = comp.department || 'Chưa định danh đơn vị';
-    if (!deptGroups[d]) deptGroups[d] = [];
-    deptGroups[d].push(comp);
+  // 5. Table Header Row (Row 5)
+  const headers = [
+    'STT',
+    'Tên Máy / Hostname',
+    'Mã Máy / Mã TS',
+    'Loại Thiết Bị',
+    'Địa Chỉ IP',
+    'Địa Chỉ MAC',
+    'Trạng Thái Mạng',
+    'Phòng Ban / Đơn Vị',
+    'Cán Bộ / Người Sử Dụng',
+    'Vị Trí Lắp Đặt',
+    'Hãng & Bo Mạch',
+    'CPU / Vi Xử Lý',
+    'Bộ Nhớ RAM',
+    'Ổ Cứng Lưu Trữ',
+    'Màn Hình',
+    'Năm Cấp / Sử Dụng',
+    'Tình Trạng Hoạt Động',
+    'Ghi Chú'
+  ];
+  const headerRow = sheet.addRow(headers);
+  headerRow.height = 32;
+
+  headerRow.eachCell((c) => {
+    c.font = { name: FONT_FAMILY, size: 10.5, bold: true, color: { argb: 'FFFFFFFF' } };
+    c.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF13522C' } // HEPCO Forest Green
+    };
+    c.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    c.border = {
+      top: { style: 'thin', color: { argb: 'FF0F4022' } },
+      left: { style: 'thin', color: { argb: 'FF0F4022' } },
+      bottom: { style: 'thin', color: { argb: 'FF0F4022' } },
+      right: { style: 'thin', color: { argb: 'FF0F4022' } }
+    };
   });
 
-  const deptNames = Object.keys(deptGroups).sort((a, b) => {
-    const pA = a.toLowerCase().includes('lãnh đạo') ? 1 : a.toLowerCase().includes('tổ chức') ? 2 : a.toLowerCase().includes('kế toán') ? 3 : a.toLowerCase().includes('kỹ thuật') ? 4 : 5;
-    const pB = b.toLowerCase().includes('lãnh đạo') ? 1 : b.toLowerCase().includes('tổ chức') ? 2 : b.toLowerCase().includes('kế toán') ? 3 : b.toLowerCase().includes('kỹ thuật') ? 4 : 5;
-    if (pA !== pB) return pA - pB;
-    return a.localeCompare(b, 'vi');
+  // Enable AutoFilter on row 5
+  sheet.autoFilter = {
+    from: { row: 5, column: 1 },
+    to: { row: 5, column: TOTAL_COLS }
+  };
+
+  // Sort computers strictly by Official HEPCO Department Priority Order then User Name
+  const getDeptOrder = (dept: string) => {
+    const d = (dept || '').toLowerCase();
+    if (d.includes('lãnh đạo')) return 1;
+    if (d.includes('tổ chức') || d.includes('hành chính')) return 2;
+    if (d.includes('kế toán') || d.includes('tài vụ')) return 3;
+    if (d.includes('kế hoạch')) return 4;
+    if (d.includes('kỹ thuật')) return 5;
+    if (d.includes('bắc sông hương')) return 6;
+    if (d.includes('nam sông hương')) return 7;
+    if (d.includes('chiếu sáng')) return 8;
+    if (d.includes('thoát nước')) return 9;
+    if (d.includes('máy chủ') || d.includes('server')) return 10;
+    if (d.includes('wi-fi') || d.includes('wifi')) return 11;
+    return 12;
+  };
+
+  const sortedComputers = [...computers].sort((a, b) => {
+    const oA = getDeptOrder(a.department);
+    const oB = getDeptOrder(b.department);
+    if (oA !== oB) return oA - oB;
+    return (a.assigned_user || a.display_name || '').localeCompare(b.assigned_user || b.display_name || '', 'vi');
   });
 
-  deptNames.forEach((deptName, idx) => {
-    if (idx > 0) {
-      sheet.addRow([]);
-    }
-    appendSectionBanner(deptName.toUpperCase());
-    appendTableHeader();
+  // 6. Data Rows (Row 6 onwards - No merged cells, no blank break lines!)
+  sortedComputers.forEach((item, idx) => {
+    const specs = item.specs || {};
+    const isServer = item.category === 'SERVER' || item.department === 'Máy chủ';
+    const isWifi = item.category === 'WIFI' || item.category === 'ROUTER' || item.department === 'Wi-Fi';
 
-    const list = deptGroups[deptName];
-    list.forEach((item, itemIdx) => {
-      const specs = item.specs || {};
-      const statusText =
-        item.status ||
-        ((item as any).is_active === false
-          ? 'Ngưng hoạt động'
-          : (item as any).online_status
-          ? 'ONLINE'
-          : 'OFFLINE');
+    const hostname = item.assigned_user || item.display_name || item.hostname || 'Chưa định danh';
+    const assetCode = specs.asset_code || item.device_code || 'Chưa cập nhật';
+    const category = isServer ? 'Máy Chủ Hệ Thống' : isWifi ? 'Thiết Bị Wi-Fi' : (item.category || 'Máy Tính Trạm');
+    const ip = item.ip || (item as any).ip_address || 'Chưa cập nhật';
+    const mac = item.mac || (item as any).mac_address || 'Chưa cập nhật';
+    const networkStatus = item.status === 'ONLINE' ? 'ONLINE' : 'OFFLINE';
+    const department = item.department || 'Chưa định danh đơn vị';
+    const assignedUser = item.assigned_user || item.display_name || 'Chưa gán nhân sự';
+    const location = item.location || (isServer ? 'Phòng Máy Chủ Trung Tâm' : department);
+    const vendorModel = specs.mainboard || item.vendor || item.model || 'Chưa cập nhật';
+    const cpu = specs.cpu || (isServer ? 'Intel Xeon Enterprise' : 'Intel Core');
+    const ram = specs.ram || '8GB RAM';
+    const storage = specs.storage || 'SSD / HDD';
+    const monitor = specs.monitor || (isServer ? 'Không dùng màn hình' : 'Màn hình LCD');
+    const year = specs.year ? `Năm ${specs.year}` : 'Chưa cập nhật';
+    const operatingStatus = item.status === 'ONLINE' ? 'Hoạt động tốt' : 'Mất kết nối / Tắt nguồn';
+    const notes = item.notes || '';
 
-      const user = item.assigned_user || item.display_name || '-';
-      const ip = item.ip || (item as any).ip_address || '-';
-      const mac = item.mac || (item as any).mac_address || '-';
-      const peripherals =
-        specs.peripherals ||
-        [specs.keyboard ? `Phím: ${specs.keyboard}` : '', specs.mouse ? `Chuột: ${specs.mouse}` : '']
-          .filter(Boolean)
-          .join(', ') ||
-        '-';
+    const row = sheet.addRow([
+      idx + 1,
+      hostname,
+      assetCode,
+      category,
+      ip,
+      mac,
+      networkStatus,
+      department,
+      assignedUser,
+      location,
+      vendorModel,
+      cpu,
+      ram,
+      storage,
+      monitor,
+      year,
+      operatingStatus,
+      notes
+    ]);
 
-      const row = sheet.addRow([
-        itemIdx + 1,
-        user,
-        specs.asset_code || item.device_code || '-',
-        item.department || deptName,
-        item.category || 'MÁY TRẠM',
-        ip,
-        mac,
-        specs.year || '-',
-        specs.cpu || '-',
-        specs.mainboard || '-',
-        specs.ram || '-',
-        specs.storage || '-',
-        specs.monitor || '-',
-        peripherals,
-        statusText,
-        item.notes || '-'
-      ]);
+    row.height = 24;
+    const isEven = idx % 2 === 0;
 
-      row.height = 23;
-      row.eachCell((c, colNumber) => {
-        c.font = { name: FONT_FAMILY, size: 10, color: { argb: 'FF1E293B' } };
-        c.border = THIN_BORDER;
+    row.eachCell((c, colNumber) => {
+      c.font = { name: FONT_FAMILY, size: 10, color: { argb: 'FF1E293B' } };
+      c.border = THIN_BORDER;
 
-        if (colNumber === 1 || colNumber === 3 || colNumber === 5 || colNumber === 6 || colNumber === 7 || colNumber === 8 || colNumber === 11 || colNumber === 12 || colNumber === 15) {
-          c.alignment = { vertical: 'middle', horizontal: 'center' };
+      if (!isEven) {
+        c.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFF8FAFC' } // Subtle alternate row tint
+        };
+      }
+
+      // Column Specific Alignments & Formats
+      if (colNumber === 1 || colNumber === 3 || colNumber === 4 || colNumber === 13 || colNumber === 16) {
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+      } else if (colNumber === 5 || colNumber === 6) {
+        // IP & MAC Monospace
+        c.font = { name: 'Consolas', size: 9.5, color: { argb: 'FF0F172A' } };
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+      } else if (colNumber === 7) {
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+        if (item.status === 'ONLINE') {
+          c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF166534' } };
         } else {
-          c.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+          c.font = { name: FONT_FAMILY, size: 10, bold: true, color: { argb: 'FF991B1B' } };
         }
-      });
+      } else if (colNumber === 17) {
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+      } else {
+        c.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+      }
     });
   });
 
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`;
-  const fileName = `KIEM_KE_MAY_TINH_HEPCO_${dateStr}.xlsx`;
-
+  const fileName = `Danh_sach_may_tinh_${formatDateISO(new Date())}.xlsx`;
   return await saveAndDeliverExcel(workbook, fileName);
 };
 

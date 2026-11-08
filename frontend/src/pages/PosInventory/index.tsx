@@ -503,8 +503,17 @@ export const PosDevicesPage: React.FC = () => {
   // Export Excel matching official corporate template
   const handleExportExcel = async () => {
     try {
+      if (devices.length === 0) {
+        setNotification({ type: 'error', message: 'Danh sách thiết bị máy POS hiện đang trống.' });
+        return;
+      }
+      if (filteredDevices.length === 0) {
+        setNotification({ type: 'error', message: 'Không có máy POS nào phù hợp với bộ lọc tìm kiếm hiện tại để xuất Excel.' });
+        return;
+      }
+
       setIsExporting(true);
-      const targetDevices = filteredDevices.length > 0 ? filteredDevices : devices;
+      const targetDevices = filteredDevices;
       const res = await exportPosDevicesToExcel(
         targetDevices,
         selectedEnterprise === 'ALL' ? undefined : selectedEnterprise
@@ -513,7 +522,7 @@ export const PosDevicesPage: React.FC = () => {
       if (res.success) {
         setExportModal({
           isOpen: true,
-          fileName: res.fileName || 'DANH_SACH_MAY_POS_HEPCO.xlsx',
+          fileName: res.fileName || 'Danh_sach_may_POS.xlsx',
           filePath: res.filePath,
           fileSize: res.fileSize,
           isBrowserDownload: res.isBrowserDownload

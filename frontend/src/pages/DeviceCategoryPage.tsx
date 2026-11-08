@@ -92,6 +92,10 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
   };
 
   const handleWeb = (ip: string) => {
+    if (window.hiccDesktop?.cameraOpenViewerWindow) {
+      window.hiccDesktop.cameraOpenViewerWindow({ ip, name: `Thiết Bị Camera (${ip})` });
+      return;
+    }
     if (ip === 'imou.hepco.cloud' || ip === 'IMOU_CLOUD') {
       window.open('https://www.imoulife.com/vn', '_blank');
       return;

@@ -484,14 +484,23 @@ export const ComputerInventoryPage: React.FC = () => {
   // Export Excel matching official corporate template
   const handleExportExcel = async () => {
     try {
+      if (computers.length === 0) {
+        alert('Danh sách thiết bị máy tính hiện đang trống.');
+        return;
+      }
+      if (filteredComputers.length === 0) {
+        alert('Không có thiết bị nào phù hợp với bộ lọc tìm kiếm hiện tại để xuất Excel.');
+        return;
+      }
+
       setIsExporting(true);
-      const targetComputers = filteredComputers.length > 0 ? filteredComputers : computers;
+      const targetComputers = filteredComputers;
       const res = await exportComputersToExcel(targetComputers);
 
       if (res.success) {
         setExportModal({
           isOpen: true,
-          fileName: res.fileName || 'KIEM_KE_MAY_TINH_HEPCO.xlsx',
+          fileName: res.fileName || 'Danh_sach_may_tinh.xlsx',
           filePath: res.filePath,
           fileSize: res.fileSize,
           isBrowserDownload: res.isBrowserDownload
@@ -755,12 +764,12 @@ export const ComputerInventoryPage: React.FC = () => {
             return (
               <div
                 key={groupTitle}
-                className={`bg-white rounded-2xl border shadow-xs overflow-hidden ${
+                className={`bg-white dark:bg-slate-900 rounded-2xl border shadow-xs overflow-hidden ${
                   isUnidentifiedGroup
-                    ? 'border-amber-300'
+                    ? 'border-amber-300 dark:border-amber-800/80'
                     : isServerGroup
-                    ? 'border-indigo-200'
-                    : 'border-slate-200'
+                    ? 'border-indigo-200 dark:border-indigo-900/80'
+                    : 'border-slate-200 dark:border-slate-800'
                 }`}
               >
                 {/* Accordion Group Header */}
@@ -768,34 +777,34 @@ export const ComputerInventoryPage: React.FC = () => {
                   onClick={() => toggleGroupCollapse(groupTitle)}
                   className={`px-5 py-3 flex items-center justify-between cursor-pointer border-b select-none transition ${
                     isUnidentifiedGroup
-                      ? 'bg-amber-50/80 border-amber-200 hover:bg-amber-100/70'
+                      ? 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-200 dark:border-amber-900/60 hover:bg-amber-100/70 dark:hover:bg-amber-950/60'
                       : isServerGroup
-                      ? 'bg-[#EAEFF5] border-slate-300 hover:bg-slate-200/80'
-                      : 'bg-[#EAEFF5] border-slate-300 hover:bg-slate-200/80'
+                      ? 'bg-[#EAEFF5] dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:bg-slate-200/80 dark:hover:bg-slate-700/80'
+                      : 'bg-[#EAEFF5] dark:bg-slate-800 border-slate-300 dark:border-slate-700 hover:bg-slate-200/80 dark:hover:bg-slate-700/80'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <button className="text-slate-600">
+                    <button className="text-slate-600 dark:text-slate-300">
                       {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                     </button>
                     {isServerGroup ? (
-                      <Server className="w-4 h-4 text-indigo-700" />
+                      <Server className="w-4 h-4 text-indigo-700 dark:text-indigo-400" />
                     ) : isUnidentifiedGroup ? (
-                      <AlertCircle className="w-4 h-4 text-amber-600" />
+                      <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     ) : groupMode === 'SUBNET' ? (
-                      <Network className="w-4 h-4 text-emerald-800" />
+                      <Network className="w-4 h-4 text-emerald-800 dark:text-emerald-400" />
                     ) : (
-                      <Building2 className="w-4 h-4 text-emerald-800" />
+                      <Building2 className="w-4 h-4 text-emerald-800 dark:text-emerald-400" />
                     )}
-                    <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                    <h2 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       {groupTitle.toUpperCase()}
                       <span
                         className={`text-[11px] px-2.5 py-0.5 rounded-full font-bold border font-sans ${
                           isUnidentifiedGroup
-                            ? 'bg-amber-100 text-amber-800 border-amber-300'
+                            ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-300 dark:border-amber-800'
                             : isServerGroup
-                            ? 'bg-indigo-100 text-indigo-800 border-indigo-200'
-                            : 'bg-white text-emerald-800 border-emerald-300'
+                            ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800'
+                            : 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
                         }`}
                       >
                         {list.length} thiết bị
@@ -804,15 +813,15 @@ export const ComputerInventoryPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-3 text-xs">
-                    <span className="font-bold text-emerald-800 text-[11px]">
+                    <span className="font-bold text-emerald-800 dark:text-emerald-400 text-[11px]">
                       {groupOnlineCount} online
                     </span>
                     {isUnidentifiedGroup ? (
-                      <span className="text-amber-800 font-bold text-[10px] bg-amber-100 px-2 py-0.5 rounded font-sans">
+                      <span className="text-amber-800 dark:text-amber-300 font-bold text-[10px] bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 rounded font-sans border border-amber-300 dark:border-amber-800">
                         Cần bổ sung nhân sự phụ trách
                       </span>
                     ) : (
-                      <span className="text-slate-500 text-[10px] font-mono hidden md:inline">
+                      <span className="text-slate-500 dark:text-slate-400 text-[10px] font-mono hidden md:inline">
                         Sắp xếp: A → Z ({list[0]?.assigned_user?.split(' ').pop()} ... {list[list.length - 1]?.assigned_user?.split(' ').pop()})
                       </span>
                     )}
@@ -853,12 +862,12 @@ export const ComputerInventoryPage: React.FC = () => {
                                 onClick={() => toggleDeviceExpand(comp.id)}
                                 className={`cursor-pointer transition-colors ${
                                   isExpanded
-                                    ? 'bg-emerald-50/50 font-medium'
+                                    ? 'bg-emerald-50/50 dark:bg-emerald-950/40 font-medium'
                                     : isWifi
-                                    ? 'hover:bg-teal-50/50 bg-teal-50/10'
+                                    ? 'hover:bg-teal-50/50 dark:hover:bg-teal-950/40 bg-teal-50/10 dark:bg-teal-950/20'
                                     : isUnidentified
-                                    ? 'hover:bg-amber-50/40 bg-amber-50/10'
-                                    : 'hover:bg-slate-50/90'
+                                    ? 'hover:bg-amber-50/40 dark:hover:bg-amber-950/40 bg-amber-50/10 dark:bg-amber-950/20'
+                                    : 'hover:bg-slate-50/90 dark:hover:bg-slate-800/80'
                                 }`}
                               >
                                 <td className="py-2.5 px-3 text-center text-slate-400 font-mono text-[11px]">
@@ -871,12 +880,12 @@ export const ComputerInventoryPage: React.FC = () => {
                                     <div
                                       className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
                                         isWifi
-                                          ? 'bg-teal-100 text-teal-800'
+                                          ? 'bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300'
                                           : isServer
-                                          ? 'bg-indigo-100 text-indigo-800'
+                                          ? 'bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300'
                                           : isUnidentified
-                                          ? 'bg-amber-100 text-amber-800'
-                                          : 'bg-emerald-100 text-emerald-800'
+                                          ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
+                                          : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
                                       }`}
                                     >
                                       {isWifi ? (
@@ -890,8 +899,8 @@ export const ComputerInventoryPage: React.FC = () => {
                                       )}
                                     </div>
                                     <div>
-                                      <div className="font-bold text-slate-800 hover:text-emerald-700 transition flex items-center gap-1.5">
-                                        <span className={isWifi ? 'text-teal-900 font-bold' : isUnidentified ? 'text-amber-900 font-bold' : ''}>
+                                      <div className="font-bold text-slate-800 dark:text-slate-100 hover:text-emerald-700 dark:hover:text-emerald-400 transition flex items-center gap-1.5">
+                                        <span className={isWifi ? 'text-teal-900 dark:text-teal-300 font-bold' : isUnidentified ? 'text-amber-900 dark:text-amber-300 font-bold' : ''}>
                                           {comp.assigned_user || comp.display_name}
                                         </span>
                                         {isExpanded ? (
@@ -927,41 +936,41 @@ export const ComputerInventoryPage: React.FC = () => {
 
                                 {/* IP Address (Clickable) */}
                                 <td className="py-2.5 px-3">
-                                  <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 text-xs">
+                                  <span className="font-mono font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-xs">
                                     {comp.ip}
                                   </span>
                                 </td>
 
                                 {/* Asset Code & Year */}
                                 <td className="py-2.5 px-3">
-                                  <div className="font-mono font-bold text-emerald-800 text-[11px]">
+                                  <div className="font-mono font-bold text-emerald-800 dark:text-emerald-400 text-[11px]">
                                     {comp.specs?.asset_code || comp.device_code || '-'}
                                   </div>
                                   {comp.specs?.year && (
-                                    <div className="text-[10px] text-slate-400 font-mono">Năm {comp.specs.year}</div>
+                                    <div className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">Năm {comp.specs.year}</div>
                                   )}
                                 </td>
 
                                 {/* Quick Specs Summary: Router specs if Wi-Fi, CPU/RAM if PC */}
-                                <td className="py-2.5 px-3 text-slate-600 text-[11px]">
+                                <td className="py-2.5 px-3 text-slate-600 dark:text-slate-300 text-[11px]">
                                   {isWifi ? (
                                     <>
-                                      <div className="truncate max-w-[210px] font-bold text-teal-900 flex items-center gap-1">
-                                        <Wifi className="w-3 h-3 text-teal-600 shrink-0" />
+                                      <div className="truncate max-w-[210px] font-bold text-teal-900 dark:text-teal-300 flex items-center gap-1">
+                                        <Wifi className="w-3 h-3 text-teal-600 dark:text-teal-400 shrink-0" />
                                         {comp.specs?.router_brand
                                           ? `${comp.specs.router_brand} ${comp.specs.router_model || ''}`
                                           : comp.model || comp.vendor || 'Thiết bị Wi-Fi'}
                                       </div>
-                                      <div className="text-[10px] text-slate-500 truncate" title={comp.specs?.router_band || comp.notes}>
+                                      <div className="text-[10px] text-slate-500 dark:text-slate-400 truncate" title={comp.specs?.router_band || comp.notes}>
                                         {comp.specs?.router_band || 'Dual-Band 2.4G & 5G'}
                                       </div>
                                     </>
                                   ) : (
                                     <>
-                                      <div className="truncate max-w-[170px] font-medium">
+                                      <div className="truncate max-w-[170px] font-medium text-slate-800 dark:text-slate-200">
                                         {comp.specs?.cpu || (isServer ? 'Intel Xeon' : 'Intel Core')}
                                       </div>
-                                      <div className="text-[10px] text-amber-800 font-bold">
+                                      <div className="text-[10px] text-amber-800 dark:text-amber-400 font-bold">
                                         {comp.specs?.ram || '8GB RAM'} · {comp.specs?.storage?.split('+')[0] || 'SSD/HDD'}
                                       </div>
                                     </>
@@ -979,10 +988,10 @@ export const ComputerInventoryPage: React.FC = () => {
                                     {/* Edit Button */}
                                     <button
                                       onClick={() => handleOpenEditModal(comp)}
-                                      className="px-2.5 py-1 rounded-lg text-slate-700 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-800 text-[11px] font-bold border border-slate-200 transition flex items-center gap-1"
+                                      className="px-2.5 py-1 rounded-lg text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/70 hover:text-emerald-800 dark:hover:text-emerald-300 text-[11px] font-bold border border-slate-200 dark:border-slate-700 transition flex items-center gap-1 cursor-pointer"
                                       title="Chỉnh sửa thông tin phòng ban & cấu hình"
                                     >
-                                      <Edit3 className="w-3 h-3 text-emerald-600" />
+                                      <Edit3 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                       <span>Sửa</span>
                                     </button>
 
@@ -990,7 +999,7 @@ export const ComputerInventoryPage: React.FC = () => {
                                     <button
                                       onClick={(e) => handlePing(comp.ip, e)}
                                       disabled={p?.loading}
-                                      className="px-2 py-1 rounded-lg text-slate-600 hover:bg-slate-200 text-[11px] font-semibold border border-slate-200 transition"
+                                      className="px-2 py-1 rounded-lg text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-[11px] font-semibold border border-slate-200 dark:border-slate-700 transition cursor-pointer"
                                       title="Kiểm tra kết nối IP"
                                     >
                                       {p?.loading ? '...' : p?.rtt !== undefined ? `${p.rtt || '<1'}ms` : 'Ping'}
@@ -999,7 +1008,7 @@ export const ComputerInventoryPage: React.FC = () => {
                                     {/* RDP Button */}
                                     <button
                                       onClick={(e) => handleRdp(comp.ip, e)}
-                                      className="p-1 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition"
+                                      className="p-1 rounded-lg text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 dark:hover:bg-emerald-900 border border-emerald-200 dark:border-emerald-800 transition cursor-pointer"
                                       title="Mở Remote Desktop"
                                     >
                                       <ExternalLink className="w-3.5 h-3.5" />
@@ -1010,16 +1019,16 @@ export const ComputerInventoryPage: React.FC = () => {
 
                               {/* Expanded Row: Detailed Hardware Specs Breakdown (Shown ONLY when clicked!) */}
                               {isExpanded && (
-                                <tr className="bg-emerald-50/20 border-b border-emerald-100">
+                                <tr className="bg-emerald-50/20 dark:bg-slate-900/60 border-b border-emerald-100 dark:border-slate-800">
                                   <td colSpan={8} className="p-3.5 px-5">
-                                    <div className="bg-white rounded-xl p-3.5 border border-emerald-200 shadow-xs space-y-2.5">
-                                      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                                    <div className="bg-white dark:bg-slate-900 rounded-xl p-3.5 border border-emerald-200 dark:border-emerald-800/80 shadow-xs space-y-2.5">
+                                      <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                                         <div className="flex items-center gap-2">
-                                          <Sparkles className="w-4 h-4 text-emerald-600" />
-                                          <h4 className="font-black text-xs text-slate-800">
+                                          <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                          <h4 className="font-black text-xs text-slate-800 dark:text-slate-100">
                                             Cấu Hình Chi Tiết: {comp.assigned_user || comp.display_name}
                                           </h4>
-                                          <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">
+                                          <span className="text-[10px] font-mono bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded font-bold border border-emerald-300 dark:border-emerald-800">
                                             {comp.specs?.asset_code || comp.device_code || comp.ip}
                                           </span>
                                         </div>
@@ -1028,7 +1037,7 @@ export const ComputerInventoryPage: React.FC = () => {
                                             e.stopPropagation();
                                             handleOpenEditModal(comp);
                                           }}
-                                          className="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1"
+                                          className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
                                         >
                                           <Edit3 className="w-3 h-3" /> Chỉnh sửa cấu hình này
                                         </button>

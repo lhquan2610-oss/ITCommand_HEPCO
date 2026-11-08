@@ -1411,6 +1411,7 @@ ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
+        webSecurity: false,
       },
     });
 
@@ -1430,10 +1431,10 @@ ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
       const userVal = JSON.stringify(creds.user);
       const passVal = JSON.stringify(creds.pass);
       const bannerLabel = isImou
-        ? '☁️ IMOU CLOUD HEPCO — Tài khoản: hepco.camera@gmail.com | Mật khẩu: Hepco@123'
+        ? '☁️ IMOU CLOUD HEPCO — Đang tự động đăng nhập (hepco.camera@gmail.com)...'
         : isBaiRac
-        ? '📹 CAMERA BÃI RÁC (BaiRac) — IP: 113.161.8.149 | Port: 37777 (3777) / Web: 83 | TK: admin | MK: philonghue123'
-        : `📹 ĐẦU GHI CAMERA (${ip}) — TK: ${creds.user} | MK: ${creds.pass}`;
+        ? '📹 CAMERA BÃI RÁC (BaiRac: 113.161.8.149:83) — Đang tự động đăng nhập tài khoản admin...'
+        : `📹 ĐẦU GHI CAMERA (${ip}) — Đang tự động đăng nhập (${creds.user})...`;
 
       camWin.webContents
         .executeJavaScript(`
@@ -1441,33 +1442,108 @@ ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
             try {
               const u = ${userVal};
               const p = ${passVal};
-              function fillLogin() {
-                const inputs = Array.from(document.querySelectorAll('input'));
-                const uInput = inputs.find(el => el.type === 'text' || el.type === 'email' || (el.name && /user|email|account|login/i.test(el.name)) || (el.placeholder && /user|tài khoản|email/i.test(el.placeholder)));
-                const pInput = inputs.find(el => el.type === 'password');
-                if (uInput && !uInput.value) {
-                  uInput.value = u;
-                  uInput.dispatchEvent(new Event('input', { bubbles: true }));
-                  uInput.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-                if (pInput && !pInput.value) {
-                  pInput.value = p;
-                  pInput.dispatchEvent(new Event('input', { bubbles: true }));
-                  pInput.dispatchEvent(new Event('change', { bubbles: true }));
-                }
+              let hasSubmitted = false;
+
+              function tryLoginInDoc(doc) {
+                if (!doc) return false;
+                try {
+                  const inputs = Array.from(doc.querySelectorAll('input'));
+                  const uInput = doc.getElementById('login_user') || 
+                                doc.getElementById('login-user') || 
+                                doc.getElementById('loginAccount') || 
+                                doc.getElementById('username') || 
+                                doc.getElementById('user') || 
+                                doc.querySelector('input[name="username"]') || 
+                                doc.querySelector('input[name="loginAccount"]') || 
+                                inputs.find(el => el.type === 'text' || el.type === 'email' || (el.name && /user|email|account|login/i.test(el.name)) || (el.placeholder && /user|tài khoản|email|tên/i.test(el.placeholder)));
+                  
+                  const pInput = doc.getElementById('login_psw') || 
+                                doc.getElementById('login-psw') || 
+                                doc.getElementById('loginPassword') || 
+                                doc.getElementById('password') || 
+                                doc.getElementById('pwd') || 
+                                doc.querySelector('input[name="password"]') || 
+                                doc.querySelector('input[name="loginPassword"]') || 
+                                inputs.find(el => el.type === 'password');
+
+                  if (uInput && pInput) {
+                    uInput.focus();
+                    uInput.value = u;
+                    uInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    uInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    pInput.focus();
+                    pInput.value = p;
+                    pInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    pInput.dispatchEvent(new Event('change', { bubbles: true }));
+
+                    if (!hasSubmitted) {
+                      const btn = doc.getElementById('login_btn') || 
+                                  doc.getElementById('btn_login') || 
+                                  doc.getElementById('loginSubmit') || 
+                                  doc.getElementById('loginBtn') || 
+                                  doc.querySelector('.btn-login') || 
+                                  doc.querySelector('.login-btn') || 
+                                  doc.querySelector('button[type="submit"]') || 
+                                  doc.querySelector('input[type="submit"]') || 
+                                  doc.querySelector('input[value*="Login" i]') || 
+                                  doc.querySelector('input[value*="Đăng nhập" i]') || 
+                                  doc.querySelector('button[class*="login" i]');
+
+                      if (btn) {
+                        hasSubmitted = true;
+                        setTimeout(() => {
+                          try { btn.click(); } catch (e) {}
+                        }, 400);
+                        return true;
+                      } else {
+                        // Press Enter on password field
+                        hasSubmitted = true;
+                        setTimeout(() => {
+                          try {
+                            const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true });
+                            pInput.dispatchEvent(enterEvent);
+                          } catch (e) {}
+                        }, 500);
+                        return true;
+                      }
+                    }
+                  }
+
+                  // Check iframes
+                  const iframes = Array.from(doc.querySelectorAll('iframe'));
+                  for (const ifr of iframes) {
+                    try {
+                      if (ifr.contentDocument && tryLoginInDoc(ifr.contentDocument)) return true;
+                    } catch (e) {}
+                  }
+                } catch (e) {}
+                return false;
               }
-              fillLogin();
-              setTimeout(fillLogin, 1200);
-              setTimeout(fillLogin, 2800);
+
+              // Multi-stage auto login runner
+              function runAutoLogin() {
+                tryLoginInDoc(document);
+              }
+
+              runAutoLogin();
+              setTimeout(runAutoLogin, 500);
+              setTimeout(runAutoLogin, 1500);
+              setTimeout(runAutoLogin, 3000);
+              setTimeout(runAutoLogin, 5000);
 
               if (!document.getElementById('hepco-cam-bar')) {
                 const bar = document.createElement('div');
                 bar.id = 'hepco-cam-bar';
-                bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:999999;background:rgba(15,23,42,0.95);color:#f8fafc;padding:8px 16px;font-family:monospace;font-size:12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #10b981;';
-                bar.innerHTML = '<span>' + ${JSON.stringify(bannerLabel)} + '</span><div style="display:flex;gap:8px;"><button id="hepco-copy-u" style="background:#059669;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:bold;">Chép TK</button><button id="hepco-copy-p" style="background:#0284c7;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:bold;">Chép MK</button></div>';
+                bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:999999;background:rgba(15,23,42,0.95);color:#f8fafc;padding:8px 16px;font-family:monospace;font-size:12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #10b981;box-shadow:0 -4px 12px rgba(0,0,0,0.3);';
+                bar.innerHTML = '<span>' + ${JSON.stringify(bannerLabel)} + '</span><div style="display:flex;gap:8px;"><button id="hepco-autologin-btn" style="background:#10b981;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:bold;">Tự Động Đăng Nhập Lại</button><button id="hepco-copy-u" style="background:#059669;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:bold;">Chép TK</button><button id="hepco-copy-p" style="background:#0284c7;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:bold;">Chép MK</button></div>';
                 document.body.appendChild(bar);
                 document.getElementById('hepco-copy-u').onclick = () => navigator.clipboard.writeText(u);
                 document.getElementById('hepco-copy-p').onclick = () => navigator.clipboard.writeText(p);
+                document.getElementById('hepco-autologin-btn').onclick = () => {
+                  hasSubmitted = false;
+                  runAutoLogin();
+                };
               }
             } catch (e) {}
           })();

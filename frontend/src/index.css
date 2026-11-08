@@ -111,6 +111,16 @@
   color: #f1f5f9;
 }
 
+.dark .bg-\[\#EAEFF5\],
+.dark .bg-\[\#eaeff5\] {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+.dark .hover\:bg-slate-200\/80:hover {
+  background-color: #334155 !important;
+}
+
 /* Borders & Dividers in Dark Mode */
 .dark .border-slate-100,
 .dark .border-slate-200,
