@@ -385,13 +385,12 @@ export const ComputerInventoryPage: React.FC = () => {
     setTimeout(() => setSaveSuccessMsg(null), 3000);
   };
 
-  // Filter and Grouping
-  const groupedComputers = useMemo(() => {
-    const q = search.toLowerCase();
-
-    // 1. Filter by search
-    const filtered = computers.filter((d) => {
+  // 1. Filtered Computers by Search & Department Filter
+  const filteredComputers = useMemo(() => {
+    const q = search.toLowerCase().trim();
+    return computers.filter((d) => {
       const matchSearch =
+        !q ||
         (d.assigned_user && d.assigned_user.toLowerCase().includes(q)) ||
         (d.display_name && d.display_name.toLowerCase().includes(q)) ||
         (d.ip && d.ip.toLowerCase().includes(q)) ||
@@ -407,6 +406,11 @@ export const ComputerInventoryPage: React.FC = () => {
       const matchDept = selectedDeptFilter === 'ALL' || d.department === selectedDeptFilter;
       return matchSearch && matchDept;
     });
+  }, [computers, search, selectedDeptFilter]);
+
+  // 2. Filter and Grouping for Display
+  const groupedComputers = useMemo(() => {
+    const filtered = filteredComputers;
 
     // If flat list mode
     if (groupMode === 'LIST') {
@@ -456,7 +460,7 @@ export const ComputerInventoryPage: React.FC = () => {
       groupTitle: k,
       list: groups[k],
     }));
-  }, [computers, search, groupMode, selectedDeptFilter]);
+  }, [filteredComputers, groupMode]);
 
   // Ping action
   const handlePing = async (ip: string, e?: React.MouseEvent) => {
