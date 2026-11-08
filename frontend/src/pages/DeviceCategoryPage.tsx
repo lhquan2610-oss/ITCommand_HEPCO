@@ -107,6 +107,35 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
         (d.category === 'PRINTER' || (d.display_name && d.display_name.toLowerCase().includes('ricoh')))
       ));
 
+      // Normalize verified camera names & NVR channel mappings
+      const camMap: Record<string, { display_name: string; parent_nvr: string; nvr_channel: number; nvr_rtsp_channel: string; location: string; osd_label: string }> = {
+        '10.110.1.11': { display_name: 'Ch.01: Camera Sảnh Đón Tiếp Khách & Khung Logo HEPCO', parent_nvr: '10.110.1.13', nvr_channel: 1, nvr_rtsp_channel: '101', location: 'Sảnh Chính & Hành Lang Tầng 1', osd_label: 'IPC (Sảnh Logo T1)' },
+        '10.110.1.21': { display_name: 'Ch.02 / Ch.10: Camera Hành Lang Tầng 2 & Cầu Thang Bộ', parent_nvr: '10.110.1.13', nvr_channel: 2, nvr_rtsp_channel: '201', location: 'Hành Lang & Cầu Thang Tầng 2', osd_label: 'Tang 2' },
+        '10.110.1.22': { display_name: 'Ch.03: Camera Hành Lang & Phòng Nội Bộ Văn Phòng', parent_nvr: '10.110.1.13', nvr_channel: 3, nvr_rtsp_channel: '301', location: 'Phòng Nội Bộ Văn Phòng', osd_label: 'IPC' },
+        '10.110.1.101': { display_name: 'Ch.04: Camera Cổng Trước & Nhà Bảo Vệ Cơ Quan', parent_nvr: '10.110.1.13', nvr_channel: 4, nvr_rtsp_channel: '401', location: 'Cổng Trước Cơ Quan', osd_label: 'IPC (Cổng Trước)' },
+        '10.110.1.102': { display_name: 'Ch.05: Camera Sân Ngoài Khuôn Viên Cơ Quan', parent_nvr: '10.110.1.13', nvr_channel: 5, nvr_rtsp_channel: '501', location: 'Sân Ngoài Khuôn Viên', osd_label: 'San ngoai' },
+        '10.110.1.103': { display_name: 'Ch.06: Camera Nhà Để Xe Máy Cán Bộ CNV', parent_nvr: '10.110.1.13', nvr_channel: 6, nvr_rtsp_channel: '601', location: 'Nhà Để Xe Văn Phòng', osd_label: 'IPC (Nhà Xe)' },
+        '10.110.1.135': { display_name: 'Ch.07: Camera Sân Vườn & Tiểu Cảnh Giữa 2 Dãy Nhà', parent_nvr: '10.110.1.13', nvr_channel: 7, nvr_rtsp_channel: '701', location: 'Sân Vườn Nội Bộ', osd_label: 'IPC (Sân Vườn)' },
+        '10.110.1.136': { display_name: 'Ch.08: Camera Nhà Để Xe Ô Tô & Lối Đi Phía Sau', parent_nvr: '10.110.1.13', nvr_channel: 8, nvr_rtsp_channel: '801', location: 'Nhà Để Xe Ô Tô', osd_label: 'IPC (Nhà Xe Ô Tô)' },
+        '10.110.1.23': { display_name: 'Ch.09: Camera Khu Nội Bộ & Phòng Làm Việc Giao Dịch', parent_nvr: '10.110.1.13', nvr_channel: 9, nvr_rtsp_channel: '901', location: 'Phòng Làm Việc Nội Bộ', osd_label: 'IPC (Khu Nội Bộ)' },
+        '10.110.1.137': { display_name: 'Ch.20: Camera Hiên Sảnh Trước & Hành Lang Tầng 1', parent_nvr: '10.110.1.13', nvr_channel: 20, nvr_rtsp_channel: '2001', location: 'Hiên Sảnh Trước Tầng 1', osd_label: 'IPC (Hành Lang T1)' },
+        '10.110.1.87': { display_name: 'Ch.01: Camera Hành Lang Ngang 2 - Lán Xe Tải (HL NGANG2)', parent_nvr: '10.110.1.80', nvr_channel: 1, nvr_rtsp_channel: '101', location: 'Hành Lang Ngang 2', osd_label: 'HL NGANG2' },
+        '10.110.1.82': { display_name: 'Ch.02: Camera Tuyến Đường Bê Tông Nội Bộ Xí Nghiệp (IP Camera2)', parent_nvr: '10.110.1.80', nvr_channel: 2, nvr_rtsp_channel: '201', location: 'Đường Nội Bộ Xí Nghiệp', osd_label: 'IP Camera2' },
+        '10.110.1.83': { display_name: 'Ch.03: Camera Lán Đỗ & Bảo Dưỡng Xe Ép Rác (IP Camera3)', parent_nvr: '10.110.1.80', nvr_channel: 3, nvr_rtsp_channel: '301', location: 'Lán Xe Ép Rác', osd_label: 'IP Camera3' },
+        '10.110.1.84': { display_name: 'Ch.04: Camera Cổng Chính & Bãi Xe Chuyên Dùng (CONG CHINH)', parent_nvr: '10.110.1.80', nvr_channel: 4, nvr_rtsp_channel: '401', location: 'Cổng Chính & Bãi Xe', osd_label: 'CONG CHINH' },
+        '10.110.1.85': { display_name: 'Ch.05: Camera Khu Tập Kết Phế Liệu & Rác Tái Chế (IP Camera5)', parent_nvr: '10.110.1.80', nvr_channel: 5, nvr_rtsp_channel: '501', location: 'Khu Phế Liệu & Rác Tái Chế', osd_label: 'IP Camera5' },
+        '10.110.1.89': { display_name: 'Ch.06: Camera Xưởng 2 - Kho Vật Tư & Thiết Bị (XUONG 2)', parent_nvr: '10.110.1.80', nvr_channel: 6, nvr_rtsp_channel: '601', location: 'Xưởng 2 - Kho Vật Tư', osd_label: 'XUONG 2' },
+        '10.110.1.55': { display_name: 'Ch.07: Camera Khu Bảo Trì Máy & Xe Bồn Hút (IP Camera7)', parent_nvr: '10.110.1.80', nvr_channel: 7, nvr_rtsp_channel: '701', location: 'Khu Bảo Trì Máy & Xe Bồn', osd_label: 'IP Camera7' },
+        '10.110.1.56': { display_name: 'Ch.08: Camera Bãi Tập Kết Dàn Xe Ép Rác (IP Camera8)', parent_nvr: '10.110.1.80', nvr_channel: 8, nvr_rtsp_channel: '801', location: 'Bãi Tập Kết Xe Ép Rác', osd_label: 'IP Camera8' },
+        '10.110.1.88': { display_name: 'Ch.09: Camera Sân Bãi Điều Phối Phương Tiện (IP Camera9)', parent_nvr: '10.110.1.80', nvr_channel: 9, nvr_rtsp_channel: '901', location: 'Sân Điều Phối Phương Tiện', osd_label: 'IP Camera9' },
+        '10.110.1.57': { display_name: 'Ch.10: Camera Xưởng Cơ Khí Sửa Chữa Phương Tiện (IP Camera10)', parent_nvr: '10.110.1.80', nvr_channel: 10, nvr_rtsp_channel: '1001', location: 'Xưởng Cơ Khí Sửa Chữa', osd_label: 'IP Camera10' },
+      };
+      realList.forEach((d) => {
+        if (camMap[d.ip]) {
+          Object.assign(d, camMap[d.ip]);
+        }
+      });
+
       // If SWITCH, also include ROUTER so all infrastructure switches, routers & modems show up!
       let filtered = realList.filter((d) => {
         if (categoryCode === 'SWITCH') {
