@@ -62,11 +62,11 @@ export const Sidebar: React.FC = () => {
       {/* Brand Header */}
       <div className={`h-14 ${isCollapsed ? 'px-2 justify-center' : 'px-3.5 justify-between'} flex items-center border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900`}>
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-9 h-9 p-0.5 rounded-xl bg-white dark:bg-slate-800 border border-emerald-500/25 dark:border-emerald-500/40 shadow-xs flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 max-w-[36px] max-h-[36px] p-0.5 rounded-xl bg-white dark:bg-slate-800 border border-emerald-500/25 dark:border-emerald-500/40 shadow-xs flex items-center justify-center shrink-0 overflow-hidden">
             <img
               src={HEPCO_LOGO}
               alt="HEPCO Logo"
-              className="w-full h-full object-contain rounded-lg sharp-logo"
+              className="w-8 h-8 max-w-[32px] max-h-[32px] object-contain rounded-lg sharp-logo"
             />
           </div>
           {!isCollapsed && (

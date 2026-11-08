@@ -56,11 +56,11 @@ export const TitleBar: React.FC = () => {
     <div className="h-10 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between select-none text-xs drag-region px-3 z-50 shadow-xs transition-colors">
       {/* App Branding & Logo */}
       <div className="flex items-center gap-2 font-semibold">
-        <div className="w-6 h-6 p-0.5 rounded-lg bg-white dark:bg-slate-800 border border-emerald-500/30 dark:border-emerald-500/40 shadow-2xs flex items-center justify-center shrink-0">
+        <div className="w-6 h-6 max-w-[24px] max-h-[24px] p-0.5 rounded-lg bg-white dark:bg-slate-800 border border-emerald-500/30 dark:border-emerald-500/40 shadow-2xs flex items-center justify-center shrink-0 overflow-hidden">
           <img
             src={HEPCO_LOGO}
             alt="HEPCO Logo"
-            className="w-full h-full object-contain rounded-md sharp-logo"
+            className="w-5 h-5 max-w-[20px] max-h-[20px] object-contain rounded-md sharp-logo"
           />
         </div>
         <span className="font-extrabold tracking-tight text-slate-800 dark:text-slate-100 text-[13px] flex items-center gap-1.5">

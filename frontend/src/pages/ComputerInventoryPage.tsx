@@ -538,11 +538,11 @@ export const ComputerInventoryPage: React.FC = () => {
       {/* 1. Header Banner */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200/90 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-emerald-500/30 dark:border-emerald-500/40 flex items-center justify-center p-1.5 shadow-xs shrink-0">
+          <div className="w-12 h-12 max-w-[48px] max-h-[48px] rounded-2xl bg-white dark:bg-slate-800 border border-emerald-500/30 dark:border-emerald-500/40 flex items-center justify-center p-1 shadow-xs shrink-0 overflow-hidden">
             <img
               src={HEPCO_LOGO}
               alt="HEPCO Logo"
-              className="w-full h-full object-contain rounded-xl sharp-logo"
+              className="w-10 h-10 max-w-[40px] max-h-[40px] object-contain rounded-xl sharp-logo"
             />
           </div>
           <div>
