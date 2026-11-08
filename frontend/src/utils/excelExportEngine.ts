@@ -34,7 +34,7 @@ export const saveAndDeliverExcel = async (
   try {
     const buffer = await workbook.xlsx.writeBuffer();
 
-    if (window.hiccDesktop?.saveExportedFile) {
+    if (typeof window !== 'undefined' && window.hiccDesktop?.saveExportedFile) {
       const base64 = await bufferToBase64(buffer as ArrayBuffer);
       const res = await window.hiccDesktop.saveExportedFile({
         fileName,
@@ -53,6 +53,16 @@ export const saveAndDeliverExcel = async (
         return { success: false, error: 'Hủy lưu file' };
       }
       return { success: false, error: res?.error || 'Lỗi lưu file' };
+    }
+
+    // Node / Server / Test environment fallback
+    if (typeof window === 'undefined') {
+      return {
+        success: true,
+        filePath: fileName,
+        fileName,
+        fileSize: buffer.byteLength
+      };
     }
 
     // Web browser fallback

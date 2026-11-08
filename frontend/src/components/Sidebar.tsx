@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -14,7 +14,9 @@ import {
   Truck,
   Settings,
   ShieldAlert,
-  UserCheck
+  UserCheck,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { HEPCO_LOGO } from '../assets/logoBase64';
 import { useApp } from '../context/AppContext';
@@ -24,6 +26,19 @@ import { FeatureKey } from '../types/electron';
 export const Sidebar: React.FC = () => {
   const { t } = useApp();
   const { canAccessFeature, currentUserPermission, isAdmin, simulatedUserIp, setSimulatedUserIp } = useSecurity();
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
+    return window.innerWidth < 1024;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const navItems = [
     { path: '/', featureKey: 'dashboard' as FeatureKey, labelKey: 'nav_dashboard', defaultLabel: 'Bảng Điều Khiển', icon: LayoutDashboard },
@@ -43,23 +58,34 @@ export const Sidebar: React.FC = () => {
   const visibleNavItems = navItems.filter((item) => canAccessFeature(item.featureKey));
 
   return (
-    <aside className="w-56 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full shrink-0 select-none shadow-[1px_0_4px_rgba(0,0,0,0.02)] z-20 transition-colors">
+    <aside className={`${isCollapsed ? 'w-16' : 'w-56'} bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-full shrink-0 select-none shadow-[1px_0_4px_rgba(0,0,0,0.02)] z-20 transition-all duration-200`}>
       {/* Brand Header */}
-      <div className="h-14 px-3.5 flex items-center gap-2.5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <img
-          src={HEPCO_LOGO}
-          alt="HEPCO Logo"
-          className="w-9 h-9 object-contain rounded-full shadow-xs shrink-0 ring-1 ring-emerald-500/20"
-        />
-        <div className="min-w-0">
-          <div className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-100 leading-none">
-            HEPCO <span className="text-emerald-600 dark:text-emerald-400 font-bold">COMMAND</span>
-          </div>
+      <div className={`h-14 ${isCollapsed ? 'px-2 justify-center' : 'px-3.5 justify-between'} flex items-center border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900`}>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <img
+            src={HEPCO_LOGO}
+            alt="HEPCO Logo"
+            className="w-9 h-9 object-contain rounded-full shadow-xs shrink-0 ring-1 ring-emerald-500/20"
+          />
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <div className="font-bold text-sm tracking-tight text-slate-800 dark:text-slate-100 leading-none">
+                HEPCO <span className="text-emerald-600 dark:text-emerald-400 font-bold">COMMAND</span>
+              </div>
+            </div>
+          )}
         </div>
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+          title={isCollapsed ? 'Mở rộng thanh menu' : 'Thu gọn thanh menu'}
+        >
+          {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+        </button>
       </div>
 
       {/* Simulation Banner (if Admin is testing another user's view) */}
-      {simulatedUserIp && (
+      {simulatedUserIp && !isCollapsed && (
         <div className="mx-2 mt-2 p-2 rounded-xl bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700 text-[10px] text-amber-900 dark:text-amber-200">
           <div className="font-bold flex items-center justify-between">
             <span className="flex items-center gap-1">
@@ -81,9 +107,11 @@ export const Sidebar: React.FC = () => {
 
       {/* Navigation List */}
       <div className="flex-1 overflow-y-auto px-2 py-3 space-y-1">
-        <div className="px-2.5 py-1 text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-          <span>{t('nav_section_mgmt')}</span>
-        </div>
+        {!isCollapsed && (
+          <div className="px-2.5 py-1 text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            <span>{t('nav_section_mgmt')}</span>
+          </div>
+        )}
 
         {visibleNavItems.map((item) => {
           const Icon = item.icon;
@@ -92,17 +120,18 @@ export const Sidebar: React.FC = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              title={isCollapsed ? label : undefined}
               className={({ isActive }) =>
-                `flex items-center justify-between px-2.5 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
+                `flex items-center ${isCollapsed ? 'justify-center px-0' : 'justify-between px-2.5'} py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
                   isActive
                     ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 font-bold border-l-3 border-emerald-600 shadow-xs'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/60 border-l-3 border-transparent'
                 }`
               }
             >
-              <div className="flex items-center gap-2.5 min-w-0">
+              <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-2.5 min-w-0'}`}>
                 <Icon className="w-4 h-4 shrink-0" />
-                <span className="truncate">{label}</span>
+                {!isCollapsed && <span className="truncate">{label}</span>}
               </div>
             </NavLink>
           );
@@ -110,35 +139,43 @@ export const Sidebar: React.FC = () => {
       </div>
 
       {/* User Identity & Role Footer Info */}
-      <div className="p-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 space-y-1.5">
-        <div className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] shadow-xs">
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-slate-700 dark:text-slate-200 truncate max-w-[110px]" title={currentUserPermission.name}>
-              {currentUserPermission.name}
-            </span>
-            <span
-              className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border ${
-                isAdmin
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300'
-                  : 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-300'
-              }`}
-            >
-              {isAdmin ? 'Admin' : 'Phân Quyền'}
-            </span>
-          </div>
-          <div className="text-[9px] font-mono text-slate-400 truncate mt-0.5">
-            IP: {currentUserPermission.ip}
-          </div>
-        </div>
-        <div className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-[10px] shadow-xs">
-          <div className="flex items-center gap-1.5">
+      <div className={`p-2.5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 ${isCollapsed ? 'flex flex-col items-center' : 'space-y-1.5'}`}>
+        {!isCollapsed ? (
+          <>
+            <div className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[10px] shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-700 dark:text-slate-200 truncate max-w-[110px]" title={currentUserPermission.name}>
+                  {currentUserPermission.name}
+                </span>
+                <span
+                  className={`text-[9px] font-mono font-bold px-1.5 py-0.2 rounded border ${
+                    isAdmin
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300'
+                      : 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950 dark:text-blue-300'
+                  }`}
+                >
+                  {isAdmin ? 'Admin' : 'Phân Quyền'}
+                </span>
+              </div>
+              <div className="text-[9px] font-mono text-slate-400 truncate mt-0.5">
+                IP: {currentUserPermission.ip}
+              </div>
+            </div>
+            <div className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-[10px] shadow-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-slate-700 dark:text-slate-300 font-semibold text-[10px]">Hạ Tầng LAN</span>
+              </div>
+              <span className="text-emerald-700 dark:text-emerald-300 font-mono text-[9px] font-bold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                {t('status_ready')}
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-700 dark:text-emerald-300 font-bold text-xs shadow-xs" title={`${currentUserPermission.name} (${currentUserPermission.ip})`}>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-slate-700 dark:text-slate-300 font-semibold text-[10px]">Hạ Tầng LAN</span>
           </div>
-          <span className="text-emerald-700 dark:text-emerald-300 font-mono text-[9px] font-bold bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
-            {t('status_ready')}
-          </span>
-        </div>
+        )}
       </div>
     </aside>
   );

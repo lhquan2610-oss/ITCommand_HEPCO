@@ -127,7 +127,7 @@ const MainLayout: React.FC = () => {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-slate-50 dark:bg-slate-950">
           <Navbar onRefresh={handleGlobalRefresh} isRefreshing={isRefreshing} />
-          <main className="flex-1 p-5 overflow-y-auto">
+          <main className="flex-1 p-3 sm:p-4 md:p-5 overflow-y-auto">
             <Suspense fallback={<PageLoader />}>
               <Routes>
                 <Route path="/" element={<RootRoute />} />

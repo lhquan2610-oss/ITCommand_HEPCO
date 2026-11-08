@@ -258,7 +258,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* Metric Cards Row */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
         <MetricCard
           title="TỔNG THIẾT BỊ QUẢN LÝ"
           value={metrics.total_devices}
