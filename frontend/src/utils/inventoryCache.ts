@@ -175,6 +175,242 @@ const VERIFIED_CAMERA_MAP: Record<
   },
 };
 
+// Guaranteed Core Wi-Fi Routers (Tầng 1, Tầng 2, Tầng 3 & Xí Nghiệp)
+const VERIFIED_WIFI_ROUTERS: Record<string, any> = {
+  '10.1.1.33': {
+    id: 'dev-hepco-10',
+    device_code: 'TS-WF-001',
+    display_name: 'Modem / Router Wi-Fi ASUS Tầng 1 (Phòng Họp & TCHC)',
+    category: 'ROUTER',
+    ip: '10.1.1.33',
+    mac: '04:42:1A:3F:BA:28',
+    vendor: 'ASUSTek COMPUTER INC.',
+    assigned_user: 'Wi-Fi Tầng 1 (Phòng Họp & TCHC)',
+    department: 'Wi-Fi',
+    location: 'Tầng 1 - Phòng Họp Lớn & Sảnh Trung Tâm',
+    status: 'ONLINE',
+    model: 'ASUS RT-AC1200',
+    notes: 'Router Wi-Fi ASUSTek RT-AC1200 Dual-Band Gigabit | Băng tần: Dual-Band 2.4GHz (300Mbps) + 5GHz (867Mbps) | Cổng: 1 WAN Gigabit + 4 LAN Gigabit | Vị trí: Tầng 1 - Phòng họp lớn, Sảnh trung tâm & Phòng TCHC',
+    specs: {
+      asset_code: 'TS-WF-001',
+      year: '2023',
+      router_brand: 'ASUSTek',
+      router_model: 'RT-AC1200 Dual-Band Gigabit',
+      router_type: 'Router Wi-Fi & Access Point (Tầng 1)',
+      router_band: 'Dual-Band 2.4GHz (300Mbps) + 5GHz (867Mbps) Wi-Fi 5',
+      router_ports: '1 WAN Gigabit + 4 LAN Gigabit (1000Mbps)',
+      router_ssid: 'HEPCO_TANG1_TCHC',
+      router_coverage: 'Tầng 1 - Phòng họp lớn, Sảnh trung tâm & Phòng TCHC',
+    },
+  },
+  '10.2.0.191': {
+    id: 'dev-hepco-23',
+    device_code: 'TS-WF-002',
+    display_name: 'Router Wi-Fi TP-Link Tầng 2 (Kế Toán - Tài Vụ & Kỹ Thuật)',
+    category: 'ROUTER',
+    ip: '10.2.0.191',
+    mac: 'E4:C3:2A:82:AE:A0',
+    vendor: 'TP-LINK TECHNOLOGIES CO.,LTD.',
+    assigned_user: 'Wi-Fi Tầng 2 (Kế Toán & Kỹ Thuật)',
+    department: 'Wi-Fi',
+    location: 'Tầng 2 - Tòa Nhà Văn Phòng HEPCO',
+    status: 'ONLINE',
+    model: 'TP-Link Archer C64',
+    notes: 'Router Wi-Fi TP-Link Archer C64 AC1200 MU-MIMO | Băng tần: Dual-Band 2.4GHz (400Mbps) + 5GHz (867Mbps) | Cổng: 1 WAN Gigabit + 4 LAN Gigabit | Vị trí: Tầng 2 - Phòng Kế toán - Tài vụ & Phòng Kỹ thuật',
+    specs: {
+      asset_code: 'TS-WF-002',
+      year: '2023',
+      router_brand: 'TP-Link',
+      router_model: 'Archer C64 AC1200 MU-MIMO',
+      router_type: 'Router Wi-Fi & Access Point (Tầng 2)',
+      router_band: 'Dual-Band 2.4GHz (400Mbps) + 5GHz (867Mbps)',
+      router_ports: '1 WAN Gigabit + 4 LAN Gigabit (1000Mbps)',
+      router_ssid: 'HEPCO_TANG2_KETOAN',
+      router_coverage: 'Tầng 2 - Phòng Kế toán - Tài vụ & Phòng Kỹ thuật',
+    },
+  },
+  '10.2.1.43': {
+    id: 'dev-hepco-31',
+    device_code: 'TS-WF-002A',
+    display_name: 'Router Wi-Fi ASUS Tầng 2 - Phòng Kỹ Thuật (Wifi tầng 2)',
+    category: 'ROUTER',
+    ip: '10.2.1.43',
+    mac: '10:7C:61:E2:D5:40',
+    vendor: 'ASUSTek COMPUTER INC.',
+    assigned_user: 'Wifi tầng 2 (Phòng Kỹ Thuật)',
+    department: 'Wi-Fi',
+    location: 'Tầng 2 - Phòng Kỹ Thuật',
+    status: 'ONLINE',
+    model: 'ASUS RT-AC1300UHP',
+    notes: 'Router Wi-Fi ASUS Tầng 2 - Phòng Kỹ Thuật | Băng tần: Dual-Band 2.4GHz (400Mbps) + 5GHz (867Mbps) | Cổng: 1 WAN Gigabit + 4 LAN Gigabit | Vị trí: Tầng 2 - Phòng Kỹ Thuật',
+    specs: {
+      asset_code: 'TS-WF-002A',
+      year: '2023',
+      router_brand: 'ASUSTek',
+      router_model: 'RT-AC1300UHP High-Power Dual-Band',
+      router_type: 'Router Wi-Fi & AP (Tầng 2 - Kỹ Thuật)',
+      router_band: 'Dual-Band 2.4GHz (400Mbps) + 5GHz (867Mbps)',
+      router_ports: '1 WAN Gigabit + 4 LAN Gigabit + USB 3.0',
+      router_ssid: 'HEPCO_TANG2_KYTHUAT',
+      router_coverage: 'Tầng 2 - Phòng Kỹ Thuật & Hành Lang',
+    },
+  },
+  '10.2.1.52': {
+    id: 'dev-hepco-34',
+    device_code: 'TS-WF-002B',
+    display_name: 'Router Wi-Fi Tầng 2 - Phòng Kế Toán - Tài Vụ (Router wifi KT-TV)',
+    category: 'ROUTER',
+    ip: '10.2.1.52',
+    mac: '74:56:3C:2D:BC:DD',
+    vendor: 'TP-Link / Gigabyte Wireless',
+    assigned_user: 'Router wifi KT-TV (Tầng 2)',
+    department: 'Wi-Fi',
+    location: 'Tầng 2 - Phòng Kế Toán - Tài Vụ',
+    status: 'ONLINE',
+    model: 'Archer C6 / AP Gigabit KT-TV',
+    notes: 'Router Wi-Fi Tầng 2 Phòng Kế Toán - Tài Vụ | Băng tần: Dual-Band 2.4GHz + 5GHz | Cổng: 1 WAN + 4 LAN Gigabit | Vị trí: Tầng 2 - Phòng Kế Toán - Tài Vụ',
+    specs: {
+      asset_code: 'TS-WF-002B',
+      year: '2023',
+      router_brand: 'TP-Link / Gigabyte',
+      router_model: 'Archer C6 AC1200 Dual-Band (KT-TV)',
+      router_type: 'Router Wi-Fi & AP (Tầng 2 - KT-TV)',
+      router_band: 'Dual-Band 2.4GHz (300Mbps) + 5GHz (867Mbps)',
+      router_ports: '1 WAN Gigabit + 4 LAN Gigabit',
+      router_ssid: 'HEPCO_TANG2_KTTV',
+      router_coverage: 'Tầng 2 - Phòng Kế Toán - Tài Vụ',
+    },
+  },
+  '10.1.0.62': {
+    id: 'dev-10-1-0-62',
+    device_code: 'TS-RO-062',
+    display_name: 'Router Wi-Fi ASUS Tầng 2 - Văn Phòng Kỹ Thuật (router.asus.com)',
+    category: 'ROUTER',
+    ip: '10.1.0.62',
+    mac: '3C-7C-3F-A4-8E-48',
+    vendor: 'ASUSTek Computer Inc.',
+    assigned_user: 'Wi-Fi Tầng 2 - Phòng Kỹ Thuật',
+    department: 'Wi-Fi',
+    location: 'Tầng 2 - Phòng Kỹ Thuật',
+    status: 'ONLINE',
+    model: 'ASUS RT-AC59U V2',
+    notes: 'Router Wi-Fi ASUS RT-AC59U V2 AC1500 | Băng tần: Dual-Band 2.4GHz (600Mbps) + 5GHz (867Mbps) | Cổng: 1 WAN Gigabit + 4 LAN Gigabit | Vị trí: Tầng 2 - Phòng Kỹ Thuật',
+    specs: {
+      asset_code: 'TS-RO-062',
+      year: '2023',
+      router_brand: 'ASUSTek',
+      router_model: 'RT-AC59U V2 AC1500',
+      router_type: 'Router / Access Point (Tầng 2)',
+      router_band: 'Dual-Band 2.4GHz (600Mbps) + 5GHz (867Mbps) 4 Anten',
+      router_ports: '1 WAN Gigabit + 4 LAN Gigabit + 1 USB 2.0',
+      router_ssid: 'HEPCO-KYTHUAT_5G',
+      router_coverage: 'Tầng 2 - Phòng Kỹ Thuật & Hành Lang',
+    },
+  },
+  '192.168.50.1': {
+    id: 'dev-192-168-50-1',
+    device_code: 'TS-RO-050',
+    display_name: 'Modem / Router Wi-Fi ASUS Tầng 2 (Hành Lang Khối Văn Phòng)',
+    category: 'ROUTER',
+    ip: '192.168.50.1',
+    mac: '04-42-1A-3F-BA-28',
+    vendor: 'ASUSTek Computer Inc.',
+    assigned_user: 'Ban Quản Trị Mạng (Wi-Fi Tầng 2)',
+    department: 'Wi-Fi',
+    location: 'Tầng 2 - Hành Lang Trung Tâm Khối Văn Phòng',
+    status: 'ONLINE',
+    model: 'ASUS RT-AX55 Wi-Fi 6',
+    notes: 'Phát sóng Wi-Fi 6 băng tần kép cho Hành Lang Tầng 2 & Khối Phòng Ban Trung Tâm',
+    specs: {
+      asset_code: 'TS-RO-050',
+      year: '2023',
+      router_brand: 'ASUSTek',
+      router_model: 'RT-AX55 Dual Band Wi-Fi 6 AX1800',
+      router_type: 'Router / Mesh Node (Tầng 2)',
+      router_band: 'Wi-Fi 6 AX1800 (574Mbps 2.4G + 1201Mbps 5G) AiMesh',
+      router_ports: '1 WAN Gigabit + 4 LAN Gigabit',
+      router_ssid: 'HEPCO-LANHDAO_5G',
+      router_coverage: 'Tầng 2 - Hành Lang & Khối Phòng Ban Trung Tâm',
+    },
+  },
+  '10.3.1.35': {
+    id: 'dev-hepco-46',
+    device_code: 'TS-WF-003',
+    display_name: 'Modem / Router Wi-Fi ASUS Tầng 3 (Ban Lãnh Đạo & Phòng KH)',
+    category: 'ROUTER',
+    ip: '10.3.1.35',
+    mac: 'CC:28:AA:B6:3A:10',
+    vendor: 'ASUSTek COMPUTER INC.',
+    assigned_user: 'Wi-Fi Tầng 3 (Ban Lãnh Đạo & KH)',
+    department: 'Wi-Fi',
+    location: 'Tầng 3 - Tòa Nhà Văn Phòng HEPCO',
+    status: 'ONLINE',
+    model: 'ASUS RT-AX53U (Wi-Fi 6)',
+    notes: 'Router Wi-Fi ASUSTek RT-AX53U Dual-Band Wi-Fi 6 AX1800 | Băng tần: Wi-Fi 6 AX1800 (574Mbps 2.4G + 1201Mbps 5G) | Cổng: 1 WAN Gigabit + 3 LAN Gigabit + 1 USB | Vị trí: Tầng 3 - Ban Lãnh Đạo & Phòng Kế Hoạch',
+    specs: {
+      asset_code: 'TS-WF-003',
+      year: '2023',
+      router_brand: 'ASUSTek',
+      router_model: 'RT-AX53U Dual-Band Wi-Fi 6 AX1800',
+      router_type: 'Router Wi-Fi 6 High-Performance (Tầng 3)',
+      router_band: 'Wi-Fi 6 AX1800 (574Mbps 2.4G + 1201Mbps 5G)',
+      router_ports: '1 WAN Gigabit + 3 LAN Gigabit + 1 Cổng USB',
+      router_ssid: 'HEPCO_TANG3_LANHDAO',
+      router_coverage: 'Tầng 3 - Khu vực Ban Lãnh Đạo, Phòng Kế Hoạch & Hội trường',
+    },
+  },
+};
+
+// Guaranteed External / Cloud Cameras (Camera Bãi Rác & Camera Imou)
+const EXTRA_CAMERAS = [
+  {
+    id: 'dev-cam-bairac',
+    device_code: 'CAM-BAIRAC-01',
+    display_name: 'Camera Bãi Rác (BaiRac - IP Tĩnh 113.161.8.149)',
+    category: 'CAMERA',
+    ip: '113.161.8.149',
+    mac: '3C:EF:8C:BA:14:90',
+    vendor: 'Dahua / SmartPSS Security (Port 37777 / 3777)',
+    assigned_user: 'Ban Quản Lý Bãi Rác & Xử Lý Chất Thải',
+    department: 'Camera',
+    location: 'Khu Vực Bãi Rác (IP WAN: 113.161.8.149)',
+    status: 'ONLINE',
+    last_seen: 'Trực tuyến (Port 37777 / 554 / 83)',
+    openPorts: [83, 554, 8000, 3777, 37777],
+    parent_nvr: '113.161.8.149',
+    parent_nvr_name: 'Camera Bãi Rác (BaiRac - 113.161.8.149:37777)',
+    nvr_channel: 1,
+    nvr_rtsp_channel: '1',
+    is_nvr: true,
+    nvr_role: 'BAIRAC_WAN',
+    osd_label: 'BaiRac (Port 37777 / 3777)',
+    notes: 'Device Name: BaiRac | Method: IP/Domain | IP: 113.161.8.149 | Port: 37777 (3777) | User: admin | Pass: philonghue123 | RTSP Port: 554 | Web Port: 83',
+  },
+  {
+    id: 'dev-cam-imou',
+    device_code: 'CAM-IMOU-CLOUD',
+    display_name: 'Hệ Thống Camera Wi-Fi Imou Cloud (hepco.camera@gmail.com)',
+    category: 'CAMERA',
+    ip: 'imou.hepco.cloud',
+    mac: 'IMOU-CLOUD-HEPCO',
+    vendor: 'Imou Life / Dahua Cloud (hepco.camera@gmail.com)',
+    assigned_user: 'Tài khoản Cloud: hepco.camera@gmail.com',
+    department: 'Camera',
+    location: 'Hệ Thống Camera Wi-Fi Imou Toàn Công Ty',
+    status: 'ONLINE',
+    last_seen: 'Kết nối Cloud Imou Life',
+    openPorts: [443, 554, 37777],
+    parent_nvr: 'IMOU_CLOUD',
+    parent_nvr_name: 'Imou Cloud (hepco.camera@gmail.com)',
+    nvr_channel: 1,
+    nvr_rtsp_channel: '1',
+    is_nvr: true,
+    nvr_role: 'IMOU_CLOUD',
+    osd_label: 'Imou (hepco.camera@gmail.com)',
+    notes: 'Tài khoản Imou: hepco.camera@gmail.com | Mật khẩu: Hepco@123 | Quản lý trực tuyến qua Imou Life Cloud',
+  },
+];
+
 export function normalizeInventoryList(list: any[]): any[] {
   if (!Array.isArray(list)) return [];
   let cleaned = list.filter((d) => d && d.ip !== '10.2.1.154');
@@ -211,6 +447,38 @@ export function normalizeInventoryList(list: any[]): any[] {
 
     if (VERIFIED_CAMERA_MAP[d.ip]) {
       Object.assign(d, VERIFIED_CAMERA_MAP[d.ip]);
+    }
+
+    // Ensure all core Wi-Fi routers (especially Tầng 1, Tầng 2, Tầng 3) are properly normalized
+    if (VERIFIED_WIFI_ROUTERS[d.ip]) {
+      const wf = VERIFIED_WIFI_ROUTERS[d.ip];
+      d.department = 'Wi-Fi';
+      d.category = 'ROUTER';
+      d.display_name = wf.display_name;
+      d.device_code = wf.device_code;
+      d.assigned_user = wf.assigned_user;
+      d.location = wf.location;
+      d.vendor = wf.vendor;
+      d.model = wf.model;
+      d.notes = wf.notes;
+      d.specs = { ...(d.specs || {}), ...wf.specs };
+    }
+  });
+
+  // Inject any missing core Wi-Fi routers (Tầng 1, Tầng 2, Tầng 3)
+  Object.keys(VERIFIED_WIFI_ROUTERS).forEach((ip) => {
+    if (!cleaned.some((d) => d.ip === ip)) {
+      cleaned.push({ ...VERIFIED_WIFI_ROUTERS[ip] });
+    }
+  });
+
+  // Inject or update Camera Bãi Rác (113.161.8.149) and Camera Imou (hepco.camera@gmail.com)
+  EXTRA_CAMERAS.forEach((cam) => {
+    const existing = cleaned.find((d) => d.ip === cam.ip || d.id === cam.id);
+    if (existing) {
+      Object.assign(existing, cam);
+    } else {
+      cleaned.push({ ...cam });
     }
   });
 

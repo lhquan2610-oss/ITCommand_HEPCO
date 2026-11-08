@@ -976,9 +976,13 @@ ipcMain.handle('audit-remote-hardware', async (_, ip) => {
 const NVR_CREDS = {
   '10.110.1.13': { user: 'admin', pass: 'hepco@12@12' },
   '10.110.1.80': { user: 'admin', pass: '@dmin123' },
+  '113.161.8.149': { user: 'admin', pass: 'philonghue123', port: 83, tcpPort: 37777 },
+  'IMOU_CLOUD': { user: 'hepco.camera@gmail.com', pass: 'Hepco@123' },
 };
 
 function getNvrCredsForIp(ip) {
+  if (ip === '113.161.8.149') return NVR_CREDS['113.161.8.149'];
+  if (ip === 'IMOU_CLOUD' || ip === 'imou.hepco.cloud') return NVR_CREDS['IMOU_CLOUD'];
   if (ip === '10.110.1.13' || ip.startsWith('10.110.1.1') || ip.startsWith('10.110.1.2') || ip.startsWith('10.110.1.5')) {
     return NVR_CREDS['10.110.1.13'];
   }
@@ -1056,11 +1060,18 @@ ipcMain.handle('camera-fetch-snapshot', async (_, payload) => {
 
 ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
   try {
+    const isImou = ip === 'IMOU_CLOUD' || ip === 'imou.hepco.cloud';
+    const isBaiRac = ip === '113.161.8.149';
     const creds = getNvrCredsForIp(ip);
+
     const camWin = new BrowserWindow({
-      width: 1200,
-      height: 780,
-      title: `HEPCO CCTV Live - ${name || 'Camera'} (${ip})`,
+      width: 1240,
+      height: 820,
+      title: isImou
+        ? 'HEPCO Camera Imou Cloud - TK: hepco.camera@gmail.com | MK: Hepco@123'
+        : isBaiRac
+        ? 'HEPCO Camera Bãi Rác (BaiRac) - IP: 113.161.8.149 | Port: 37777 / 3777 | TK: admin | MK: philonghue123'
+        : `HEPCO CCTV Live - ${name || 'Camera'} (${ip})`,
       backgroundColor: '#0a0e17',
       autoHideMenuBar: true,
       webPreferences: {
@@ -1075,7 +1086,62 @@ ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
       callback(creds.user, creds.pass);
     });
 
-    camWin.loadURL(`http://${ip}`);
+    const targetUrl = isImou
+      ? 'https://www.imoulife.com/vn'
+      : isBaiRac
+      ? 'http://113.161.8.149:83'
+      : `http://${ip}`;
+
+    camWin.webContents.on('did-finish-load', () => {
+      const userVal = JSON.stringify(creds.user);
+      const passVal = JSON.stringify(creds.pass);
+      const bannerLabel = isImou
+        ? '☁️ IMOU CLOUD HEPCO — Tài khoản: hepco.camera@gmail.com | Mật khẩu: Hepco@123'
+        : isBaiRac
+        ? '📹 CAMERA BÃI RÁC (BaiRac) — IP: 113.161.8.149 | Port: 37777 (3777) / Web: 83 | TK: admin | MK: philonghue123'
+        : `📹 ĐẦU GHI CAMERA (${ip}) — TK: ${creds.user} | MK: ${creds.pass}`;
+
+      camWin.webContents
+        .executeJavaScript(`
+          (function() {
+            try {
+              const u = ${userVal};
+              const p = ${passVal};
+              function fillLogin() {
+                const inputs = Array.from(document.querySelectorAll('input'));
+                const uInput = inputs.find(el => el.type === 'text' || el.type === 'email' || (el.name && /user|email|account|login/i.test(el.name)) || (el.placeholder && /user|tài khoản|email/i.test(el.placeholder)));
+                const pInput = inputs.find(el => el.type === 'password');
+                if (uInput && !uInput.value) {
+                  uInput.value = u;
+                  uInput.dispatchEvent(new Event('input', { bubbles: true }));
+                  uInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                if (pInput && !pInput.value) {
+                  pInput.value = p;
+                  pInput.dispatchEvent(new Event('input', { bubbles: true }));
+                  pInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+              }
+              fillLogin();
+              setTimeout(fillLogin, 1200);
+              setTimeout(fillLogin, 2800);
+
+              if (!document.getElementById('hepco-cam-bar')) {
+                const bar = document.createElement('div');
+                bar.id = 'hepco-cam-bar';
+                bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:999999;background:rgba(15,23,42,0.95);color:#f8fafc;padding:8px 16px;font-family:monospace;font-size:12px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #10b981;';
+                bar.innerHTML = '<span>' + ${JSON.stringify(bannerLabel)} + '</span><div style="display:flex;gap:8px;"><button id="hepco-copy-u" style="background:#059669;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:bold;">Chép TK</button><button id="hepco-copy-p" style="background:#0284c7;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:bold;">Chép MK</button></div>';
+                document.body.appendChild(bar);
+                document.getElementById('hepco-copy-u').onclick = () => navigator.clipboard.writeText(u);
+                document.getElementById('hepco-copy-p').onclick = () => navigator.clipboard.writeText(p);
+              }
+            } catch (e) {}
+          })();
+        `)
+        .catch(() => {});
+    });
+
+    camWin.loadURL(targetUrl);
     return { success: true };
   } catch (err) {
     return { success: false, error: err.message };

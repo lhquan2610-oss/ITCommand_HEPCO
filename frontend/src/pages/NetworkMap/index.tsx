@@ -463,66 +463,111 @@ export const NetworkMapPage: React.FC = () => {
                   {/* TẦNG 1 */}
                   <div
                     onClick={() => {
-                      const d = devices.find((x) => x.ip === '10.1.1.33');
-                      if (d) setSelectedNode(d);
+                      const d = devices.find((x) => x.ip === '10.1.1.33') || {
+                        id: 'dev-hepco-10',
+                        display_name: 'Modem / Router Wi-Fi ASUS Tầng 1 (Phòng Họp & TCHC)',
+                        ip: '10.1.1.33',
+                        mac: '04:42:1A:3F:BA:28',
+                        category: 'ROUTER',
+                        vendor: 'ASUSTek RT-AC1200',
+                        status: 'ONLINE',
+                        department: 'Wi-Fi',
+                      };
+                      setSelectedNode(d as any);
                     }}
                     className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 transition cursor-pointer"
                   >
-                    <div className="font-bold text-emerald-300 truncate">Wi-Fi Tầng 1</div>
+                    <div className="font-bold text-emerald-300 truncate">Router Wi-Fi Tầng 1</div>
                     <div className="text-[11px] font-mono text-slate-300">10.1.1.33</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">ASUS (Phòng Họp & TCHC)</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">ASUS (Phòng Họp & TCHC)</div>
                   </div>
 
-                  {/* TẦNG 2 */}
+                  {/* TẦNG 2 - KẾ TOÁN & KỸ THUẬT */}
                   <div
                     onClick={() => {
-                      const d = devices.find((x) => x.ip === '10.2.0.191');
-                      if (d) setSelectedNode(d);
+                      const d = devices.find((x) => x.ip === '10.2.0.191') || {
+                        id: 'dev-hepco-23',
+                        display_name: 'Router Wi-Fi TP-Link Tầng 2 (Kế Toán - Tài Vụ & Kỹ Thuật)',
+                        ip: '10.2.0.191',
+                        mac: 'E4:C3:2A:82:AE:A0',
+                        category: 'ROUTER',
+                        vendor: 'TP-Link Archer C64 AC1200',
+                        status: 'ONLINE',
+                        department: 'Wi-Fi',
+                      };
+                      setSelectedNode(d as any);
                     }}
-                    className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 transition cursor-pointer"
+                    className="p-2.5 rounded-xl bg-slate-950 border border-emerald-500/40 hover:border-emerald-400 transition cursor-pointer"
                   >
-                    <div className="font-bold text-emerald-300 truncate">Wi-Fi Tầng 2</div>
-                    <div className="text-[11px] font-mono text-slate-300">10.2.0.191</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">TP-Link (Kế Toán - Tài Vụ)</div>
+                    <div className="font-bold text-emerald-300 truncate">Router Wi-Fi Tầng 2</div>
+                    <div className="text-[11px] font-mono text-slate-300">10.2.0.191 · .43 · .52</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">TP-Link & ASUS (KT-TV & Kỹ Thuật)</div>
                   </div>
 
                   {/* TẦNG 3 */}
                   <div
                     onClick={() => {
-                      const d = devices.find((x) => x.ip === '10.3.1.35');
-                      if (d) setSelectedNode(d);
+                      const d = devices.find((x) => x.ip === '10.3.1.35') || {
+                        id: 'dev-hepco-46',
+                        display_name: 'Modem / Router Wi-Fi ASUS Tầng 3 (Ban Lãnh Đạo & KH)',
+                        ip: '10.3.1.35',
+                        mac: 'CC:28:AA:B6:3A:10',
+                        category: 'ROUTER',
+                        vendor: 'ASUSTek RT-AX53U Wi-Fi 6',
+                        status: 'ONLINE',
+                        department: 'Wi-Fi',
+                      };
+                      setSelectedNode(d as any);
                     }}
                     className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 transition cursor-pointer"
                   >
-                    <div className="font-bold text-emerald-300 truncate">Wi-Fi Tầng 3</div>
+                    <div className="font-bold text-emerald-300 truncate">Router Wi-Fi Tầng 3</div>
                     <div className="text-[11px] font-mono text-slate-300">10.3.1.35</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">ASUS (Lãnh Đạo & Kế Hoạch)</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">ASUS Wi-Fi 6 (Ban Lãnh Đạo & KH)</div>
                   </div>
 
-                  {/* PHÒNG KỸ THUẬT */}
+                  {/* PHÒNG KỸ THUẬT TẦNG 2 */}
                   <div
                     onClick={() => {
-                      const d = devices.find((x) => x.ip === '10.1.0.62');
-                      if (d) setSelectedNode(d);
+                      const d = devices.find((x) => x.ip === '10.1.0.62') || {
+                        id: 'dev-10-1-0-62',
+                        display_name: 'Router Wi-Fi ASUS Tầng 2 - Văn Phòng Kỹ Thuật',
+                        ip: '10.1.0.62',
+                        mac: '3C-7C-3F-A4-8E-48',
+                        category: 'ROUTER',
+                        vendor: 'ASUSTek RT-AC59U V2',
+                        status: 'ONLINE',
+                        department: 'Wi-Fi',
+                      };
+                      setSelectedNode(d as any);
                     }}
                     className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 transition cursor-pointer"
                   >
-                    <div className="font-bold text-emerald-300 truncate">Wi-Fi Kỹ Thuật</div>
-                    <div className="text-[11px] font-mono text-slate-300">10.1.0.62</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">ASUS RT-AC59U</div>
+                    <div className="font-bold text-emerald-300 truncate">Wi-Fi Kỹ Thuật (Tầng 2)</div>
+                    <div className="text-[11px] font-mono text-slate-300">10.1.0.62 · 10.2.1.43</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">ASUS RT-AC59U (Phòng Kỹ Thuật)</div>
                   </div>
 
                   {/* HÀNH LANG TẦNG 2 / MESH TRUNG TÂM */}
                   <div
                     onClick={() => {
-                      const d = devices.find((x) => x.ip === '192.168.50.1');
-                      if (d) setSelectedNode(d);
+                      const d = devices.find((x) => x.ip === '192.168.50.1') || {
+                        id: 'dev-192-168-50-1',
+                        display_name: 'Modem / Router Wi-Fi ASUS Tầng 2 (Hành Lang Khối Văn Phòng)',
+                        ip: '192.168.50.1',
+                        mac: '04-42-1A-3F-BA-28',
+                        category: 'ROUTER',
+                        vendor: 'ASUSTek RT-AX55 Wi-Fi 6',
+                        status: 'ONLINE',
+                        department: 'Wi-Fi',
+                      };
+                      setSelectedNode(d as any);
                     }}
                     className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-emerald-500 transition cursor-pointer"
                   >
-                    <div className="font-bold text-emerald-300 truncate">Wi-Fi RT-AC/AX</div>
-                    <div className="text-[11px] font-mono text-slate-300">192.168.50.1</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">ASUS Trung Tâm</div>
+                    <div className="font-bold text-emerald-300 truncate">Wi-Fi Hành Lang Tầng 2</div>
+                    <div className="text-[11px] font-mono text-slate-300">192.168.50.1 · 10.2.1.52</div>
+                    <div className="text-[10px] text-slate-400 mt-0.5">ASUS AX1800 & Router KT-TV</div>
                   </div>
 
                   {/* NVR 01 VĂN PHÒNG */}

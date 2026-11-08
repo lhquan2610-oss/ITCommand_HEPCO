@@ -214,8 +214,7 @@ export const ComputerInventoryPage: React.FC = () => {
         (d) =>
           d.category !== 'PRINTER' &&
           d.category !== 'CAMERA' &&
-          d.category !== 'SWITCH' &&
-          d.category !== 'ROUTER' &&
+          (d.department === 'Wi-Fi' || (d.category !== 'SWITCH' && d.category !== 'ROUTER')) &&
           d.ip !== '10.0.0.17' &&
           d.ip !== '10.0.0.18' &&
           !(d.display_name && (d.display_name.toLowerCase().includes('photocopy') || d.display_name.toLowerCase().includes('ricoh'))) &&

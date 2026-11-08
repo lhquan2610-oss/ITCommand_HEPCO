@@ -14,6 +14,13 @@ import {
   Layers,
   LayoutGrid,
   Monitor,
+  Copy,
+  Cloud,
+  KeyRound,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  Radio,
 } from 'lucide-react';
 
 interface CameraDevice {
@@ -71,22 +78,48 @@ export const NVR2_CHANNELS: ChannelConfig[] = [
   { ch: 1001, name: 'Ch.10', label: 'Xưởng cơ khí', fullTitle: 'Xưởng Cơ Khí Sửa Chữa Phương Tiện', camIp: '10.110.1.57', osd: 'IP Camera10' },
 ];
 
+export const BAIRAC_CHANNELS = [
+  { ch: 1, name: 'Ch.01', label: 'Cổng & Trạm Cân Bãi Rác', rtspSubtype: 0 },
+  { ch: 2, name: 'Ch.02', label: 'Bãi Đổ & Xử Lý Rác Trung Tâm', rtspSubtype: 0 },
+  { ch: 3, name: 'Ch.03', label: 'Đường Nội Bộ Khu Bãi Rác', rtspSubtype: 0 },
+  { ch: 4, name: 'Ch.04', label: 'Khu Vực Vận Hành & Giám Sát', rtspSubtype: 0 },
+];
+
 interface CameraLiveWallProps {
   cameras: CameraDevice[];
-  onSwitchToListMode?: (nvrFilter?: 'ALL' | '10.110.1.13' | '10.110.1.80') => void;
+  onSwitchToListMode?: (
+    nvrFilter?: 'ALL' | '10.110.1.13' | '10.110.1.80' | '113.161.8.149' | 'IMOU_CLOUD'
+  ) => void;
 }
 
 export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitchToListMode }) => {
-  // Pre-configured NVR Credentials
+  // Pre-configured NVR & External Camera Credentials
   const NVR_CREDS = {
     '10.110.1.13': { user: 'admin', pass: 'hepco@12@12', label: 'NVR 01 Trung Tâm (DS-7632NXI-K2)' },
     '10.110.1.80': { user: 'admin', pass: '@dmin123', label: 'NVR 02 Hương Sơ / Xí Nghiệp (DS-7616NI-K2)' },
+    '113.161.8.149': {
+      deviceName: 'BaiRac',
+      method: 'IP/Domain',
+      ip: '113.161.8.149',
+      port: '37777 (3777)',
+      rtspPort: '554',
+      webPort: '83',
+      group: 'Default Group',
+      user: 'admin',
+      pass: 'philonghue123',
+    },
+    IMOU_CLOUD: {
+      account: 'hepco.camera@gmail.com',
+      pass: 'Hepco@123',
+      platform: 'Imou Life Cloud (imoulife.com)',
+    },
   };
 
   // Keyed by `${nvrIp}_${channelNum}` AND `${nvrIp}` for current active single view
   const [channelSnapshots, setChannelSnapshots] = useState<Record<string, string>>({});
   const [snapshotErrors, setSnapshotErrors] = useState<Record<string, string>>({});
   const [copiedRtsp, setCopiedRtsp] = useState<Record<string, boolean>>({});
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // View Mode:
   // 'SINGLE' = Default current view (1 main screen per NVR + channel selector buttons below)
@@ -97,6 +130,11 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
   // Active channel selected for single live preview per NVR (Default Ch.01 = 101)
   const [nvr1ActiveChannel, setNvr1ActiveChannel] = useState<number>(101);
   const [nvr2ActiveChannel, setNvr2ActiveChannel] = useState<number>(101);
+  const [bairacActiveChannel, setBairacActiveChannel] = useState<number>(1);
+
+  // Show/hide passwords on BaiRac & Imou cards
+  const [showBairacPass, setShowBairacPass] = useState<boolean>(true);
+  const [showImouPass, setShowImouPass] = useState<boolean>(true);
 
   // Live Auto-Stream Engine (Always running live by default)
   const [isLiveAutoPlay, setIsLiveAutoPlay] = useState<boolean>(true);
@@ -188,7 +226,6 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
       if (nvr1ViewMode === 'SINGLE') {
         fetchChannelSnapshot('10.110.1.13', nvr1ActiveChannel);
       } else {
-        // Refresh 4 channels per tick in round-robin for smooth 10/10 live view
         for (let i = 0; i < 4; i++) {
           const idx = (nvr1RoundRobinIdx.current + i) % NVR1_CHANNELS.length;
           fetchChannelSnapshot('10.110.1.13', NVR1_CHANNELS[idx].ch);
@@ -222,9 +259,19 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
   const handleOpenEmbeddedViewer = async (ip: string, name: string) => {
     if (window.hiccDesktop?.cameraOpenViewerWindow) {
       await window.hiccDesktop.cameraOpenViewerWindow({ ip, name });
+    } else if (ip === 'IMOU_CLOUD') {
+      window.open('https://www.imoulife.com/vn', '_blank');
+    } else if (ip === '113.161.8.149') {
+      window.open('http://113.161.8.149:83', '_blank');
     } else {
       window.open(`http://${ip}`, '_blank');
     }
+  };
+
+  const handleCopyText = (key: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
   };
 
   const handleCopyRtsp = (nvrIp: '10.110.1.13' | '10.110.1.80', channel: number = 101) => {
@@ -234,6 +281,19 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
     setCopiedRtsp((prev) => ({ ...prev, [nvrIp]: true }));
     setTimeout(() => {
       setCopiedRtsp((prev) => ({ ...prev, [nvrIp]: false }));
+    }, 2500);
+
+    if (window.hiccDesktop?.cameraLaunchStream) {
+      window.hiccDesktop.cameraLaunchStream(rtspUrl);
+    }
+  };
+
+  const handleLaunchBairacRtsp = (channel: number = 1) => {
+    const rtspUrl = `rtsp://admin:philonghue123@113.161.8.149:554/cam/realmonitor?channel=${channel}&subtype=0`;
+    navigator.clipboard.writeText(rtspUrl);
+    setCopiedRtsp((prev) => ({ ...prev, '113.161.8.149': true }));
+    setTimeout(() => {
+      setCopiedRtsp((prev) => ({ ...prev, '113.161.8.149': false }));
     }, 2500);
 
     if (window.hiccDesktop?.cameraLaunchStream) {
@@ -254,6 +314,8 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
 
   const activeNvr1Meta = NVR1_CHANNELS.find((c) => c.ch === nvr1ActiveChannel) || NVR1_CHANNELS[0];
   const activeNvr2Meta = NVR2_CHANNELS.find((c) => c.ch === nvr2ActiveChannel) || NVR2_CHANNELS[0];
+  const activeBairacMeta =
+    BAIRAC_CHANNELS.find((c) => c.ch === bairacActiveChannel) || BAIRAC_CHANNELS[0];
 
   const activeNvr1Img = channelSnapshots[`10.110.1.13_${nvr1ActiveChannel}`];
   const activeNvr2Img = channelSnapshots[`10.110.1.80_${nvr2ActiveChannel}`];
@@ -268,23 +330,35 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
           </div>
           <div>
             <div className="text-xs font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 flex-wrap">
-              <span>TRUNG TÂM GIÁM SÁT 02 ĐẦU GHI NVR TẬP TRUNG</span>
+              <span>TRUNG TÂM GIÁM SÁT AN NINH TẬP TRUNG HEPCO (02 NVR + BÃI RÁC + IMOU CLOUD)</span>
               <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 dark:bg-emerald-900/80 dark:text-emerald-300 px-2 py-0.5 rounded-full flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                LIVE 20/20 KÊNH TRỰC TIẾP
+                LIVE 24/7 TRỰC TIẾP
               </span>
             </div>
-            <div className="text-[11px] text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-4 mt-0.5 font-mono">
-              <span className="flex items-center gap-1.5">
+            <div className="text-[11px] text-slate-600 dark:text-slate-400 flex flex-wrap items-center gap-3 mt-1 font-mono">
+              <span className="flex items-center gap-1">
                 <span>• NVR 01 (10.110.1.13):</span>
-                <span className="text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-100/80 dark:bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
-                  10/10 Camera Văn Phòng
+                <span className="text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-100/80 dark:bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-300 dark:border-emerald-800">
+                  10/10 VP
                 </span>
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1">
                 <span>• NVR 02 (10.110.1.80):</span>
-                <span className="text-teal-700 dark:text-teal-400 font-bold bg-teal-100/80 dark:bg-teal-950/80 px-2 py-0.5 rounded border border-teal-300 dark:border-teal-800">
-                  10/10 Camera Hương Sơ
+                <span className="text-teal-700 dark:text-teal-400 font-bold bg-teal-100/80 dark:bg-teal-950/80 px-1.5 py-0.5 rounded border border-teal-300 dark:border-teal-800">
+                  10/10 Hương Sơ
+                </span>
+              </span>
+              <span className="flex items-center gap-1">
+                <span>• Bãi Rác (113.161.8.149):</span>
+                <span className="text-amber-700 dark:text-amber-400 font-bold bg-amber-100/80 dark:bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-300 dark:border-amber-800">
+                  Port 37777 / 3777
+                </span>
+              </span>
+              <span className="flex items-center gap-1">
+                <span>• Imou Cloud:</span>
+                <span className="text-sky-700 dark:text-sky-400 font-bold bg-sky-100/80 dark:bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-300 dark:border-sky-800">
+                  hepco.camera@gmail.com
                 </span>
               </span>
             </div>
@@ -586,7 +660,7 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
               </span>
             </div>
 
-            {/* Mini Channels Pills (Interactive Channel Switcher with Accurate Swapped Names) */}
+            {/* Mini Channels Pills */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-[11px] font-mono">
               {NVR1_CHANNELS.map((item) => {
                 const isActive = nvr1ActiveChannel === item.ch && nvr1ViewMode === 'SINGLE';
@@ -883,7 +957,7 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
               </span>
             </div>
 
-            {/* Mini Channels Pills (Interactive Channel Switcher with Accurate Swapped Names) */}
+            {/* Mini Channels Pills */}
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-[11px] font-mono">
               {NVR2_CHANNELS.map((item) => {
                 const isActive = nvr2ActiveChannel === item.ch && nvr2ViewMode === 'SINGLE';
@@ -981,7 +1055,413 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
         </div>
       </div>
 
-      {/* 3. Bottom Callout to Detailed List */}
+      {/* 3. EXTERNAL & CLOUD CAMERA WORKSTATIONS: CAMERA BÃI RÁC (113.161.8.149) & CAMERA IMOU (hepco.camera@gmail.com) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* ===================== TRẠM 03: CAMERA BÃI RÁC (113.161.8.149) ===================== */}
+        <div className="bg-slate-900 rounded-2xl border border-amber-800/60 shadow-xl overflow-hidden flex flex-col justify-between">
+          {/* Header */}
+          <div className="bg-slate-950 px-4 py-3 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <Radio className="w-5 h-5" />
+              </span>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-bold text-sm text-amber-300 tracking-wide">
+                    HỆ THỐNG CAMERA BÃI RÁC (BAIRAC)
+                  </h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800">
+                    Port: 37777 / 3777
+                  </span>
+                </div>
+                <div className="text-[11px] font-mono text-slate-400 mt-0.5">
+                  IP/Domain: <strong className="text-amber-400">113.161.8.149</strong> · User:{' '}
+                  <strong className="text-amber-300">admin</strong> · Group:{' '}
+                  <span className="text-slate-300">Default Group</span>
+                </div>
+              </div>
+            </div>
+
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-900/80 text-amber-300 border border-amber-700 flex items-center gap-1.5 whitespace-nowrap">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              WAN ONLINE (37777 / 554)
+            </span>
+          </div>
+
+          {/* Body: SmartPSS / Dahua Connection Info & Live RTSP Console */}
+          <div className="p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 space-y-3.5">
+            {/* Top Status Banner */}
+            <div className="flex items-center justify-between text-[11px] font-mono bg-black/60 px-3 py-2 rounded-xl border border-amber-500/20">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                <span className="font-bold text-red-400">🔴 BAIRAC · WAN STATIC IP</span>
+                <span className="text-amber-300 font-bold">
+                  | {activeBairacMeta.name}: {activeBairacMeta.label}
+                </span>
+              </div>
+              <span className="text-amber-400 font-bold">{liveClock}</span>
+            </div>
+
+            {/* Configuration Grid matching SmartPSS Screenshot */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-sans">Device Name:</span>
+                <div className="font-bold text-amber-300 mt-0.5 flex items-center justify-between">
+                  <span>BaiRac</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">
+                    IP/Domain
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-sans">IP / Domain Name:</span>
+                <div className="font-bold text-emerald-400 mt-0.5 flex items-center justify-between">
+                  <span>113.161.8.149</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyText('bairac-ip', '113.161.8.149')}
+                    className="text-slate-400 hover:text-white cursor-pointer"
+                    title="Sao chép IP 113.161.8.149"
+                  >
+                    {copiedKey === 'bairac-ip' ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-sans">TCP Port / Web / RTSP:</span>
+                <div className="font-bold text-amber-300 mt-0.5 flex items-center justify-between">
+                  <span>37777 (3777) · 83 · 554</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyText('bairac-port', '37777')}
+                    className="text-slate-400 hover:text-white cursor-pointer"
+                    title="Sao chép Port 37777"
+                  >
+                    {copiedKey === 'bairac-port' ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-sans">Tài Khoản (User Name):</span>
+                <div className="font-bold text-slate-100 mt-0.5 flex items-center justify-between">
+                  <span>admin</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyText('bairac-user', 'admin')}
+                    className="text-slate-400 hover:text-white cursor-pointer"
+                    title="Sao chép User Name"
+                  >
+                    {copiedKey === 'bairac-user' ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 sm:col-span-2">
+                <span className="text-[10px] text-slate-400 block font-sans">Mật Khẩu (Password):</span>
+                <div className="font-bold text-amber-300 mt-0.5 flex items-center justify-between">
+                  <span>{showBairacPass ? 'philonghue123' : '•••••••••••••'}</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowBairacPass(!showBairacPass)}
+                      className="text-slate-400 hover:text-white cursor-pointer"
+                      title={showBairacPass ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    >
+                      {showBairacPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText('bairac-pass', 'philonghue123')}
+                      className="text-slate-400 hover:text-white cursor-pointer flex items-center gap-1 text-[10px] bg-slate-800 px-2 py-0.5 rounded"
+                      title="Sao chép mật khẩu philonghue123"
+                    >
+                      {copiedKey === 'bairac-pass' ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span className="text-emerald-400">Đã chép</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Chép MK</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Channel Selector for BaiRac RTSP */}
+            <div className="space-y-1.5">
+              <div className="text-[11px] font-bold text-slate-300 flex items-center justify-between">
+                <span>Chọn Kênh Phát Trực Tiếp Camera Bãi Rác:</span>
+                <span className="text-[10px] font-mono text-amber-400">
+                  rtsp://admin:philonghue123@113.161.8.149:554
+                </span>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px] font-mono">
+                {BAIRAC_CHANNELS.map((item) => {
+                  const isActive = bairacActiveChannel === item.ch;
+                  return (
+                    <button
+                      key={item.ch}
+                      type="button"
+                      onClick={() => setBairacActiveChannel(item.ch)}
+                      className={`p-2 rounded-lg border text-left flex items-center justify-between transition cursor-pointer ${
+                        isActive
+                          ? 'bg-amber-950/90 border-amber-500 text-amber-200 font-bold'
+                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      <span className={isActive ? 'text-amber-400' : 'text-slate-500'}>{item.name}</span>
+                      <span className="truncate mx-1 text-[10px]">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Action Bar */}
+          <div className="p-4 bg-slate-950/90 border-t border-slate-800 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleLaunchBairacRtsp(bairacActiveChannel)}
+              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-95"
+            >
+              <Tv className="w-4 h-4" />
+              <span>
+                {copiedRtsp['113.161.8.149']
+                  ? `Đã Chép & Mở Luồng Kênh 0${bairacActiveChannel}!`
+                  : `Phát Live RTSP Bãi Rác (Kênh 0${bairacActiveChannel})`}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                handleOpenEmbeddedViewer(
+                  '113.161.8.149',
+                  'Camera Bãi Rác (BaiRac - 113.161.8.149:83 / Port 37777)'
+                )
+              }
+              className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+              title="Mở cửa sổ xem trực tiếp Camera Bãi Rác (Tự động đăng nhập admin / philonghue123)"
+            >
+              <MonitorPlay className="w-4 h-4 text-amber-400" />
+              <span>Cửa Sổ Web Camera</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                handleCopyText(
+                  'bairac-full',
+                  'Device Name: BaiRac | IP: 113.161.8.149 | Port: 37777 (3777) | User: admin | Pass: philonghue123'
+                )
+              }
+              className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+              title="Sao chép toàn bộ cấu hình SmartPSS Camera Bãi Rác"
+            >
+              {copiedKey === 'bairac-full' ? (
+                <Check className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <Copy className="w-4 h-4 text-amber-400" />
+              )}
+              <span>{copiedKey === 'bairac-full' ? 'Đã Chép!' : 'Chép Cấu Hình'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ===================== TRẠM 04: CAMERA IMOU CLOUD (hepco.camera@gmail.com) ===================== */}
+        <div className="bg-slate-900 rounded-2xl border border-sky-800/60 shadow-xl overflow-hidden flex flex-col justify-between">
+          {/* Header */}
+          <div className="bg-slate-950 px-4 py-3 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/30">
+                <Cloud className="w-5 h-5" />
+              </span>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="font-bold text-sm text-sky-300 tracking-wide">
+                    HỆ THỐNG CAMERA IMOU CLOUD HEPCO
+                  </h3>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 border border-sky-800">
+                    Imou Life Cloud
+                  </span>
+                </div>
+                <div className="text-[11px] font-mono text-slate-400 mt-0.5">
+                  Tài khoản: <strong className="text-sky-400">hepco.camera@gmail.com</strong> · Mật khẩu:{' '}
+                  <strong className="text-sky-300">Hepco@123</strong>
+                </div>
+              </div>
+            </div>
+
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-sky-900/80 text-sky-300 border border-sky-700 flex items-center gap-1.5 whitespace-nowrap">
+              <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+              CLOUD CONNECTED
+            </span>
+          </div>
+
+          {/* Body: Imou Cloud Credentials & Quick Launch Console */}
+          <div className="p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 space-y-3.5">
+            {/* Top Status Banner */}
+            <div className="flex items-center justify-between text-[11px] font-mono bg-black/60 px-3 py-2 rounded-xl border border-sky-500/20">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span className="font-bold text-sky-400">☁️ IMOU LIFE CLOUD</span>
+                <span className="text-slate-300">| Đồng bộ đám mây Imou toàn công ty</span>
+              </div>
+              <span className="text-sky-400 font-bold">{liveClock}</span>
+            </div>
+
+            {/* Imou Account Details Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-sans">
+                  Tài Khoản Imou (Email Đăng Nhập):
+                </span>
+                <div className="font-bold text-sky-300 mt-1 flex items-center justify-between gap-2">
+                  <span className="truncate">hepco.camera@gmail.com</span>
+                  <button
+                    type="button"
+                    onClick={() => handleCopyText('imou-user', 'hepco.camera@gmail.com')}
+                    className="text-slate-400 hover:text-white cursor-pointer flex items-center gap-1 text-[10px] bg-slate-800 px-2 py-0.5 rounded shrink-0"
+                    title="Sao chép tài khoản hepco.camera@gmail.com"
+                  >
+                    {copiedKey === 'imou-user' ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-400" />
+                        <span className="text-emerald-400">Đã chép</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" />
+                        <span>Chép TK</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+                <span className="text-[10px] text-slate-400 block font-sans">
+                  Mật Khẩu Imou (Password):
+                </span>
+                <div className="font-bold text-emerald-400 mt-1 flex items-center justify-between gap-2">
+                  <span>{showImouPass ? 'Hepco@123' : '•••••••••'}</span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setShowImouPass(!showImouPass)}
+                      className="text-slate-400 hover:text-white cursor-pointer"
+                      title={showImouPass ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    >
+                      {showImouPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyText('imou-pass', 'Hepco@123')}
+                      className="text-slate-400 hover:text-white cursor-pointer flex items-center gap-1 text-[10px] bg-slate-800 px-2 py-0.5 rounded shrink-0"
+                      title="Sao chép mật khẩu Hepco@123"
+                    >
+                      {copiedKey === 'imou-pass' ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span className="text-emerald-400">Đã chép</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Chép MK</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Info Box */}
+            <div className="p-3 rounded-xl bg-sky-950/30 border border-sky-800/50 flex items-start gap-2.5 text-xs text-slate-300">
+              <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <div className="font-bold text-sky-200">
+                  Tích hợp đăng nhập nhanh Imou Life Cloud / SmartPSS
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Bấm <strong>"Mở Cửa Sổ Camera Imou"</strong> bên dưới để khởi chạy trình xem Imou Life (hoặc giao diện Imou Cloud tích hợp sẵn thanh tài khoản tự động điền{' '}
+                  <code className="text-sky-300">hepco.camera@gmail.com</code> /{' '}
+                  <code className="text-emerald-300">Hepco@123</code>).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer Action Bar */}
+          <div className="p-4 bg-slate-950/90 border-t border-slate-800 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                handleOpenEmbeddedViewer(
+                  'IMOU_CLOUD',
+                  'Hệ Thống Camera Imou Cloud HEPCO (hepco.camera@gmail.com)'
+                )
+              }
+              className="flex-1 py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-95"
+            >
+              <MonitorPlay className="w-4 h-4" />
+              <span>Mở Cửa Sổ Camera Imou (Tự Động Điền TK)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                handleCopyText(
+                  'imou-both',
+                  'Tài khoản Imou: hepco.camera@gmail.com | Mật khẩu: Hepco@123'
+                )
+              }
+              className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+              title="Sao chép trọn bộ Tài khoản & Mật khẩu Imou"
+            >
+              {copiedKey === 'imou-both' ? (
+                <Check className="w-4 h-4 text-emerald-400" />
+              ) : (
+                <KeyRound className="w-4 h-4 text-sky-400" />
+              )}
+              <span>{copiedKey === 'imou-both' ? 'Đã Chép TK & MK!' : 'Chép TK & MK'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => window.open('https://www.imoulife.com/vn', '_blank')}
+              className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition cursor-pointer"
+              title="Mở trang chủ Imou Life trên trình duyệt ngoài"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Bottom Callout to Detailed List */}
       <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center font-bold shrink-0">
@@ -989,10 +1469,10 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
           </div>
           <div>
             <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100">
-              Danh mục chi tiết 20 Kênh Camera IP & Cấu hình đầu ghi
+              Danh mục chi tiết Hệ thống Camera IP, Đầu ghi NVR, Camera Bãi Rác & Camera Imou
             </h4>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Đã đối soát và chuẩn hóa 100% tên kênh khớp với hình ảnh thực tế trên 2 đầu ghi NVR 01 (Văn phòng) và NVR 02 (Hương Sơ).
+              Bao gồm 20 kênh thuộc 2 đầu ghi NVR (10.110.1.13 & 10.110.1.80), Camera Bãi Rác (113.161.8.149:37777) và Hệ thống Camera Imou (hepco.camera@gmail.com).
             </p>
           </div>
         </div>
