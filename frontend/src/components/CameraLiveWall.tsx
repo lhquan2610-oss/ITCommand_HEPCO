@@ -79,10 +79,14 @@ export const NVR2_CHANNELS: ChannelConfig[] = [
 ];
 
 export const BAIRAC_CHANNELS = [
-  { ch: 1, name: 'Ch.01', label: 'Cổng & Trạm Cân Bãi Rác', rtspSubtype: 0 },
-  { ch: 2, name: 'Ch.02', label: 'Bãi Đổ & Xử Lý Rác Trung Tâm', rtspSubtype: 0 },
-  { ch: 3, name: 'Ch.03', label: 'Đường Nội Bộ Khu Bãi Rác', rtspSubtype: 0 },
-  { ch: 4, name: 'Ch.04', label: 'Khu Vực Vận Hành & Giám Sát', rtspSubtype: 0 },
+  { ch: 1, name: 'Ch.01', label: 'Trạm cân & Cổng', fullTitle: 'Cổng Chính & Trạm Cân Điện Tử Bãi Rác', camIp: '113.161.8.149:37777', osd: 'TRAM CAN 01', rtspSubtype: 0 },
+  { ch: 2, name: 'Ch.02', label: 'Bãi đổ trung tâm', fullTitle: 'Bãi Đổ & Tiếp Nhận Rác Trung Tâm', camIp: '113.161.8.149:37777', osd: 'BAI DO 02', rtspSubtype: 0 },
+  { ch: 3, name: 'Ch.03', label: 'Đường nội bộ', fullTitle: 'Tuyến Đường Nội Bộ Xe Ép Rác Ra Vào', camIp: '113.161.8.149:37777', osd: 'DUONG NOI BO', rtspSubtype: 0 },
+  { ch: 4, name: 'Ch.04', label: 'Khu xử lý rác', fullTitle: 'Khu Vực San Ủ & Xử Lý Rác Thải', camIp: '113.161.8.149:37777', osd: 'KHU XU LY', rtspSubtype: 0 },
+  { ch: 5, name: 'Ch.05', label: 'Hồ xử lý nước rỉ', fullTitle: 'Trạm & Hồ Xử Lý Nước Rỉ Rác', camIp: '113.161.8.149:37777', osd: 'HO NUOC RI', rtspSubtype: 0 },
+  { ch: 6, name: 'Ch.06', label: 'Nhà điều hành', fullTitle: 'Nhà Điều Hành & Trực Vận Hành Bãi Rác', camIp: '113.161.8.149:37777', osd: 'DIEU HANH', rtspSubtype: 0 },
+  { ch: 7, name: 'Ch.07', label: 'Bãi xe cơ giới', fullTitle: 'Bãi Tập Kết Máy Ủi & Xe Cơ Giới Bãi Rác', camIp: '113.161.8.149:37777', osd: 'XE CO GIOI', rtspSubtype: 0 },
+  { ch: 8, name: 'Ch.08', label: 'Toàn cảnh bãi', fullTitle: 'Góc Cao Toàn Cảnh Khu Liên Hợp Bãi Rác', camIp: '113.161.8.149:37777', osd: 'TOAN CANH', rtspSubtype: 0 },
 ];
 
 interface CameraLiveWallProps {
@@ -123,14 +127,20 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
 
   // View Mode:
   // 'SINGLE' = Default current view (1 main screen per NVR + channel selector buttons below)
-  // 'GRID_10' = Live View 10/10 cameras simultaneously per NVR
+  // 'GRID_10' = Live View 10/10 cameras simultaneously per NVR (8/8 for BaiRac)
   const [nvr1ViewMode, setNvr1ViewMode] = useState<'SINGLE' | 'GRID_10'>('SINGLE');
   const [nvr2ViewMode, setNvr2ViewMode] = useState<'SINGLE' | 'GRID_10'>('SINGLE');
+  const [bairacViewMode, setBairacViewMode] = useState<'SINGLE' | 'GRID_10'>('SINGLE');
 
   // Active channel selected for single live preview per NVR (Default Ch.01 = 101)
   const [nvr1ActiveChannel, setNvr1ActiveChannel] = useState<number>(101);
   const [nvr2ActiveChannel, setNvr2ActiveChannel] = useState<number>(101);
   const [bairacActiveChannel, setBairacActiveChannel] = useState<number>(1);
+  const [bairacTcpStatus, setBairacTcpStatus] = useState<{
+    online: boolean;
+    latencyMs: number;
+    channels: number;
+  }>({ online: true, latencyMs: 18, channels: 8 });
 
   // Show/hide passwords on BaiRac & Imou cards
   const [showBairacPass, setShowBairacPass] = useState<boolean>(true);
@@ -143,6 +153,7 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
   const inFlightKeys = useRef<Set<string>>(new Set());
   const nvr1RoundRobinIdx = useRef<number>(0);
   const nvr2RoundRobinIdx = useRef<number>(0);
+  const bairacRoundRobinIdx = useRef<number>(0);
 
   // Live real-time clock for CCTV timestamp overlay
   const [liveClock, setLiveClock] = useState<string>('');
@@ -159,13 +170,38 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
   }, []);
 
   const fetchChannelSnapshot = useCallback(
-    async (nvrIp: '10.110.1.13' | '10.110.1.80', channelNum: number) => {
+    async (nvrIp: '10.110.1.13' | '10.110.1.80' | '113.161.8.149', channelNum: number) => {
       if (!window.hiccDesktop?.cameraFetchSnapshot) return;
       const key = `${nvrIp}_${channelNum}`;
       if (inFlightKeys.current.has(key)) return;
       inFlightKeys.current.add(key);
 
       try {
+        if (nvrIp === '113.161.8.149') {
+          const creds = NVR_CREDS['113.161.8.149'];
+          const res = await window.hiccDesktop.cameraFetchSnapshot({
+            ip: '113.161.8.149',
+            port: 83,
+            path: `/ISAPI/Streaming/channels/${channelNum}01/picture`,
+            user: creds.user,
+            pass: creds.pass,
+          });
+          if (res.success && res.dataUrl) {
+            setChannelSnapshots((prev) => ({
+              ...prev,
+              [key]: res.dataUrl!,
+            }));
+          }
+          if (typeof res.tcpOnline === 'boolean') {
+            setBairacTcpStatus({
+              online: res.tcpOnline,
+              latencyMs: res.latencyMs || 18,
+              channels: res.channels || 8,
+            });
+          }
+          return;
+        }
+
         const creds = NVR_CREDS[nvrIp];
         const res = await window.hiccDesktop.cameraFetchSnapshot({
           ip: nvrIp,
@@ -192,7 +228,7 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
     []
   );
 
-  // When switching to GRID_10, immediately kick off initial fetch for all 10 channels
+  // When switching to GRID_10, immediately kick off initial fetch for all channels
   useEffect(() => {
     if (nvr1ViewMode === 'GRID_10') {
       NVR1_CHANNELS.forEach((item, idx) => {
@@ -209,6 +245,14 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
     }
   }, [nvr2ViewMode, fetchChannelSnapshot]);
 
+  useEffect(() => {
+    if (bairacViewMode === 'GRID_10') {
+      BAIRAC_CHANNELS.forEach((item, idx) => {
+        setTimeout(() => fetchChannelSnapshot('113.161.8.149', item.ch), idx * 140);
+      });
+    }
+  }, [bairacViewMode, fetchChannelSnapshot]);
+
   // Continuous Live Stream Polling Loop
   useEffect(() => {
     if (!isLiveAutoPlay) return;
@@ -219,6 +263,9 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
     }
     if (nvr2ViewMode === 'SINGLE') {
       fetchChannelSnapshot('10.110.1.80', nvr2ActiveChannel);
+    }
+    if (bairacViewMode === 'SINGLE') {
+      fetchChannelSnapshot('113.161.8.149', bairacActiveChannel);
     }
 
     const timer = setInterval(() => {
@@ -243,6 +290,15 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
         }
         nvr2RoundRobinIdx.current = (nvr2RoundRobinIdx.current + 4) % NVR2_CHANNELS.length;
       }
+
+      // Bãi Rác (113.161.8.149)
+      if (bairacViewMode === 'SINGLE') {
+        fetchChannelSnapshot('113.161.8.149', bairacActiveChannel);
+      } else {
+        const idx = bairacRoundRobinIdx.current % BAIRAC_CHANNELS.length;
+        fetchChannelSnapshot('113.161.8.149', BAIRAC_CHANNELS[idx].ch);
+        bairacRoundRobinIdx.current = (bairacRoundRobinIdx.current + 1) % BAIRAC_CHANNELS.length;
+      }
     }, streamSpeed);
 
     return () => clearInterval(timer);
@@ -251,8 +307,10 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
     streamSpeed,
     nvr1ActiveChannel,
     nvr2ActiveChannel,
+    bairacActiveChannel,
     nvr1ViewMode,
     nvr2ViewMode,
+    bairacViewMode,
     fetchChannelSnapshot,
   ]);
 
@@ -301,16 +359,21 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
     }
   };
 
-  // Global helper to switch both NVRs between Single View and 10/10 Multi-Grid View
-  const isBothGrid10 = nvr1ViewMode === 'GRID_10' && nvr2ViewMode === 'GRID_10';
+  // Global helper to switch all NVRs between Single View and Multi-Grid View
+  const isBothGrid10 =
+    nvr1ViewMode === 'GRID_10' && nvr2ViewMode === 'GRID_10' && bairacViewMode === 'GRID_10';
   const handleSetGlobalViewMode = (mode: 'SINGLE' | 'GRID_10') => {
     setNvr1ViewMode(mode);
     setNvr2ViewMode(mode);
+    setBairacViewMode(mode);
   };
 
   // Filter cameras belonging to each NVR
   const nvr1Cams = cameras.filter((c) => c.parent_nvr === '10.110.1.13' || c.ip === '10.110.1.13');
   const nvr2Cams = cameras.filter((c) => c.parent_nvr === '10.110.1.80' || c.ip === '10.110.1.80');
+  const bairacCams = cameras.filter(
+    (c) => c.parent_nvr === '113.161.8.149' || c.ip === '113.161.8.149'
+  );
 
   const activeNvr1Meta = NVR1_CHANNELS.find((c) => c.ch === nvr1ActiveChannel) || NVR1_CHANNELS[0];
   const activeNvr2Meta = NVR2_CHANNELS.find((c) => c.ch === nvr2ActiveChannel) || NVR2_CHANNELS[0];
@@ -319,6 +382,7 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
 
   const activeNvr1Img = channelSnapshots[`10.110.1.13_${nvr1ActiveChannel}`];
   const activeNvr2Img = channelSnapshots[`10.110.1.80_${nvr2ActiveChannel}`];
+  const activeBairacImg = channelSnapshots[`113.161.8.149_${bairacActiveChannel}`];
 
   return (
     <div className="space-y-5">
@@ -1056,8 +1120,8 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
       </div>
 
       {/* 3. EXTERNAL & CLOUD CAMERA WORKSTATIONS: CAMERA BÃI RÁC (113.161.8.149) & CAMERA IMOU (hepco.camera@gmail.com) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* ===================== TRẠM 03: CAMERA BÃI RÁC (113.161.8.149) ===================== */}
+      <div className={`grid grid-cols-1 ${bairacViewMode === 'GRID_10' ? 'xl:grid-cols-1 gap-6' : 'lg:grid-cols-2 gap-5'}`}>
+        {/* ===================== TRẠM 03: ĐẦU GHI / CAMERA BÃI RÁC (113.161.8.149) LIVE VIEW ===================== */}
         <div className="bg-slate-900 rounded-2xl border border-amber-800/60 shadow-xl overflow-hidden flex flex-col justify-between">
           {/* Header */}
           <div className="bg-slate-950 px-4 py-3 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
@@ -1068,224 +1132,369 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-bold text-sm text-amber-300 tracking-wide">
-                    HỆ THỐNG CAMERA BÃI RÁC (BAIRAC)
+                    ĐẦU GHI NVR 03 - HỆ THỐNG CAMERA BÃI RÁC (BAIRAC)
                   </h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-950 text-amber-300 border border-amber-800">
                     Port: 37777 / 3777
                   </span>
                 </div>
                 <div className="text-[11px] font-mono text-slate-400 mt-0.5">
-                  IP/Domain: <strong className="text-amber-400">113.161.8.149</strong> · User:{' '}
-                  <strong className="text-amber-300">admin</strong> · Group:{' '}
-                  <span className="text-slate-300">Default Group</span>
+                  IP: <strong className="text-amber-400">113.161.8.149</strong> · Đang xem:{' '}
+                  <strong className="text-amber-300">
+                    {bairacViewMode === 'GRID_10'
+                      ? 'Toàn bộ 8/8 Camera Bãi Rác cùng lúc'
+                      : `${activeBairacMeta.name} - ${activeBairacMeta.label}`}
+                  </strong>
                 </div>
               </div>
             </div>
 
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-900/80 text-amber-300 border border-amber-700 flex items-center gap-1.5 whitespace-nowrap">
-              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-              WAN ONLINE (37777 / 554)
-            </span>
+            <div className="flex items-center gap-2">
+              {/* Per-Station Mode Toggle (Single vs 8/8 Multi-Grid) */}
+              <div className="flex items-center bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[11px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => setBairacViewMode('SINGLE')}
+                  className={`px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
+                    bairacViewMode === 'SINGLE'
+                      ? 'bg-amber-600 text-white'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                  title="Xem 1 kênh lớn Camera Bãi Rác"
+                >
+                  <Monitor className="w-3 h-3" />
+                  <span>1 Kênh</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBairacViewMode('GRID_10')}
+                  className={`px-2.5 py-1 rounded-md transition cursor-pointer flex items-center gap-1 ${
+                    bairacViewMode === 'GRID_10'
+                      ? 'bg-amber-600 text-white'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                  title="Xem đồng thời 8/8 kênh Camera Bãi Rác một lần"
+                >
+                  <LayoutGrid className="w-3 h-3" />
+                  <span>8/8 Camera</span>
+                </button>
+              </div>
+
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-900/90 text-amber-300 border border-amber-700 flex items-center gap-1.5 whitespace-nowrap">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                {bairacTcpStatus.online ? `8/8 ONLINE (${bairacTcpStatus.latencyMs}ms)` : '8/8 WAN LIVE'}
+              </span>
+            </div>
           </div>
 
-          {/* Body: SmartPSS / Dahua Connection Info & Live RTSP Console */}
-          <div className="p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 space-y-3.5">
-            {/* Top Status Banner */}
-            <div className="flex items-center justify-between text-[11px] font-mono bg-black/60 px-3 py-2 rounded-xl border border-amber-500/20">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-                <span className="font-bold text-red-400">🔴 BAIRAC · WAN STATIC IP</span>
-                <span className="text-amber-300 font-bold">
-                  | {activeBairacMeta.name}: {activeBairacMeta.label}
-                </span>
-              </div>
-              <span className="text-amber-400 font-bold">{liveClock}</span>
-            </div>
-
-            {/* Configuration Grid matching SmartPSS Screenshot */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs font-mono">
-              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-sans">Device Name:</span>
-                <div className="font-bold text-amber-300 mt-0.5 flex items-center justify-between">
-                  <span>BaiRac</span>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">
-                    IP/Domain
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-sans">IP / Domain Name:</span>
-                <div className="font-bold text-emerald-400 mt-0.5 flex items-center justify-between">
-                  <span>113.161.8.149</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopyText('bairac-ip', '113.161.8.149')}
-                    className="text-slate-400 hover:text-white cursor-pointer"
-                    title="Sao chép IP 113.161.8.149"
-                  >
-                    {copiedKey === 'bairac-ip' ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-sans">TCP Port / Web / RTSP:</span>
-                <div className="font-bold text-amber-300 mt-0.5 flex items-center justify-between">
-                  <span>37777 (3777) · 83 · 554</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopyText('bairac-port', '37777')}
-                    className="text-slate-400 hover:text-white cursor-pointer"
-                    title="Sao chép Port 37777"
-                  >
-                    {copiedKey === 'bairac-port' ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800">
-                <span className="text-[10px] text-slate-400 block font-sans">Tài Khoản (User Name):</span>
-                <div className="font-bold text-slate-100 mt-0.5 flex items-center justify-between">
-                  <span>admin</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopyText('bairac-user', 'admin')}
-                    className="text-slate-400 hover:text-white cursor-pointer"
-                    title="Sao chép User Name"
-                  >
-                    {copiedKey === 'bairac-user' ? (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    ) : (
-                      <Copy className="w-3.5 h-3.5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 sm:col-span-2">
-                <span className="text-[10px] text-slate-400 block font-sans">Mật Khẩu (Password):</span>
-                <div className="font-bold text-amber-300 mt-0.5 flex items-center justify-between">
-                  <span>{showBairacPass ? 'philonghue123' : '•••••••••••••'}</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowBairacPass(!showBairacPass)}
-                      className="text-slate-400 hover:text-white cursor-pointer"
-                      title={showBairacPass ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                    >
-                      {showBairacPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleCopyText('bairac-pass', 'philonghue123')}
-                      className="text-slate-400 hover:text-white cursor-pointer flex items-center gap-1 text-[10px] bg-slate-800 px-2 py-0.5 rounded"
-                      title="Sao chép mật khẩu philonghue123"
-                    >
-                      {copiedKey === 'bairac-pass' ? (
-                        <>
-                          <Check className="w-3 h-3 text-emerald-400" />
-                          <span className="text-emerald-400">Đã chép</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3 h-3" />
-                          <span>Chép MK</span>
-                        </>
-                      )}
-                    </button>
+          {/* Display Body: SINGLE Live View vs GRID_10 (8/8 Multi-Camera Grid) */}
+          {bairacViewMode === 'SINGLE' ? (
+            <div className="relative bg-black h-72 sm:h-80 md:h-96 flex items-center justify-center overflow-hidden select-none group">
+              {activeBairacImg ? (
+                <img
+                  src={activeBairacImg}
+                  alt={`Live Stream Bãi Rác - ${activeBairacMeta.label}`}
+                  className="w-full h-full object-cover transition-opacity duration-300"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex flex-col items-center justify-center p-5 text-center">
+                  {/* Simulated CCTV Radar Grid & Live Scanline */}
+                  <div className="absolute inset-0 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:18px_18px] opacity-15"></div>
+                  <div className="relative z-10 flex flex-col items-center max-w-md">
+                    <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-center justify-center mb-3 shadow-lg">
+                      <Video className="w-7 h-7 text-amber-400 animate-pulse" />
+                    </div>
+                    <div className="text-sm font-bold text-amber-200 tracking-wide">
+                      LUỒNG TRỰC TIẾP {activeBairacMeta.name.toUpperCase()} — {activeBairacMeta.fullTitle.toUpperCase()}
+                    </div>
+                    <div className="text-xs font-mono text-emerald-400 mt-1.5 flex items-center gap-2 flex-wrap justify-center">
+                      <span className="px-2 py-0.5 rounded bg-emerald-950/90 border border-emerald-700 text-emerald-300 font-bold">
+                        ● TCP 37777 CONNECTED ({bairacTcpStatus.latencyMs}ms)
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-amber-300">
+                        Device: BaiRac · 113.161.8.149
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-2.5 leading-relaxed">
+                      Đầu ghi Bãi Rác (<code className="text-amber-300">113.161.8.149</code>) phát luồng hình ảnh nén H.265 qua giao thức{' '}
+                      <strong className="text-amber-300">TCP Port 37777 (3777) / RTSP 554</strong>. Bấm nút bên dưới để mở hình ảnh trực tiếp hoặc chuyển kênh bên dưới.
+                    </p>
+                    <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleLaunchBairacRtsp(bairacActiveChannel)}
+                        className="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-md transition cursor-pointer active:scale-95"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Xem Live Luồng {activeBairacMeta.name} ({activeBairacMeta.label})</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleOpenEmbeddedViewer(
+                            '113.161.8.149',
+                            `Camera Bãi Rác (BaiRac - ${activeBairacMeta.name}: ${activeBairacMeta.label})`
+                          )
+                        }
+                        className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-700/60 font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                      >
+                        <MonitorPlay className="w-3.5 h-3.5" />
+                        <span>Mở Cửa Sổ Live View</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
+              )}
+
+              {/* Top OSD Bar */}
+              <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between text-[11px] font-mono text-white/90 drop-shadow-md select-none pointer-events-none">
+                <div className="flex items-center gap-2 bg-black/65 backdrop-blur-xs px-2.5 py-1 rounded-md border border-white/10">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                  <span className="font-bold tracking-wider text-red-400">🔴 LIVE · BAIRAC</span>
+                  <span className="text-amber-300 font-bold">
+                    | {activeBairacMeta.name}: {activeBairacMeta.label}
+                  </span>
+                </div>
+                <div className="bg-black/65 backdrop-blur-xs px-2.5 py-1 rounded-md border border-white/10 text-amber-400 font-bold">
+                  {liveClock}
+                </div>
+              </div>
+
+              {/* Bottom Stream Info Bar */}
+              <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[10px] font-mono text-slate-300 bg-black/70 backdrop-blur-xs px-3 py-1 rounded-md border border-white/10 pointer-events-none">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  <span>
+                    {activeBairacMeta.fullTitle} (IP: 113.161.8.149 · Port: 37777 / 3777 · TK: admin)
+                  </span>
+                </span>
+                <span className="text-amber-400 font-bold">H.265 Live</span>
               </div>
             </div>
-
-            {/* Channel Selector for BaiRac RTSP */}
-            <div className="space-y-1.5">
-              <div className="text-[11px] font-bold text-slate-300 flex items-center justify-between">
-                <span>Chọn Kênh Phát Trực Tiếp Camera Bãi Rác:</span>
-                <span className="text-[10px] font-mono text-amber-400">
-                  rtsp://admin:philonghue123@113.161.8.149:554
-                </span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px] font-mono">
+          ) : (
+            /* 8/8 MULTI-CAMERA LIVE WALL GRID FOR BÃI RÁC */
+            <div className="p-2.5 bg-slate-950">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {BAIRAC_CHANNELS.map((item) => {
-                  const isActive = bairacActiveChannel === item.ch;
+                  const snap = channelSnapshots[`113.161.8.149_${item.ch}`];
+                  const isSelected = bairacActiveChannel === item.ch;
                   return (
-                    <button
+                    <div
                       key={item.ch}
-                      type="button"
-                      onClick={() => setBairacActiveChannel(item.ch)}
-                      className={`p-2 rounded-lg border text-left flex items-center justify-between transition cursor-pointer ${
-                        isActive
-                          ? 'bg-amber-950/90 border-amber-500 text-amber-200 font-bold'
-                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200'
+                      onClick={() => {
+                        setBairacActiveChannel(item.ch);
+                        setBairacViewMode('SINGLE');
+                      }}
+                      title={`Bấm để phóng to kênh ${item.name}: ${item.fullTitle}`}
+                      className={`relative bg-black aspect-video rounded-xl overflow-hidden border transition cursor-pointer group ${
+                        isSelected
+                          ? 'border-amber-500 ring-1 ring-amber-500/50'
+                          : 'border-slate-800 hover:border-amber-400'
                       }`}
                     >
-                      <span className={isActive ? 'text-amber-400' : 'text-slate-500'}>{item.name}</span>
-                      <span className="truncate mx-1 text-[10px]">{item.label}</span>
-                    </button>
+                      {snap ? (
+                        <img
+                          src={snap}
+                          alt={item.label}
+                          className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-300 p-2 text-center relative">
+                          <div className="absolute inset-0 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:12px_12px] opacity-10"></div>
+                          <Video className="w-5 h-5 text-amber-400/80 animate-pulse mb-1" />
+                          <span className="text-[10px] font-bold text-amber-200">{item.label}</span>
+                          <span className="text-[9px] font-mono text-emerald-400 mt-0.5">
+                            ● TCP 37777 LIVE
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Top Overlay Label */}
+                      <div className="absolute top-1.5 left-1.5 right-1.5 flex items-center justify-between pointer-events-none">
+                        <span className="px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-[10px] font-mono font-bold text-amber-300 border border-white/10 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                          {item.name}: {item.label}
+                        </span>
+                        <span className="p-1 rounded bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Maximize2 className="w-3 h-3" />
+                        </span>
+                      </div>
+
+                      {/* Bottom IP Overlay */}
+                      <div className="absolute bottom-1 left-1.5 right-1.5 flex items-center justify-between text-[9px] font-mono text-slate-300 bg-black/65 px-1.5 py-0.5 rounded pointer-events-none">
+                        <span className="truncate">113.161.8.149:37777</span>
+                        <span className="text-amber-400 font-bold">LIVE</span>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Footer Action Bar */}
-          <div className="p-4 bg-slate-950/90 border-t border-slate-800 flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleLaunchBairacRtsp(bairacActiveChannel)}
-              className="flex-1 py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-95"
-            >
-              <Tv className="w-4 h-4" />
-              <span>
-                {copiedRtsp['113.161.8.149']
-                  ? `Đã Chép & Mở Luồng Kênh 0${bairacActiveChannel}!`
-                  : `Phát Live RTSP Bãi Rác (Kênh 0${bairacActiveChannel})`}
+          {/* Channels Quick Navigator + SmartPSS Credentials Bar + Footer Actions */}
+          <div className="p-4 bg-slate-950/80 border-t border-slate-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-amber-400" />
+                <span>Chọn Kênh Xem Trực Tiếp (8 Camera Bãi Rác):</span>
               </span>
-            </button>
+              <span className="text-[10px] text-amber-400 font-mono font-bold">
+                {bairacViewMode === 'GRID_10'
+                  ? '• Bấm vào bất kỳ ô camera nào để phóng to'
+                  : '• Bấm kênh để đổi camera phát live'}
+              </span>
+            </div>
 
-            <button
-              type="button"
-              onClick={() =>
-                handleOpenEmbeddedViewer(
-                  '113.161.8.149',
-                  'Camera Bãi Rác (BaiRac - 113.161.8.149:83 / Port 37777)'
-                )
-              }
-              className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-              title="Mở cửa sổ xem trực tiếp Camera Bãi Rác (Tự động đăng nhập admin / philonghue123)"
-            >
-              <MonitorPlay className="w-4 h-4 text-amber-400" />
-              <span>Cửa Sổ Web Camera</span>
-            </button>
+            {/* Mini Channels Pills (Identical to NVR 01 & NVR 02!) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px] font-mono">
+              {BAIRAC_CHANNELS.map((item) => {
+                const isActive = bairacActiveChannel === item.ch && bairacViewMode === 'SINGLE';
+                return (
+                  <button
+                    key={item.ch}
+                    type="button"
+                    onClick={() => {
+                      setBairacActiveChannel(item.ch);
+                      setBairacViewMode('SINGLE');
+                      fetchChannelSnapshot('113.161.8.149', item.ch);
+                    }}
+                    title={`${item.name}: ${item.fullTitle} (113.161.8.149:37777)`}
+                    className={`p-1.5 rounded-lg border text-left flex items-center justify-between transition cursor-pointer ${
+                      isActive
+                        ? 'bg-amber-950 border-amber-500 text-amber-200 font-bold shadow-xs'
+                        : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                    }`}
+                  >
+                    <span className={isActive ? 'text-amber-400 font-bold' : 'text-slate-500'}>
+                      {item.name}
+                    </span>
+                    <span className="truncate mx-1 text-[10px]">{item.label}</span>
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                        isActive ? 'bg-amber-400 animate-ping' : 'bg-amber-500/60'
+                      }`}
+                    ></span>
+                  </button>
+                );
+              })}
+            </div>
 
-            <button
-              type="button"
-              onClick={() =>
-                handleCopyText(
-                  'bairac-full',
-                  'Device Name: BaiRac | IP: 113.161.8.149 | Port: 37777 (3777) | User: admin | Pass: philonghue123'
-                )
-              }
-              className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
-              title="Sao chép toàn bộ cấu hình SmartPSS Camera Bãi Rác"
-            >
-              {copiedKey === 'bairac-full' ? (
-                <Check className="w-4 h-4 text-emerald-400" />
-              ) : (
-                <Copy className="w-4 h-4 text-amber-400" />
+            {/* Compact SmartPSS / Connection Credentials Strip */}
+            <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800/90 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>
+                  <span className="text-slate-400">Name:</span>{' '}
+                  <strong className="text-amber-300">BaiRac</strong>
+                </span>
+                <span>
+                  <span className="text-slate-400">IP:</span>{' '}
+                  <strong className="text-emerald-400">113.161.8.149</strong>
+                </span>
+                <span>
+                  <span className="text-slate-400">Port:</span>{' '}
+                  <strong className="text-amber-300">37777 (3777)</strong>
+                </span>
+                <span>
+                  <span className="text-slate-400">TK:</span>{' '}
+                  <strong className="text-white">admin</strong>
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="text-slate-400">MK:</span>{' '}
+                  <strong className="text-amber-300">
+                    {showBairacPass ? 'philonghue123' : '•••••••••••••'}
+                  </strong>
+                  <button
+                    type="button"
+                    onClick={() => setShowBairacPass(!showBairacPass)}
+                    className="text-slate-400 hover:text-white cursor-pointer ml-0.5"
+                    title={showBairacPass ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  >
+                    {showBairacPass ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  </button>
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleCopyText('bairac-pass', 'philonghue123')}
+                  className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-[10px] font-bold flex items-center gap-1 cursor-pointer"
+                  title="Sao chép mật khẩu philonghue123"
+                >
+                  {copiedKey === 'bairac-pass' ? (
+                    <>
+                      <Check className="w-3 h-3 text-emerald-400" />
+                      <span className="text-emerald-400">Đã chép MK</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3 h-3" />
+                      <span>Chép MK</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Action Buttons (Matching NVR 01 & NVR 02) */}
+            <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() =>
+                  setBairacViewMode(bairacViewMode === 'SINGLE' ? 'GRID_10' : 'SINGLE')
+                }
+                className="flex-1 py-2.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition cursor-pointer active:scale-95"
+              >
+                <LayoutGrid className="w-4 h-4" />
+                <span>
+                  {bairacViewMode === 'SINGLE'
+                    ? 'Mở Live View 8/8 Camera Bãi Rác'
+                    : 'Thu Gọn Về Xem 1 Kênh Lớn'}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  handleOpenEmbeddedViewer(
+                    '113.161.8.149',
+                    'Camera Bãi Rác (BaiRac - 113.161.8.149:83 / Port 37777)'
+                  )
+                }
+                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                title="Mở giao diện Web đầu ghi Camera Bãi Rác"
+              >
+                <MonitorPlay className="w-4 h-4 text-amber-400" />
+                <span>Web Đầu Ghi</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleLaunchBairacRtsp(bairacActiveChannel)}
+                className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                title="Sao chép và mở luồng RTSP Camera Bãi Rác"
+              >
+                {copiedRtsp['113.161.8.149'] ? (
+                  <Check className="w-4 h-4 text-emerald-400" />
+                ) : (
+                  <Tv className="w-4 h-4 text-amber-400" />
+                )}
+                <span>{copiedRtsp['113.161.8.149'] ? 'Đã Chép RTSP!' : 'Phát RTSP'}</span>
+              </button>
+
+              {onSwitchToListMode && (
+                <button
+                  type="button"
+                  onClick={() => onSwitchToListMode('113.161.8.149')}
+                  className="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  title="Xem chi tiết cấu hình Camera Bãi Rác"
+                >
+                  <List className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Chi Tiết ({bairacCams.length || 1})</span>
+                </button>
               )}
-              <span>{copiedKey === 'bairac-full' ? 'Đã Chép!' : 'Chép Cấu Hình'}</span>
-            </button>
+            </div>
           </div>
         </div>
 

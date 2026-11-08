@@ -994,7 +994,8 @@ ipcMain.handle('camera-fetch-snapshot', async (_, payload) => {
   const defaultCreds = getNvrCredsForIp(ip);
   const user = payload?.user || defaultCreds.user;
   const pass = payload?.pass || defaultCreds.pass;
-  const snapPath = payload?.path || (ip.endsWith('.11') || ip.endsWith('.13') || ip.endsWith('.80')
+  const port = payload?.port || defaultCreds.port || 80;
+  const snapPath = payload?.path || (ip.endsWith('.11') || ip.endsWith('.13') || ip.endsWith('.80') || ip === '113.161.8.149'
     ? '/ISAPI/Streaming/channels/101/picture'
     : '/cgi-bin/snapshot.cgi');
 
@@ -1002,60 +1003,96 @@ ipcMain.handle('camera-fetch-snapshot', async (_, payload) => {
   const http = require('http');
   const md5 = (s) => crypto.createHash('md5').update(s).digest('hex');
 
-  return new Promise((resolve) => {
-    const req1 = http.get(`http://${ip}${snapPath}`, { timeout: 2500 }, (res1) => {
-      if (res1.statusCode === 200) {
-        const chunks = [];
-        res1.on('data', c => chunks.push(c));
-        res1.on('end', () => {
-          const b64 = Buffer.concat(chunks).toString('base64');
-          resolve({ success: true, dataUrl: `data:image/jpeg;base64,${b64}`, authenticated: false });
-        });
-        return;
-      }
-
-      if (res1.statusCode === 401 && pass) {
-        const auth = res1.headers['www-authenticate'];
-        if (auth && auth.includes('Digest')) {
-          const realm = (auth.match(/realm="([^"]+)"/) || [])[1] || '';
-          const nonce = (auth.match(/nonce="([^"]+)"/) || [])[1] || '';
-          const qop = (auth.match(/qop="([^"]+)"/) || [])[1];
-          const opaque = (auth.match(/opaque="([^"]+)"/) || [])[1];
-
-          const ha1 = md5(`${user}:${realm}:${pass}`);
-          const ha2 = md5(`GET:${snapPath}`);
-          const nc = '00000001';
-          const cnonce = 'abcdef01';
-          const resp = qop
-            ? md5(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`)
-            : md5(`${ha1}:${nonce}:${ha2}`);
-
-          let authHeader = `Digest username="${user}", realm="${realm}", nonce="${nonce}", uri="${snapPath}", response="${resp}"`;
-          if (qop) authHeader += `, qop=${qop}, nc=${nc}, cnonce="${cnonce}"`;
-          if (opaque) authHeader += `, opaque="${opaque}"`;
-
-          const req2 = http.get({ host: ip, path: snapPath, headers: { Authorization: authHeader }, timeout: 3000 }, (res2) => {
-            if (res2.statusCode === 200) {
-              const chunks = [];
-              res2.on('data', c => chunks.push(c));
-              res2.on('end', () => {
-                const b64 = Buffer.concat(chunks).toString('base64');
-                resolve({ success: true, dataUrl: `data:image/jpeg;base64,${b64}`, authenticated: true });
-              });
-            } else {
-              resolve({ success: false, statusCode: res2.statusCode, authRequired: true, error: 'Mật khẩu camera không chính xác' });
-            }
+  const tryHttpSnapshot = (targetPort, targetPath) =>
+    new Promise((resolve) => {
+      const req1 = http.get({ host: ip, port: targetPort, path: targetPath, timeout: 2500 }, (res1) => {
+        if (res1.statusCode === 200) {
+          const chunks = [];
+          res1.on('data', c => chunks.push(c));
+          res1.on('end', () => {
+            const b64 = Buffer.concat(chunks).toString('base64');
+            resolve({ success: true, dataUrl: `data:image/jpeg;base64,${b64}`, authenticated: false });
           });
-          req2.on('error', (e) => resolve({ success: false, error: e.message }));
           return;
         }
-      }
 
-      resolve({ success: false, statusCode: res1.statusCode, authRequired: res1.statusCode === 401 });
+        if (res1.statusCode === 401 && pass) {
+          const auth = res1.headers['www-authenticate'];
+          if (auth && auth.includes('Digest')) {
+            const realm = (auth.match(/realm="([^"]+)"/) || [])[1] || '';
+            const nonce = (auth.match(/nonce="([^"]+)"/) || [])[1] || '';
+            const qop = (auth.match(/qop="([^"]+)"/) || [])[1];
+            const opaque = (auth.match(/opaque="([^"]+)"/) || [])[1];
+
+            const ha1 = md5(`${user}:${realm}:${pass}`);
+            const ha2 = md5(`GET:${targetPath}`);
+            const nc = '00000001';
+            const cnonce = 'abcdef01';
+            const resp = qop
+              ? md5(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`)
+              : md5(`${ha1}:${nonce}:${ha2}`);
+
+            let authHeader = `Digest username="${user}", realm="${realm}", nonce="${nonce}", uri="${targetPath}", response="${resp}"`;
+            if (qop) authHeader += `, qop=${qop}, nc=${nc}, cnonce="${cnonce}"`;
+            if (opaque) authHeader += `, opaque="${opaque}"`;
+
+            const req2 = http.get({ host: ip, port: targetPort, path: targetPath, headers: { Authorization: authHeader }, timeout: 3000 }, (res2) => {
+              if (res2.statusCode === 200) {
+                const chunks = [];
+                res2.on('data', c => chunks.push(c));
+                res2.on('end', () => {
+                  const b64 = Buffer.concat(chunks).toString('base64');
+                  resolve({ success: true, dataUrl: `data:image/jpeg;base64,${b64}`, authenticated: true });
+                });
+              } else {
+                resolve({ success: false, statusCode: res2.statusCode, authRequired: true, error: 'Mật khẩu camera không chính xác' });
+              }
+            });
+            req2.on('error', (e) => resolve({ success: false, error: e.message }));
+            return;
+          }
+        }
+
+        resolve({ success: false, statusCode: res1.statusCode, authRequired: res1.statusCode === 401 });
+      });
+      req1.on('error', (e) => resolve({ success: false, error: e.message }));
+      req1.on('timeout', () => { req1.destroy(); resolve({ success: false, error: 'Timeout' }); });
     });
-    req1.on('error', (e) => resolve({ success: false, error: e.message }));
-    req1.on('timeout', () => { req1.destroy(); resolve({ success: false, error: 'Timeout' }); });
-  });
+
+  // For Camera Bãi Rác (113.161.8.149), also check TCP 37777 Dahua DVRIP handshake
+  if (ip === '113.161.8.149') {
+    const httpRes = await tryHttpSnapshot(port, snapPath);
+    if (httpRes.success && httpRes.dataUrl) return httpRes;
+
+    // Probe TCP 37777 DVRIP to verify live online status & channel count
+    const tcpStatus = await new Promise((resolve) => {
+      const start = Date.now();
+      const s = new net.Socket();
+      s.setTimeout(2200);
+      const hdr = Buffer.alloc(32, 0);
+      hdr[0] = 0xa0;
+      s.on('connect', () => s.write(hdr));
+      s.on('data', (c) => {
+        const latencyMs = Date.now() - start;
+        const channels = c.length >= 16 && c[10] ? c[10] : 8;
+        s.destroy();
+        resolve({ online: true, latencyMs, channels, bannerHex: c.slice(0, 16).toString('hex') });
+      });
+      s.on('timeout', () => { s.destroy(); resolve({ online: false, latencyMs: 0 }); });
+      s.on('error', () => { s.destroy(); resolve({ online: false, latencyMs: 0 }); });
+      s.connect(37777, ip);
+    });
+
+    return {
+      ...httpRes,
+      tcpOnline: tcpStatus.online,
+      latencyMs: tcpStatus.latencyMs,
+      channels: tcpStatus.channels || 8,
+      protocol: 'Dahua TCP 37777 (SmartPSS)',
+    };
+  }
+
+  return tryHttpSnapshot(port, snapPath);
 });
 
 ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
