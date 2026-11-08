@@ -27,12 +27,17 @@
     "files": [
       "dist/**/*",
       "electron/**/*",
+      "!electron/dahua-sdk/**/*",
       "package.json"
     ],
     "extraResources": [
       {
         "from": "../data/devices_inventory.json",
         "to": "data/devices_inventory.json"
+      },
+      {
+        "from": "electron/dahua-sdk",
+        "to": "dahua-sdk"
       }
     ],
     "win": {

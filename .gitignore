@@ -35,6 +35,8 @@ dist-app/
 dist/
 *.tsbuildinfo
 *.exe
+!frontend/electron/dahua-sdk/DahuaBridge.exe
+*.dll
 
 # Environment & Secrets
 .env
