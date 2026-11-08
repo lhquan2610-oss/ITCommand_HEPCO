@@ -132,12 +132,11 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // View Mode:
-  // 'SINGLE' = Default current view (1 main screen per NVR + channel selector buttons below)
-  // 'GRID_10' = Live View all cameras simultaneously per station
-  const [nvr1ViewMode, setNvr1ViewMode] = useState<'SINGLE' | 'GRID_10'>('SINGLE');
-  const [nvr2ViewMode, setNvr2ViewMode] = useState<'SINGLE' | 'GRID_10'>('SINGLE');
-  const [bairacViewMode, setBairacViewMode] = useState<'SINGLE' | 'GRID_10'>('SINGLE');
-  const [imouViewMode, setImouViewMode] = useState<'SINGLE' | 'GRID_10'>('SINGLE');
+  // Default to 'GRID_10' to show all active cameras simultaneously across all stations
+  const [nvr1ViewMode, setNvr1ViewMode] = useState<'SINGLE' | 'GRID_10'>('GRID_10');
+  const [nvr2ViewMode, setNvr2ViewMode] = useState<'SINGLE' | 'GRID_10'>('GRID_10');
+  const [bairacViewMode, setBairacViewMode] = useState<'SINGLE' | 'GRID_10'>('GRID_10');
+  const [imouViewMode, setImouViewMode] = useState<'SINGLE' | 'GRID_10'>('GRID_10');
 
   // Active channel selected for single live preview per station
   const [nvr1ActiveChannel, setNvr1ActiveChannel] = useState<number>(101);
@@ -505,21 +504,8 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
 
         {/* Live Controls: View Mode (1 Kênh vs 10/10 Camera), Play/Pause, Speed, List Mode */}
         <div className="flex flex-wrap items-center gap-2">
-          {/* Global View Mode Toggle: Current Single Mode vs 10/10 Live Grid Mode */}
+          {/* Global View Mode Toggle: Multi-Grid Mode (Default) vs Single Mode */}
           <div className="flex items-center bg-slate-900 text-slate-200 p-1 rounded-xl border border-slate-700 text-xs font-bold shadow-xs">
-            <button
-              type="button"
-              onClick={() => handleSetGlobalViewMode('SINGLE')}
-              className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
-                !isBothGrid10
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-              title="Chế độ xem từng kênh lớn và bấm chọn kênh bên dưới như hiện tại"
-            >
-              <Monitor className="w-3.5 h-3.5" />
-              <span>Xem Từng Kênh (Hiện Tại)</span>
-            </button>
             <button
               type="button"
               onClick={() => handleSetGlobalViewMode('GRID_10')}
@@ -528,10 +514,23 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-300 hover:text-white'
               }`}
-              title="Hiển thị đồng thời toàn bộ 10/10 camera trực tiếp 1 lần trên mỗi đầu ghi"
+              title="Hiển thị đồng thời toàn bộ camera trực tiếp 1 lần trên tất cả các trạm/đầu ghi (Mặc định)"
             >
               <LayoutGrid className="w-3.5 h-3.5" />
-              <span>Live View 10/10 Camera</span>
+              <span>Toàn Bộ Camera (Mặc Định)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSetGlobalViewMode('SINGLE')}
+              className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 whitespace-nowrap ${
+                !isBothGrid10
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-300 hover:text-white'
+              }`}
+              title="Chế độ xem 1 kênh lớn và bấm chọn kênh bên dưới"
+            >
+              <Monitor className="w-3.5 h-3.5" />
+              <span>Xem Từng Kênh Lớn</span>
             </button>
           </div>
 
