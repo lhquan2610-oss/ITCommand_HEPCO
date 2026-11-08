@@ -149,9 +149,9 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
     channels: number;
   }>({ online: true, latencyMs: 18, channels: 7 });
 
-  // Show/hide passwords on BaiRac & Imou cards
-  const [showBairacPass, setShowBairacPass] = useState<boolean>(true);
-  const [showImouPass, setShowImouPass] = useState<boolean>(true);
+  // Show/hide passwords on BaiRac & Imou cards (Hidden by default for privacy)
+  const [showBairacPass, setShowBairacPass] = useState<boolean>(false);
+  const [showImouPass, setShowImouPass] = useState<boolean>(false);
 
   // Live Auto-Stream Engine (Always running live by default)
   const [isLiveAutoPlay, setIsLiveAutoPlay] = useState<boolean>(true);

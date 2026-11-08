@@ -202,57 +202,31 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
 
   return (
     <div className="space-y-5 max-w-7xl mx-auto font-sans">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
-        <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shadow-xs shrink-0">
-            <Icon className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-              {displayTitle}
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{displayDesc}</p>
-          </div>
-        </div>
-
-        {/* View Switcher for Camera or Online Badges */}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          {isCameraPage && (
-            <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold mr-2">
-              <button
-                onClick={() => setCameraViewMode('LIVE')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer ${
-                  cameraViewMode === 'LIVE'
-                    ? 'bg-emerald-600 text-white shadow-xs font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <Video className="w-3.5 h-3.5" />
-                <span>Trung Tâm Giám Sát Live</span>
-              </button>
-              <button
-                onClick={() => setCameraViewMode('LIST')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition cursor-pointer ${
-                  cameraViewMode === 'LIST'
-                    ? 'bg-emerald-600 text-white shadow-xs font-bold'
-                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                }`}
-              >
-                <List className="w-3.5 h-3.5" />
-                <span>Danh Sách Chi Tiết ({devices.length})</span>
-              </button>
+      {/* Header - Only shown for non-camera pages or when not in live mode if needed */}
+      {!isCameraPage && (
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shadow-xs shrink-0">
+              <Icon className="w-6 h-6" />
             </div>
-          )}
-
-          <div className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 font-bold">
-            Hoạt động: {onlineCount}
+            <div>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                {displayTitle}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{displayDesc}</p>
+            </div>
           </div>
-          <div className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-400 font-bold">
-            Ngoại tuyến: {offlineCount}
+
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300 font-bold">
+              Hoạt động: {onlineCount}
+            </div>
+            <div className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-400 font-bold">
+              Ngoại tuyến: {offlineCount}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* If Camera Page and LIVE view is chosen -> Show Camera Live Wall */}
       {isCameraPage && cameraViewMode === 'LIVE' ? (

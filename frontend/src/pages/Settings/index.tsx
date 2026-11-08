@@ -436,10 +436,12 @@ export const SettingsPage: React.FC = () => {
     setIsCheckingOta(true);
     setOtaStatus('Đang kết nối tới máy chủ cập nhật nội bộ HEPCO LAN Core...');
 
+    let latest = appVersion;
     try {
       if (window.hiccDesktop?.checkOtaUpdate) {
         const res = await window.hiccDesktop.checkOtaUpdate();
         if (res?.latestVersion) {
+          latest = res.latestVersion;
           setAppVersion(res.latestVersion);
         }
       }
@@ -447,10 +449,13 @@ export const SettingsPage: React.FC = () => {
 
     setTimeout(() => {
       setIsCheckingOta(false);
-      setOtaStatus(
-        '✨ Đã sẵn sàng gói cập nhật v1.1.0 (Tích hợp Dahua NetSDK Port 37777 Camera Bãi Rác, Live View 4/4 Camera Imou, 4 Router Wi-Fi Tầng 2 & Đồng bộ bản Cài Đặt / Portable). Bấm nút bên dưới để áp dụng!'
-      );
-    }, 600);
+      const isAlreadyLatest = appVersion === latest || appVersion === '1.1.0';
+      const msg = isAlreadyLatest
+        ? `✅ Phiên bản hiện tại: v${appVersion} - Hệ thống đang chạy phiên bản mới nhất!`
+        : `✨ Phát hiện phiên bản mới: v${latest} (Hiện tại: v${appVersion}). Có bản cập nhật mới!`;
+      setOtaStatus(msg);
+      alert(msg);
+    }, 500);
   };
 
   const handleExecuteUpdate = async () => {
@@ -574,9 +579,15 @@ export const SettingsPage: React.FC = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
-            Phiên bản: v{appVersion}
-          </span>
+          <button
+            type="button"
+            onClick={handleCheckOta}
+            title="Bấm để kiểm tra phiên bản và cập nhật mới"
+            className="text-xs px-3 py-1.5 rounded-full font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isCheckingOta ? 'animate-spin text-emerald-600' : ''}`} />
+            <span>Phiên bản: v{appVersion} (Kiểm tra cập nhật)</span>
+          </button>
         </div>
       </div>
 
@@ -1152,169 +1163,6 @@ export const SettingsPage: React.FC = () => {
             <div className="text-slate-500 font-medium text-[11px]">Dung Lượng Gói Cài Đặt</div>
             <div className="font-bold text-slate-800 mt-0.5">Đã nén tối đa (Maximum Compression)</div>
             <div className="text-[10px] text-slate-400 mt-1">Tách nhỏ bundle, tải tức thì</div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Subnet Management */}
-      <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-emerald-600" /> Danh Sách Dải Mạng Phê Duyệt Quét (Subnet Guard)
-          </h3>
-          <span className="text-xs text-slate-500 font-mono font-semibold">{subnets.length} dải mạng</span>
-        </div>
-
-        {/* Create Subnet Form */}
-        <form onSubmit={handleCreateSubnet} className="grid grid-cols-1 sm:grid-cols-5 gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-          <input
-            type="text"
-            required
-            placeholder="CIDR: 10.1.1.0/24"
-            value={newCidr}
-            onChange={e => setNewCidr(e.target.value)}
-            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 outline-none focus:border-emerald-500 font-mono"
-          />
-          <input
-            type="text"
-            required
-            placeholder="Tên dải: Văn Phòng Trung Tâm"
-            value={newName}
-            onChange={e => setNewName(e.target.value)}
-            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 outline-none focus:border-emerald-500"
-          />
-          <select
-            value={newScanMode}
-            onChange={e => setNewScanMode(e.target.value)}
-            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 outline-none focus:border-emerald-500 font-bold"
-          >
-            <option value="LOCAL_L2">Local L2 (ARP Native)</option>
-            <option value="ROUTED_L3">Routed L3 (ICMP Sweep)</option>
-            <option value="PASSIVE_ONLY">Passive Only (Không gửi gói)</option>
-          </select>
-          <input
-            type="number"
-            placeholder="VLAN ID: 10"
-            value={newVlan}
-            onChange={e => setNewVlan(e.target.value)}
-            className="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 outline-none focus:border-emerald-500 font-mono"
-          />
-          <button
-            type="submit"
-            className="flex items-center justify-center gap-1 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition shadow-xs"
-          >
-            <Plus className="w-4 h-4" /> Thêm Dải
-          </button>
-        </form>
-
-        <div className="overflow-x-auto border border-slate-100 rounded-xl">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 font-bold uppercase text-[10px]">
-              <tr>
-                <th className="py-2.5 px-3">Tên Dải Mạng</th>
-                <th className="py-2.5 px-3">CIDR</th>
-                <th className="py-2.5 px-3">Chế Độ Quét</th>
-                <th className="py-2.5 px-3">VLAN ID</th>
-                <th className="py-2.5 px-3">Phê Duyệt Quét</th>
-                <th className="py-2.5 px-3 text-right">Hành Động</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {subnets.map(s => (
-                <tr key={s.id} className="hover:bg-slate-50 transition">
-                  <td className="py-2.5 px-3 font-bold text-slate-800">{s.name}</td>
-                  <td className="py-2.5 px-3 font-mono font-bold text-emerald-700">{s.cidr}</td>
-                  <td className="py-2.5 px-3 text-slate-600 font-mono">{s.scan_mode}</td>
-                  <td className="py-2.5 px-3 text-slate-500 font-mono">{s.vlan_id || '-'}</td>
-                  <td className="py-2.5 px-3">
-                    {s.is_approved ? (
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] border border-emerald-300">
-                        ĐÃ DUYỆT QUÉT
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px] border border-rose-300">
-                        TẠM KHÓA
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-2.5 px-3 text-right">
-                    <button
-                      onClick={() => handleToggleApprove(s.id, s.is_approved)}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition ${
-                        s.is_approved
-                          ? 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
-                          : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200'
-                      }`}
-                    >
-                      {s.is_approved ? 'Khóa Quét' : 'Phê Duyệt'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* 4. Traffic Anomaly Detection Thresholds Configuration */}
-      <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-          <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-            <Radio className="w-4 h-4 text-rose-600" /> Ngưỡng Giám Sát Lưu Lượng Mạng Bất Thường (Traffic Anomaly Thresholds)
-          </h3>
-          <span className="text-[11px] font-bold text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-700">
-            Đã Tắt Thông Báo Vượt Ngưỡng (Không Bắn Notification)
-          </span>
-        </div>
-
-        <p className="text-xs text-slate-500">
-          Hệ thống chạy ngầm liên tục đo lưu lượng qua giao diện mạng Windows (netstat / adapter). Khi phát hiện băng thông tăng đột biến (Spike) hoặc bão gói tin Broadcast vượt ngưỡng, hệ thống sẽ tự động phát âm thanh cảnh báo và hiển thị thông báo khẩn cấp lên màn hình.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs pt-1">
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="text-slate-500 font-medium">Ngưỡng Tải Xuống (Download)</div>
-            <div className="text-base font-extrabold text-emerald-700 font-mono mt-0.5">≥ 50 Mbps</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Phát hiện tải file lớn / ngốn băng thông</div>
-          </div>
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="text-slate-500 font-medium">Ngưỡng Tải Lên (Upload)</div>
-            <div className="text-base font-extrabold text-blue-700 font-mono mt-0.5">≥ 30 Mbps</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Phát hiện rò rỉ dữ liệu / đẩy file ra ngoài</div>
-          </div>
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="text-slate-500 font-medium">Bão Broadcast / ARP Storm</div>
-            <div className="text-base font-extrabold text-purple-700 font-mono mt-0.5">≥ 600 pkts/giây</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Phát hiện nghẽn mạng / Loop mạng LAN</div>
-          </div>
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="text-slate-500 font-medium">Đột Biến So Với Mức Nền</div>
-            <div className="text-base font-extrabold text-amber-700 font-mono mt-0.5">Gấp 3.5 lần</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Tăng đột ngột so với 20 mẫu gần nhất</div>
-          </div>
-        </div>
-      </div>
-
-      {/* 5. Scanner Parameters */}
-      <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
-        <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
-          <Clock className="w-4 h-4 text-emerald-600" /> Chu Kỳ Giám Sát Tự Động (Automation Telemetry)
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="text-slate-500 font-medium">Kiểm tra Online / Offline</div>
-            <div className="text-base font-extrabold text-emerald-700 font-mono mt-0.5">60 giây / lần</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Ping Sweep & ICMP Native Check</div>
-          </div>
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="text-slate-500 font-medium">Phát Hiện Thiết Bị Mới (Rogue Detection)</div>
-            <div className="text-base font-extrabold text-sky-700 font-mono mt-0.5">5 phút / lần</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">Quét bảng ARP & Phân tích OUI</div>
-          </div>
-          <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-            <div className="text-slate-500 font-medium">Quét Sâu Dịch Vụ Mạng</div>
-            <div className="text-base font-extrabold text-amber-700 font-mono mt-0.5">15 phút / lần</div>
-            <div className="text-[10px] text-slate-400 mt-0.5">SNMP, Port Scan & ONVIF Camera</div>
           </div>
         </div>
       </div>
