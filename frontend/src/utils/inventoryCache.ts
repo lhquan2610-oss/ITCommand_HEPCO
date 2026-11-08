@@ -366,7 +366,7 @@ const VERIFIED_WIFI_ROUTERS: Record<string, any> = {
   },
 };
 
-// Guaranteed External / Cloud Cameras (Camera Bãi Rác & Camera Imou)
+// Guaranteed External Cameras (Camera Bãi Rác 113.161.8.149)
 const EXTRA_CAMERAS = [
   {
     id: 'dev-cam-bairac',
@@ -390,29 +390,6 @@ const EXTRA_CAMERAS = [
     nvr_role: 'BAIRAC_WAN',
     osd_label: 'BaiRac (Port 37777 / 3777)',
     notes: 'Device Name: BaiRac | Method: IP/Domain | IP: 113.161.8.149 | Port: 37777 (3777) | User: admin | Pass: philonghue123 | RTSP Port: 554 | Web Port: 83',
-  },
-  {
-    id: 'dev-cam-imou',
-    device_code: 'CAM-IMOU-CLOUD',
-    display_name: 'Hệ Thống Camera Wi-Fi Imou Cloud (hepco.camera@gmail.com)',
-    category: 'CAMERA',
-    ip: 'imou.hepco.cloud',
-    mac: 'IMOU-CLOUD-HEPCO',
-    vendor: 'Imou Life / Dahua Cloud (hepco.camera@gmail.com)',
-    assigned_user: 'Tài khoản Cloud: hepco.camera@gmail.com',
-    department: 'Camera',
-    location: 'Hệ Thống Camera Wi-Fi Imou Toàn Công Ty',
-    status: 'ONLINE',
-    last_seen: 'Kết nối Cloud Imou Life',
-    openPorts: [443, 554, 37777],
-    parent_nvr: 'IMOU_CLOUD',
-    parent_nvr_name: 'Imou Cloud (hepco.camera@gmail.com)',
-    nvr_channel: 1,
-    nvr_rtsp_channel: '1',
-    is_nvr: true,
-    nvr_role: 'IMOU_CLOUD',
-    osd_label: 'Imou (hepco.camera@gmail.com)',
-    notes: 'Tài khoản Imou: hepco.camera@gmail.com | Mật khẩu: Hepco@123 | Quản lý trực tuyến qua Imou Life Cloud',
   },
 ];
 
@@ -477,7 +454,7 @@ export function normalizeInventoryList(list: any[]): any[] {
     }
   });
 
-  // Inject or update Camera Bãi Rác (113.161.8.149) and Camera Imou (hepco.camera@gmail.com)
+  // Inject or update Camera Bãi Rác (113.161.8.149)
   EXTRA_CAMERAS.forEach((cam) => {
     const existing = cleaned.find((d) => d.ip === cam.ip || d.id === cam.id);
     if (existing) {
@@ -489,6 +466,11 @@ export function normalizeInventoryList(list: any[]): any[] {
 
   cleaned = cleaned.filter(
     (d) =>
+      d &&
+      d.ip !== 'imou.hepco.cloud' &&
+      d.id !== 'dev-cam-imou' &&
+      d.device_code !== 'CAM-IMOU-CLOUD' &&
+      d.parent_nvr !== 'IMOU_CLOUD' &&
       !(
         (d.ip === '10.1.1.17' || d.ip === '10.1.1.18') &&
         (d.category === 'PRINTER' || (d.display_name && d.display_name.toLowerCase().includes('ricoh')))

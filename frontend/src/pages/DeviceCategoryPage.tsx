@@ -33,7 +33,7 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
   const [search, setSearch] = useState('');
   const [cameraViewMode, setCameraViewMode] = useState<'LIST' | 'LIVE'>('LIVE');
   const [cameraNvrFilter, setCameraNvrFilter] = useState<
-    'ALL' | '10.110.1.13' | '10.110.1.80' | '113.161.8.149' | 'IMOU_CLOUD'
+    'ALL' | '10.110.1.13' | '10.110.1.80' | '113.161.8.149'
   >('ALL');
   const [switchFilter, setSwitchFilter] = useState<'ALL' | 'WIFI_VP' | 'WIFI_XN' | 'CORE'>('ALL');
 
@@ -75,10 +75,6 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
   const offlineCount = devices.filter((d) => d.status === 'OFFLINE').length;
 
   const handlePing = async (ip: string) => {
-    if (ip === 'imou.hepco.cloud' || ip === 'IMOU_CLOUD') {
-      alert('✅ Hệ thống Imou Cloud (hepco.camera@gmail.com) đang kết nối trực tuyến!');
-      return;
-    }
     if (window.hiccDesktop?.ping) {
       const res = await window.hiccDesktop.ping(ip);
       alert(
@@ -96,10 +92,6 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
       window.hiccDesktop.cameraOpenViewerWindow({ ip, name: `Thiết Bị Camera (${ip})` });
       return;
     }
-    if (ip === 'imou.hepco.cloud' || ip === 'IMOU_CLOUD') {
-      window.open('https://www.imoulife.com/vn', '_blank');
-      return;
-    }
     if (ip === '113.161.8.149') {
       window.open('http://113.161.8.149:83', '_blank');
       return;
@@ -110,8 +102,6 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
   const handleOpenNvrViewer = (nvrIp: string, name: string) => {
     if (window.hiccDesktop?.cameraOpenViewerWindow) {
       window.hiccDesktop.cameraOpenViewerWindow({ ip: nvrIp, name });
-    } else if (nvrIp === 'IMOU_CLOUD' || nvrIp === 'imou.hepco.cloud') {
-      window.open('https://www.imoulife.com/vn', '_blank');
     } else if (nvrIp === '113.161.8.149') {
       window.open('http://113.161.8.149:83', '_blank');
     } else {
@@ -127,16 +117,6 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
       device.ip === '113.161.8.149'
         ? device.ip
         : '10.110.1.13');
-
-    if (parent === 'IMOU_CLOUD' || device.ip === 'imou.hepco.cloud') {
-      navigator.clipboard.writeText(
-        'Tài khoản Imou: hepco.camera@gmail.com | Mật khẩu: Hepco@123'
-      );
-      alert(
-        'Đã sao chép thông tin đăng nhập Camera Imou Cloud (hepco.camera@gmail.com / Hepco@123) vào bộ nhớ tạm!'
-      );
-      return;
-    }
 
     if (parent === '113.161.8.149' || device.ip === '113.161.8.149') {
       const rtspUrl =
@@ -171,12 +151,12 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
   const displayTitle = isSwitchPage
     ? 'Thiết Bị Mạng Switch, Router & Wi-Fi (Tầng 1, Tầng 2, Tầng 3 & Xí Nghiệp)'
     : isCameraPage
-    ? 'Hệ Thống Camera An Ninh, Đầu Ghi NVR, Bãi Rác & Imou Cloud'
+    ? 'Hệ Thống Camera An Ninh, Đầu Ghi NVR & Bãi Rác'
     : title;
   const displayDesc = isSwitchPage
     ? 'Quản lý trạng thái kết nối các Switch L2/L3, Gateway và Router Wi-Fi Tầng 1, Tầng 2, Tầng 3 cùng các Xí nghiệp'
     : isCameraPage
-    ? 'Xem trực tiếp 20 kênh NVR (Văn phòng & Hương Sơ), Camera Bãi Rác (113.161.8.149:37777) và Camera Imou (hepco.camera@gmail.com)'
+    ? 'Xem trực tiếp 20 kênh NVR (Văn phòng & Hương Sơ) và Camera Bãi Rác (113.161.8.149:37777)'
     : description;
 
   // Filter table devices
@@ -353,17 +333,6 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
                   <Radio className="w-3.5 h-3.5" />
                   <span>Camera Bãi Rác (113.161.8.149)</span>
                 </button>
-                <button
-                  onClick={() => setCameraNvrFilter('IMOU_CLOUD')}
-                  className={`px-3 py-1.5 rounded-lg transition cursor-pointer flex items-center gap-1.5 shrink-0 ${
-                    cameraNvrFilter === 'IMOU_CLOUD'
-                      ? 'bg-sky-600 text-white font-bold shadow-xs'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  <Cloud className="w-3.5 h-3.5" />
-                  <span>Camera Imou (hepco.camera@gmail.com)</span>
-                </button>
               </div>
             )}
           </div>
@@ -399,15 +368,12 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
                     const isNvr =
                       device.ip === '10.110.1.13' ||
                       device.ip === '10.110.1.80' ||
-                      device.ip === '113.161.8.149' ||
-                      device.ip === 'imou.hepco.cloud';
+                      device.ip === '113.161.8.149';
                     const parentNvr =
                       device.parent_nvr || (isNvr ? device.ip : '10.110.1.13');
                     const isNvr1 = parentNvr === '10.110.1.13';
                     const isBaiRac =
                       parentNvr === '113.161.8.149' || device.ip === '113.161.8.149';
-                    const isImou =
-                      parentNvr === 'IMOU_CLOUD' || device.ip === 'imou.hepco.cloud';
 
                     return (
                       <tr
@@ -425,8 +391,6 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
                                 className={`p-1 rounded text-white shrink-0 ${
                                   isBaiRac
                                     ? 'bg-amber-600'
-                                    : isImou
-                                    ? 'bg-sky-600'
                                     : 'bg-emerald-600'
                                 }`}
                               >
@@ -455,10 +419,6 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
                                 <span className="font-mono font-bold text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
                                   Port: 37777 / 3777 (admin / philonghue123)
                                 </span>
-                              ) : isImou ? (
-                                <span className="font-mono font-bold text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border border-sky-300 dark:border-sky-800">
-                                  TK: hepco.camera@gmail.com / MK: Hepco@123
-                                </span>
                               ) : device.nvr_channel ? (
                                 <span className="font-mono font-bold text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
                                   Kênh {String(device.nvr_channel).padStart(2, '0')}
@@ -485,10 +445,6 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
                               <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
                                 ⭐ Camera Bãi Rác (BaiRac - WAN IP)
                               </span>
-                            ) : isImou ? (
-                              <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400">
-                                ☁️ Hệ Thống Imou Life Cloud
-                              </span>
                             ) : isNvr ? (
                               <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                                 ⭐ Máy Chủ Đầu Ghi NVR
@@ -513,7 +469,7 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
 
                         <td className="py-3 px-3">
                           <span className="font-mono font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700 text-[11px]">
-                            {isImou ? 'hepco.camera@gmail.com' : device.ip}
+                            {device.ip}
                           </span>
                         </td>
                         <td className="py-3 px-3 font-mono text-[11px] text-slate-500 dark:text-slate-400">
@@ -554,14 +510,8 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
                                 <button
                                   onClick={() =>
                                     handleOpenNvrViewer(
-                                      isImou
-                                        ? 'IMOU_CLOUD'
-                                        : isBaiRac
-                                        ? '113.161.8.149'
-                                        : parentNvr,
-                                      isImou
-                                        ? 'Camera Imou Cloud (hepco.camera@gmail.com)'
-                                        : isBaiRac
+                                      isBaiRac ? '113.161.8.149' : parentNvr,
+                                      isBaiRac
                                         ? 'Camera Bãi Rác (113.161.8.149)'
                                         : isNvr1
                                         ? 'Đầu Ghi NVR 01'
@@ -572,15 +522,15 @@ export const DeviceCategoryPage: React.FC<DeviceCategoryPageProps> = ({
                                   title="Mở cửa sổ xem trực tiếp (Tự động điền tài khoản/mật khẩu)"
                                 >
                                   <MonitorPlay className="w-3 h-3" />
-                                  <span>{isImou ? 'Mở Imou' : 'Web Live'}</span>
+                                  <span>Web Live</span>
                                 </button>
                                 <button
                                   onClick={() => handleCopyCameraRtsp(device)}
                                   className="px-2 py-1 rounded-md text-[11px] font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1 cursor-pointer"
-                                  title="Sao chép luồng RTSP hoặc thông tin tài khoản"
+                                  title="Sao chép luồng RTSP"
                                 >
                                   <Tv className="w-3 h-3 text-emerald-400" />
-                                  <span>{isImou ? 'Chép TK' : 'RTSP'}</span>
+                                  <span>RTSP</span>
                                 </button>
                                 <button
                                   onClick={() => handlePing(device.ip)}

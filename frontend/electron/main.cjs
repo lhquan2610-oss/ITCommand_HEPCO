@@ -1100,18 +1100,16 @@ ipcMain.handle('audit-remote-hardware', async (_, ip) => {
 });
 
 // ===========================================================================
-// Camera Live Onlive Integration (HTTP Digest Auth, Native Dahua NetSDK & Imou)
+// Camera Live Onlive Integration (HTTP Digest Auth & Native Dahua NetSDK)
 // ===========================================================================
 const NVR_CREDS = {
   '10.110.1.13': { user: 'admin', pass: 'hepco@12@12' },
   '10.110.1.80': { user: 'admin', pass: '@dmin123' },
   '113.161.8.149': { user: 'admin', pass: 'philonghue123', port: 83, tcpPort: 37777 },
-  'IMOU_CLOUD': { user: 'hepco.camera@gmail.com', pass: 'Hepco@123' },
 };
 
 function getNvrCredsForIp(ip) {
   if (ip === '113.161.8.149') return NVR_CREDS['113.161.8.149'];
-  if (ip === 'IMOU_CLOUD' || ip === 'imou.hepco.cloud') return NVR_CREDS['IMOU_CLOUD'];
   if (ip === '10.110.1.13' || ip.startsWith('10.110.1.1') || ip.startsWith('10.110.1.2') || ip.startsWith('10.110.1.5')) {
     return NVR_CREDS['10.110.1.13'];
   }
@@ -1265,72 +1263,6 @@ ipcMain.handle('camera-fetch-snapshot', async (_, payload) => {
     };
   }
 
-  // 2. Imou Cloud Live Snapshot Sync (Checks Imou Client Captures, then bundled camera feeds)
-  if (ip === 'IMOU_CLOUD' || ip === 'imou.hepco.cloud') {
-    const chNum = Number(payload?.channel) || 1;
-    try {
-      const capDirs = [
-        'C:\\Users\\Public\\Imou_en\\Capture',
-        'C:\\Users\\Public\\Imou_en\\Record',
-      ];
-      let newestFiles = [];
-      for (const baseDir of capDirs) {
-        if (fs.existsSync(baseDir)) {
-          const subDirs = fs.readdirSync(baseDir, { withFileTypes: true });
-          for (const d of subDirs) {
-            if (d.isDirectory()) {
-              const fullSub = path.join(baseDir, d.name);
-              const files = fs.readdirSync(fullSub)
-                .filter(f => /\.(jpg|jpeg|png)$/i.test(f))
-                .map(f => {
-                  const fp = path.join(fullSub, f);
-                  const st = fs.statSync(fp);
-                  return { path: fp, mtimeMs: st.mtimeMs, size: st.size };
-                })
-                .filter(x => x.size > 10000);
-              newestFiles.push(...files);
-            }
-          }
-        }
-      }
-      if (newestFiles.length > 0) {
-        newestFiles.sort((a, b) => b.mtimeMs - a.mtimeMs);
-        const picked = newestFiles[(chNum - 1) % newestFiles.length];
-        if (picked && fs.existsSync(picked.path)) {
-          const b64 = fs.readFileSync(picked.path).toString('base64');
-          return {
-            success: true,
-            dataUrl: `data:image/jpeg;base64,${b64}`,
-            authenticated: true,
-          };
-        }
-      }
-    } catch {}
-
-    // High-fidelity bundled Imou snapshot fallback (always succeeds)
-    const bundledCandidates = [
-      path.join(__dirname, '..', 'public', 'images', 'cameras', `imou_ch${chNum}.jpg`),
-      path.join(__dirname, '..', 'dist', 'images', 'cameras', `imou_ch${chNum}.jpg`),
-      path.join(app.getAppPath(), 'dist', 'images', 'cameras', `imou_ch${chNum}.jpg`),
-      path.join(app.getAppPath(), 'public', 'images', 'cameras', `imou_ch${chNum}.jpg`),
-    ];
-    for (const bp of bundledCandidates) {
-      if (fs.existsSync(bp)) {
-        try {
-          const b64 = fs.readFileSync(bp).toString('base64');
-          return {
-            success: true,
-            dataUrl: `data:image/jpeg;base64,${b64}`,
-            authenticated: true,
-            isBundled: true,
-          };
-        } catch {}
-      }
-    }
-
-    return { success: false, useBundledFallback: true };
-  }
-
   const snapPath = payload?.path || (ip.endsWith('.11') || ip.endsWith('.13') || ip.endsWith('.80')
     ? '/ISAPI/Streaming/channels/101/picture'
     : '/cgi-bin/snapshot.cgi');
@@ -1419,18 +1351,9 @@ ipcMain.handle('camera-fetch-snapshot', async (_, payload) => {
 
 ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
   try {
-    const isImou = ip === 'IMOU_CLOUD' || ip === 'imou.hepco.cloud';
     const isBaiRac = ip === '113.161.8.149';
     const creds = getNvrCredsForIp(ip);
 
-    // If user installed native Imou PC Client or SmartPSS on this machine, launch/focus it directly when requested via native mode!
-    if (isImou && name && name.includes('NATIVE_APP')) {
-      const imouExe = 'C:\\Program Files\\Imou_en\\bin\\Imou_en.exe';
-      if (fs.existsSync(imouExe)) {
-        spawn(imouExe, [], { cwd: path.dirname(imouExe), detached: true, stdio: 'ignore' }).unref();
-        return { success: true, launchedNative: 'Imou_en.exe' };
-      }
-    }
     if (isBaiRac && name && name.includes('NATIVE_APP')) {
       const spssExe = 'C:\\Program Files\\Smart Professional Surveillance System\\SmartPSS\\SmartPSS.exe';
       if (fs.existsSync(spssExe)) {
@@ -1442,9 +1365,7 @@ ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
     const camWin = new BrowserWindow({
       width: 1240,
       height: 820,
-      title: isImou
-        ? 'HEPCO Camera Imou Cloud - TK: hepco.camera@gmail.com | MK: Hepco@123'
-        : isBaiRac
+      title: isBaiRac
         ? 'HEPCO Camera Bãi Rác (BaiRac) - IP: 113.161.8.149 | Port: 37777 / 3777 | TK: admin | MK: philonghue123'
         : `HEPCO CCTV Live - ${name || 'Camera'} (${ip})`,
       backgroundColor: '#0a0e17',
@@ -1462,18 +1383,14 @@ ipcMain.handle('camera-open-viewer-window', async (_, { ip, name }) => {
       callback(creds.user, creds.pass);
     });
 
-    const targetUrl = isImou
-      ? 'https://www.imoulife.com/vn'
-      : isBaiRac
+    const targetUrl = isBaiRac
       ? 'http://113.161.8.149:83'
       : `http://${ip}`;
 
     camWin.webContents.on('did-finish-load', () => {
       const userVal = JSON.stringify(creds.user);
       const passVal = JSON.stringify(creds.pass);
-      const bannerLabel = isImou
-        ? '☁️ IMOU CLOUD HEPCO — Đang tự động đăng nhập (hepco.camera@gmail.com)...'
-        : isBaiRac
+      const bannerLabel = isBaiRac
         ? '📹 CAMERA BÃI RÁC (BaiRac: 113.161.8.149:83) — Đang tự động đăng nhập tài khoản admin...'
         : `📹 ĐẦU GHI CAMERA (${ip}) — Đang tự động đăng nhập (${creds.user})...`;
 
