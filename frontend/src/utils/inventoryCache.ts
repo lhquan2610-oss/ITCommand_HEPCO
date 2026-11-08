@@ -1,6 +1,11 @@
 // Shared High-Speed In-Memory Inventory Cache for Instant Tab Switching
 
-const STORAGE_KEY = 'hicc_real_devices_inventory';
+const STORAGE_KEY = 'hicc_real_devices_inventory_v110';
+try {
+  if (typeof localStorage !== 'undefined') {
+    localStorage.removeItem('hicc_real_devices_inventory');
+  }
+} catch {}
 
 const VERIFIED_CAMERA_MAP: Record<
   string,

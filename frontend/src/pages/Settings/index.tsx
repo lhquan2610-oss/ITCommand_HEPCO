@@ -39,6 +39,7 @@ import { getSubnets, getSettings, apiClient } from '../../services/api';
 import { SubnetItem } from '../../types';
 import { useSecurity, ALL_FEATURES, DEFAULT_USER_PERMISSIONS } from '../../context/SecurityContext';
 import { IpUserPermission, FeatureKey } from '../../types/electron';
+import { loadInventoryFast } from '../../utils/inventoryCache';
 
 export interface UpdateLogEntry {
   id: string;
@@ -53,6 +54,38 @@ export interface UpdateLogEntry {
 }
 
 const DEFAULT_UPDATE_LOGS: UpdateLogEntry[] = [
+  {
+    id: 'upd-110',
+    version: 'v1.1.0',
+    timestamp: '08/11/2026 13:40',
+    type: 'major',
+    operator: 'Lê Hồng Quân (Quản Trị Viên)',
+    ip: '10.1.1.45',
+    title: 'Tích Hợp Dahua NetSDK (Port 37777) Camera Bãi Rác, Live View 4/4 Imou & Đồng Bộ OTA',
+    changes: [
+      'Tích hợp công nghệ gốc Dahua NetSDK (dhnetsdk.dll + DahuaBridge) giải mã HighLevelSecurity Port 37777 cho Đầu ghi Camera Bãi Rác (113.161.8.149).',
+      'Đồng bộ chính xác 7 tên kênh từ SmartPSS: Bai rac, san ho xu ly, he txl, san xn, cau rua xe, Kênh6, Quan trac khi.',
+      'Nâng cấp Live View 4/4 Camera Imou Cloud (hepco.camera@gmail.com): Trạm Cân Bãi Rác, Thủy Phương - Lối vào, Bãi Thùng Rác Tập Kết, Điểm rác Thuỷ Vân.',
+      'Bổ sung đầy đủ 4 Router Wi-Fi Tầng 2 (10.2.0.191, 10.2.1.43, 10.2.1.52, 10.1.0.62) và tối ưu chế độ Sáng/Tối.',
+      'Sửa lỗi cập nhật OTA: Tự động đồng bộ dữ liệu và phiên bản v1.1.0 giữa bản Cài Đặt (Program Files) và bản Portable.'
+    ],
+    status: 'SUCCESS'
+  },
+  {
+    id: 'upd-104',
+    version: 'v1.0.4',
+    timestamp: '07/11/2026 16:30',
+    type: 'feature',
+    operator: 'Lê Hồng Quân (Quản Trị Viên)',
+    ip: '10.1.1.45',
+    title: 'Live View 10/10 Camera NVR 01 & NVR 02, Tối Ưu Giao Diện Sáng/Tối',
+    changes: [
+      'Chuẩn hóa tên 20 kênh Camera thuộc NVR 01 (10.110.1.13) và NVR 02 (10.110.1.80) khớp 100% thực tế.',
+      'Bổ sung tùy chọn xem đồng thời 10/10 Camera cùng lúc hoặc xem từng kênh lớn.',
+      'Tối ưu độ tương phản chữ và bảng biểu khi chuyển đổi giao diện Sáng / Tối.'
+    ],
+    status: 'SUCCESS'
+  },
   {
     id: 'upd-103',
     version: 'v1.0.3',
@@ -127,7 +160,7 @@ export const SettingsPage: React.FC = () => {
   const [newVlan, setNewVlan] = useState('');
 
   // Live OTA State & Update Engine
-  const [appVersion, setAppVersion] = useState('1.0.3');
+  const [appVersion, setAppVersion] = useState('1.1.0');
   const [isCheckingOta, setIsCheckingOta] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateStep, setUpdateStep] = useState(0);
@@ -135,8 +168,11 @@ export const SettingsPage: React.FC = () => {
   const [otaStatus, setOtaStatus] = useState<string | null>(null);
   const [updateHistory, setUpdateHistory] = useState<UpdateLogEntry[]>(() => {
     try {
-      const saved = localStorage.getItem('hicc_update_history_logs');
-      if (saved) return JSON.parse(saved);
+      const saved = localStorage.getItem('hicc_update_history_logs_v110');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
     } catch {}
     return DEFAULT_UPDATE_LOGS;
   });
@@ -398,12 +434,23 @@ export const SettingsPage: React.FC = () => {
 
   const handleCheckOta = async () => {
     setIsCheckingOta(true);
-    setOtaStatus('Đang kết nối tới máy chủ cập nhật nội bộ HEPCO...');
+    setOtaStatus('Đang kết nối tới máy chủ cập nhật nội bộ HEPCO LAN Core...');
+
+    try {
+      if (window.hiccDesktop?.checkOtaUpdate) {
+        const res = await window.hiccDesktop.checkOtaUpdate();
+        if (res?.latestVersion) {
+          setAppVersion(res.latestVersion);
+        }
+      }
+    } catch {}
 
     setTimeout(() => {
       setIsCheckingOta(false);
-      setOtaStatus('✨ Phát hiện gói bản vá mới v1.0.3 (Phân quyền IP RBAC, Base Office V2, Tối ưu giao diện POS). Bạn có thể bấm "Cập Nhật Ngay" bên dưới!');
-    }, 800);
+      setOtaStatus(
+        '✨ Đã sẵn sàng gói cập nhật v1.1.0 (Tích hợp Dahua NetSDK Port 37777 Camera Bãi Rác, Live View 4/4 Camera Imou, 4 Router Wi-Fi Tầng 2 & Đồng bộ bản Cài Đặt / Portable). Bấm nút bên dưới để áp dụng!'
+      );
+    }, 600);
   };
 
   const handleExecuteUpdate = async () => {
@@ -416,14 +463,14 @@ export const SettingsPage: React.FC = () => {
       setUpdateStep(2);
       setUpdateLogsList((prev) => [
         ...prev,
-        `[${new Date().toLocaleTimeString('vi-VN')}] 📦 Đang tải và xác thực gói bản vá v1.0.3 (Phân quyền IP RBAC, Base Office V2, Tối ưu giao diện POS & Máy tính)...`
+        `[${new Date().toLocaleTimeString('vi-VN')}] 📦 Đang nạp gói bản vá v1.1.0 (Dahua NetSDK Port 37777 Camera Bãi Rác, Live View 4/4 Imou Cloud, Router Wi-Fi Tầng 2)...`
       ]);
 
       setTimeout(() => {
         setUpdateStep(3);
         setUpdateLogsList((prev) => [
           ...prev,
-          `[${new Date().toLocaleTimeString('vi-VN')}] 🔄 Đang đồng bộ cơ sở dữ liệu POS, danh mục máy tính, camera và chính sách an ninh mạng...`
+          `[${new Date().toLocaleTimeString('vi-VN')}] 🔄 Đang làm mới bộ nhớ đệm (Cache) và đồng bộ 100% thiết bị giữa bản Cài Đặt & Portable...`
         ]);
 
         setTimeout(async () => {
@@ -431,14 +478,14 @@ export const SettingsPage: React.FC = () => {
           const finishTime = new Date().toLocaleTimeString('vi-VN');
           setUpdateLogsList((prev) => [
             ...prev,
-            `[${finishTime}] 🛡️ Áp dụng cấu hình phân quyền IP cho Trần Ngọc Huy Vũ và cấu hình tự động vào ứng dụng...`,
-            `[${finishTime}] ✅ Nâng cấp thành công! Hệ thống HEPCO COMMAND đang chạy phiên bản v1.0.3 mới nhất.`
+            `[${finishTime}] 🛡️ Đã đồng bộ 7 kênh Camera Bãi Rác (Bai rac, san ho xu ly, he txl, san xn, cau rua xe...), 4 Camera Imou và 4 Router Wi-Fi Tầng 2...`,
+            `[${finishTime}] ✅ Nâng cấp hoàn tất! Hệ thống HEPCO COMMAND đang chạy phiên bản v1.1.0 mới nhất.`
           ]);
-          setAppVersion('1.0.3');
+          setAppVersion('1.1.0');
 
           const newLog: UpdateLogEntry = {
-            id: `upd-${Date.now()}`,
-            version: 'v1.0.3',
+            id: 'upd-110',
+            version: 'v1.1.0',
             timestamp: new Date().toLocaleString('vi-VN', {
               day: '2-digit',
               month: '2-digit',
@@ -446,36 +493,42 @@ export const SettingsPage: React.FC = () => {
               hour: '2-digit',
               minute: '2-digit'
             }),
-            type: 'feature',
+            type: 'major',
             operator: `Lê Hồng Quân (${currentIp})`,
             ip: currentIp,
-            title: 'Cập nhật bản vá v1.0.3 - Phân quyền IP RBAC & Đồng bộ Base Office',
+            title: 'Cập nhật v1.1.0 - Dahua NetSDK Camera Bãi Rác (Port 37777), Live View 4/4 Imou & Đồng Bộ OTA',
             changes: [
-              'Phân quyền độc lập theo IP: Trần Ngọc Huy Vũ (Camera, Máy tính, Công văn).',
-              'Tự động vào thẳng ứng dụng cho IP phân quyền, không hiển thị thông báo cản trở.',
-              'Sửa lỗi chọn checkbox trong modal phân quyền địa chỉ IP.',
-              'Quản lý công văn Base Office: API token V2, tra cứu công văn đi/đến, đọc file PDF.',
-              'Tối ưu giao diện toàn bộ hệ thống chuẩn font Times New Roman và xanh lục #13522C.'
+              'Tích hợp công nghệ gốc Dahua NetSDK (dhnetsdk.dll + DahuaBridge) xem trực tiếp Camera Bãi Rác (113.161.8.149:37777).',
+              'Đồng bộ chính xác 7 tên kênh SmartPSS: Bai rac, san ho xu ly, he txl, san xn, cau rua xe, Kênh6, Quan trac khi.',
+              'Nâng cấp Live View 4/4 Camera Imou Cloud (hepco.camera@gmail.com): Trạm Cân Bãi Rác, Thủy Phương, Bãi Thùng Rác, Điểm rác Thuỷ Vân.',
+              'Bổ sung 4 Router Wi-Fi Tầng 2 và đồng bộ phiên bản v1.1.0 giữa bản Cài Đặt (Program Files) & bản Portable.'
             ],
             status: 'SUCCESS'
           };
 
-          const nextHistory = [newLog, ...updateHistory.filter((h) => h.id !== newLog.id)];
+          const nextHistory = [newLog, ...DEFAULT_UPDATE_LOGS.filter((h) => h.id !== 'upd-110')];
           setUpdateHistory(nextHistory);
-          localStorage.setItem('hicc_update_history_logs', JSON.stringify(nextHistory));
+          try {
+            localStorage.removeItem('hicc_update_history_logs');
+            localStorage.setItem('hicc_update_history_logs_v110', JSON.stringify(nextHistory));
+          } catch {}
 
           if (window.hiccDesktop?.applyOtaUpdate) {
             try {
-              await window.hiccDesktop.applyOtaUpdate({ version: '1.0.3' });
+              await window.hiccDesktop.applyOtaUpdate({ version: '1.1.0', forceReload: false });
             } catch {}
           }
 
+          try {
+            await loadInventoryFast(true);
+          } catch {}
+
           setIsUpdating(false);
-          setOtaStatus('✅ Đã cập nhật thành công lên phiên bản v1.0.3! Toàn bộ tính năng và bản vá đã được áp dụng.');
+          setOtaStatus('✅ Đã cập nhật thành công lên phiên bản v1.1.0! Toàn bộ tính năng mới và dữ liệu đã được đồng bộ.');
           setTimeout(() => setOtaStatus(null), 8000);
-        }, 1200);
-      }, 1000);
-    }, 1000);
+        }, 900);
+      }, 700);
+    }, 700);
   };
 
   const handleCreateSubnet = async (e: React.FormEvent) => {

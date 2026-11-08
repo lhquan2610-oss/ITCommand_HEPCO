@@ -118,7 +118,7 @@ function lookupOui(mac) {
   return { vendor: 'Thiết bị Nội bộ / Generic', hintedType: null };
 }
 
-const APP_VERSION = '1.0.2';
+const APP_VERSION = '1.1.0';
 
 // Performance Optimization Flags for Low Memory & Low CPU Footprint
 app.commandLine.appendSwitch('disable-background-timer-throttling');
@@ -725,48 +725,88 @@ ipcMain.handle('network-resolve-hostname', async (_, ip) => {
 });
 
 // Storage Path Resolver for Packaged App (Portable & Installer) and Development
-function getInventoryFilePaths() {
+function getBundledInventoryPaths() {
   const paths = [];
-  try {
-    paths.push(path.join(app.getPath('userData'), 'devices_inventory.json'));
-  } catch {}
   if (process.resourcesPath) {
     paths.push(path.join(process.resourcesPath, 'data', 'devices_inventory.json'));
   }
   paths.push(path.join(__dirname, '../../data/devices_inventory.json'));
+  paths.push('F:\\LinhTinh\\APP_TuPhatTrien\\HEPCO-IT-COMMAND-CENTER\\data\\devices_inventory.json');
   try {
     paths.push(path.join(path.dirname(app.getPath('exe')), 'data', 'devices_inventory.json'));
   } catch {}
   return paths;
 }
 
+function getInventoryFilePaths() {
+  const paths = [...getBundledInventoryPaths()];
+  try {
+    paths.push(path.join(app.getPath('userData'), 'devices_inventory.json'));
+  } catch {}
+  return paths;
+}
+
 ipcMain.handle('inventory-load', async () => {
   try {
-    for (const p of getInventoryFilePaths()) {
-      if (fs.existsSync(p)) {
-        const data = fs.readFileSync(p, 'utf-8');
-        let devices = JSON.parse(data);
-        if (Array.isArray(devices)) {
-          // Remove deleted device 10.2.1.154
-          devices = devices.filter(d => d.ip !== '10.2.1.154');
-          // Enforce correct Photocopier IPs (MP 7502 is 10.0.0.17, IM 5000 is 10.0.0.18)
-          devices.forEach(d => {
-            const name = (d.display_name || d.name || '').toLowerCase();
-            if ((name.includes('7502') || name.includes('7503') || d.id === 'PRN-RICOH-7502') && d.category === 'PRINTER') {
-              d.ip = '10.0.0.17';
-            }
-            if ((name.includes('im 5000') || name.includes('im5000') || d.id === 'PRN-RICOH-IM5000') && d.category === 'PRINTER') {
-              d.ip = '10.0.0.18';
-            }
-          });
-          // Remove any printer with old 10.1.1.17 or 10.1.1.18
-          devices = devices.filter(d => !(
-            (d.ip === '10.1.1.17' || d.ip === '10.1.1.18') &&
-            (d.category === 'PRINTER' || (d.display_name && d.display_name.toLowerCase().includes('ricoh')))
-          ));
-        }
-        return { success: true, devices, source: p };
+    let bundledDevices = null;
+    let sourcePath = '';
+    for (const bp of getBundledInventoryPaths()) {
+      if (fs.existsSync(bp)) {
+        try {
+          const parsed = JSON.parse(fs.readFileSync(bp, 'utf-8'));
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            bundledDevices = parsed;
+            sourcePath = bp;
+            break;
+          }
+        } catch {}
       }
+    }
+
+    let userDevices = null;
+    try {
+      const userInvPath = path.join(app.getPath('userData'), 'devices_inventory.json');
+      if (fs.existsSync(userInvPath)) {
+        const parsed = JSON.parse(fs.readFileSync(userInvPath, 'utf-8'));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          userDevices = parsed;
+          if (!sourcePath) sourcePath = userInvPath;
+        }
+      }
+    } catch {}
+
+    // Always prioritize bundled devices + merge any user-added devices so OTA/new builds never show stale data
+    let devices = bundledDevices ? [...bundledDevices] : userDevices ? [...userDevices] : null;
+    if (bundledDevices && userDevices) {
+      const existingKeys = new Set(bundledDevices.map(d => d.ip || d.id));
+      for (const ud of userDevices) {
+        const k = ud.ip || ud.id;
+        if (k && !existingKeys.has(k)) {
+          devices.push(ud);
+          existingKeys.add(k);
+        }
+      }
+    }
+
+    if (Array.isArray(devices)) {
+      // Remove deleted device 10.2.1.154
+      devices = devices.filter(d => d.ip !== '10.2.1.154');
+      // Enforce correct Photocopier IPs (MP 7502 is 10.0.0.17, IM 5000 is 10.0.0.18)
+      devices.forEach(d => {
+        const name = (d.display_name || d.name || '').toLowerCase();
+        if ((name.includes('7502') || name.includes('7503') || d.id === 'PRN-RICOH-7502') && d.category === 'PRINTER') {
+          d.ip = '10.0.0.17';
+        }
+        if ((name.includes('im 5000') || name.includes('im5000') || d.id === 'PRN-RICOH-IM5000') && d.category === 'PRINTER') {
+          d.ip = '10.0.0.18';
+        }
+      });
+      // Remove any printer with old 10.1.1.17 or 10.1.1.18
+      devices = devices.filter(d => !(
+        (d.ip === '10.1.1.17' || d.ip === '10.1.1.18') &&
+        (d.category === 'PRINTER' || (d.display_name && d.display_name.toLowerCase().includes('ricoh')))
+      ));
+      return { success: true, devices, source: sourcePath };
     }
     return { success: true, devices: null };
   } catch (err) {
@@ -883,19 +923,47 @@ ipcMain.handle('security-save-policy', async (_, policy) => {
 });
 
 // ===========================================================================
-// Live OTA Hot-Update Engine (On-Premise LAN & Manifest Sync)
+// Live OTA Hot-Update Engine (On-Premise LAN & Installed App Sync)
 // ===========================================================================
 ipcMain.handle('get-app-version', () => APP_VERSION);
 
 ipcMain.handle('ota-check-update', async () => {
   try {
+    let latestVersion = APP_VERSION;
+    let hasUpdate = false;
+    const devPkgPath = 'F:\\LinhTinh\\APP_TuPhatTrien\\HEPCO-IT-COMMAND-CENTER\\frontend\\package.json';
+    if (fs.existsSync(devPkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(devPkgPath, 'utf-8'));
+        if (pkg.version && pkg.version !== APP_VERSION) {
+          latestVersion = pkg.version;
+          hasUpdate = true;
+        }
+      } catch {}
+    }
+
+    const installedAsar = 'C:\\Program Files\\HEPCO COMMAND\\resources\\app.asar';
+    const latestAsar = 'F:\\LinhTinh\\APP_TuPhatTrien\\HEPCO-IT-COMMAND-CENTER\\dist-app\\win-unpacked\\resources\\app.asar';
+    if (fs.existsSync(installedAsar) && fs.existsSync(latestAsar)) {
+      try {
+        const stInst = fs.statSync(installedAsar);
+        const stLatest = fs.statSync(latestAsar);
+        if (stLatest.mtimeMs - stInst.mtimeMs > 5000) {
+          hasUpdate = true;
+        }
+      } catch {}
+    }
+
     return {
       success: true,
       currentVersion: APP_VERSION,
-      latestVersion: APP_VERSION,
-      hasUpdate: false,
+      latestVersion,
+      hasUpdate,
+      execPath: process.execPath,
+      isPortable: !!process.env.PORTABLE_EXECUTABLE_FILE,
       channel: 'HEPCO On-Premise LAN',
-      releaseNotes: 'Phiên bản V1.0.2 đã tối ưu hóa hiệu suất bộ nhớ, giảm 75% dung lượng bundle, nén tối đa cho PC văn phòng.',
+      releaseNotes:
+        'Phiên bản v1.1.0: Tích hợp công nghệ gốc Dahua NetSDK (dhnetsdk.dll Port 37777) xem trực tiếp Camera Bãi Rác, Live View 4/4 Camera Imou Cloud, bổ sung 4 Router Wi-Fi Tầng 2 và đồng bộ tự động giữa bản Cài Đặt & Portable.',
       checkedAt: new Date().toISOString(),
     };
   } catch (err) {
@@ -905,10 +973,67 @@ ipcMain.handle('ota-check-update', async () => {
 
 ipcMain.handle('ota-apply-update', async (_, updatePayload) => {
   try {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.reload();
+    // 1. Clear stale userData inventory cache so newly bundled devices load immediately
+    try {
+      const userInvPath = path.join(app.getPath('userData'), 'devices_inventory.json');
+      if (fs.existsSync(userInvPath)) {
+        fs.unlinkSync(userInvPath);
+      }
+    } catch {}
+
+    // 2. Clear Electron HTTP & Code Cache
+    try {
+      if (session.defaultSession) {
+        await session.defaultSession.clearCache();
+      }
+    } catch {}
+
+    // 3. Sync installed directories (%LOCALAPPDATA%\Programs\HEPCO COMMAND and C:\Program Files\HEPCO COMMAND)
+    const userInstalledDir = path.join(process.env.LOCALAPPDATA || '', 'Programs', 'HEPCO COMMAND');
+    const progInstalledDir = 'C:\\Program Files\\HEPCO COMMAND';
+    const unpackedDir = 'F:\\LinhTinh\\APP_TuPhatTrien\\HEPCO-IT-COMMAND-CENTER\\dist-app\\win-unpacked';
+    const installerExe = 'F:\\LinhTinh\\APP_TuPhatTrien\\HEPCO-IT-COMMAND-CENTER\\dist-app\\HEPCO_COMMAND_Cai_Dat.exe';
+
+    for (const targetDir of [userInstalledDir, progInstalledDir]) {
+      if (
+        targetDir &&
+        fs.existsSync(targetDir) &&
+        fs.existsSync(unpackedDir) &&
+        !process.execPath.toLowerCase().startsWith(targetDir.toLowerCase())
+      ) {
+        try {
+          exec(
+            `powershell -NoProfile -ExecutionPolicy Bypass -Command "Copy-Item -Path '${unpackedDir}\\resources\\*' -Destination '${targetDir}\\resources\\' -Recurse -Force -ErrorAction SilentlyContinue"`,
+            () => {}
+          );
+        } catch {}
+      }
     }
-    return { success: true };
+
+    if (fs.existsSync(installerExe)) {
+      try {
+        const myAsar = path.join(process.resourcesPath || '', 'app.asar');
+        if (
+          fs.existsSync(myAsar) &&
+          !process.env.PORTABLE_EXECUTABLE_FILE &&
+          fs.statSync(installerExe).mtimeMs - fs.statSync(myAsar).mtimeMs > 15000
+        ) {
+          spawn(installerExe, ['/currentuser', '/S'], { detached: true, stdio: 'ignore' }).unref();
+          setTimeout(() => app.quit(), 600);
+          return { success: true, relaunchingInstaller: true, version: APP_VERSION };
+        }
+      } catch {}
+    }
+
+    if (
+       mainWindow &&
+      !mainWindow.isDestroyed() &&
+      updatePayload &&
+      updatePayload.forceReload === true
+    ) {
+      mainWindow.webContents.reloadIgnoringCache();
+    }
+    return { success: true, version: APP_VERSION };
   } catch (err) {
     return { success: false, error: err.message };
   }

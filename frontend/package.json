@@ -3,7 +3,7 @@
   "productName": "HEPCO COMMAND",
   "description": "Trung Tâm Quản Trị Hạ Tầng Mạng, Máy Chủ & Tài Sản CNTT HEPCO",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.1.0",
   "author": "Lê Hồng Quân - Bộ Phận CNTT HEPCO",
   "main": "electron/main.cjs",
   "scripts": {
@@ -59,6 +59,8 @@
     },
     "nsis": {
       "oneClick": false,
+      "perMachine": false,
+      "allowElevation": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
