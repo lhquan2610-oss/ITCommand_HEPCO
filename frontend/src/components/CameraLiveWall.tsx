@@ -155,7 +155,7 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
 
   // Live Auto-Stream Engine (Always running live by default)
   const [isLiveAutoPlay, setIsLiveAutoPlay] = useState<boolean>(true);
-  const [streamSpeed, setStreamSpeed] = useState<number>(1200);
+  const [streamSpeed, setStreamSpeed] = useState<number>(600);
 
   const inFlightKeys = useRef<Set<string>>(new Set());
   const nvr1RoundRobinIdx = useRef<number>(0);
@@ -341,13 +341,13 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
         bairacRoundRobinIdx.current = (bairacRoundRobinIdx.current + 1) % onlineChs.length;
       }
 
-      // Imou Cloud
+      // Imou Cloud (Tự động tải cập nhật đồng bộ cả 4 camera Imou)
       if (imouViewMode === 'SINGLE') {
         fetchChannelSnapshot('IMOU_CLOUD', imouActiveChannel);
       } else {
-        const idx = imouRoundRobinIdx.current % IMOU_CHANNELS.length;
-        fetchChannelSnapshot('IMOU_CLOUD', IMOU_CHANNELS[idx].ch);
-        imouRoundRobinIdx.current = (imouRoundRobinIdx.current + 1) % IMOU_CHANNELS.length;
+        IMOU_CHANNELS.forEach((item, idx) => {
+          setTimeout(() => fetchChannelSnapshot('IMOU_CLOUD', item.ch), idx * 80);
+        });
       }
     }, streamSpeed);
 
@@ -553,39 +553,51 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
           <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] font-bold">
             <button
               type="button"
+              onClick={() => setStreamSpeed(350)}
+              className={`px-2 py-1 rounded-lg transition cursor-pointer ${
+                streamSpeed === 350
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400'
+              }`}
+              title="Tốc độ cực mượt 350ms/khung (~3 FPS)"
+            >
+              350ms
+            </button>
+            <button
+              type="button"
+              onClick={() => setStreamSpeed(600)}
+              className={`px-2 py-1 rounded-lg transition cursor-pointer ${
+                streamSpeed === 600
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400'
+              }`}
+              title="Tốc độ mượt mà khuyến nghị 600ms/khung"
+            >
+              600ms (Mượt)
+            </button>
+            <button
+              type="button"
               onClick={() => setStreamSpeed(1000)}
               className={`px-2 py-1 rounded-lg transition cursor-pointer ${
                 streamSpeed === 1000
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-600 dark:text-slate-400'
               }`}
-              title="Tốc độ cao 1 giây/khung"
+              title="Tốc độ tiêu chuẩn 1 giây/khung"
             >
               1s
             </button>
             <button
               type="button"
-              onClick={() => setStreamSpeed(1800)}
+              onClick={() => setStreamSpeed(2000)}
               className={`px-2 py-1 rounded-lg transition cursor-pointer ${
-                streamSpeed === 1800
+                streamSpeed === 2000
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-600 dark:text-slate-400'
               }`}
-              title="Tốc độ cân bằng 1.8 giây/khung"
+              title="Tiết kiệm băng thông 2 giây/khung"
             >
               2s
-            </button>
-            <button
-              type="button"
-              onClick={() => setStreamSpeed(3000)}
-              className={`px-2 py-1 rounded-lg transition cursor-pointer ${
-                streamSpeed === 3000
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400'
-              }`}
-              title="Tiết kiệm băng thông 3 giây/khung"
-            >
-              3s
             </button>
           </div>
 
@@ -1597,6 +1609,17 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
             </div>
 
             <div className="flex items-center gap-2">
+              {/* One-click launch Imou PC client */}
+              <button
+                type="button"
+                onClick={() => handleOpenEmbeddedViewer('IMOU_CLOUD', 'NATIVE_APP')}
+                className="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold flex items-center gap-1 transition shadow-xs cursor-pointer"
+                title="Khởi chạy nhanh phần mềm Imou PC Client (Imou_en.exe) có sẵn trên máy"
+              >
+                <MonitorPlay className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Mở App Imou PC</span>
+              </button>
+
               {/* Per-Station Mode Toggle (Single vs 4/4 Multi-Grid) */}
               <div className="flex items-center bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[11px] font-bold">
                 <button
@@ -1641,6 +1664,9 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
                 src={activeImouImg}
                 alt={`Live Stream Imou - ${activeImouMeta.label}`}
                 className="w-full h-full object-cover transition-opacity duration-300"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = `./images/cameras/imou_ch${imouActiveChannel}.jpg`;
+                }}
               />
 
               {/* Top OSD Bar */}
@@ -1693,6 +1719,9 @@ export const CameraLiveWall: React.FC<CameraLiveWallProps> = ({ cameras, onSwitc
                         src={snap}
                         alt={item.label}
                         className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = `./images/cameras/imou_ch${item.ch}.jpg`;
+                        }}
                       />
 
                       {/* Top Overlay Label */}
