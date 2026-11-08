@@ -123,7 +123,7 @@ export const TrafficMonitorPage: React.FC = () => {
   const [chartHistory, setChartHistory] = useState<TrafficTickData[]>([]);
   const [anomalyLogs, setAnomalyLogs] = useState<AnomalyEvent[]>([]);
   const [activeAlert, setActiveAlert] = useState<AnomalyEvent | null>(null);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
   const [filterSeverity, setFilterSeverity] = useState<'ALL' | 'CRITICAL' | 'WARNING'>('ALL');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -143,6 +143,7 @@ export const TrafficMonitorPage: React.FC = () => {
 
   // Thresholds state
   const [thresholds, setThresholds] = useState({
+    enabled: false,
     downLimitMbps: 50,
     upLimitMbps: 30,
     broadcastLimitRate: 600,

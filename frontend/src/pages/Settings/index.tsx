@@ -1262,8 +1262,8 @@ export const SettingsPage: React.FC = () => {
           <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
             <Radio className="w-4 h-4 text-rose-600" /> Ngưỡng Giám Sát Lưu Lượng Mạng Bất Thường (Traffic Anomaly Thresholds)
           </h3>
-          <span className="text-[11px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
-            Tự Động Bắn Desktop Notification
+          <span className="text-[11px] font-bold text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 px-2 py-0.5 rounded-full border border-slate-300 dark:border-slate-700">
+            Đã Tắt Thông Báo Vượt Ngưỡng (Không Bắn Notification)
           </span>
         </div>
 

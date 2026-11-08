@@ -81,10 +81,11 @@ export const TrafficAnomalyManager: React.FC = () => {
   const [activeAnomalyToast, setActiveAnomalyToast] = useState<AnomalyEvent | null>(null);
   const [anomalyLogs, setAnomalyLogs] = useState<AnomalyEvent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled, setSoundEnabled] = useState(false);
 
   // Thresholds state
   const [thresholds, setThresholds] = useState({
+    enabled: false,
     downLimitMbps: 50,
     upLimitMbps: 30,
     broadcastLimitRate: 600,
@@ -340,6 +341,26 @@ export const TrafficAnomalyManager: React.FC = () => {
                     <span>Cấu Hình Ngưỡng Kích Hoạt Cảnh Báo Lưu Lượng Bất Thường</span>
                   </h4>
                   <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = { ...thresholds, enabled: !thresholds.enabled };
+                        setThresholds(updated);
+                        if (window.hiccDesktop?.setTrafficThresholds) {
+                          window.hiccDesktop.setTrafficThresholds(updated);
+                        }
+                      }}
+                      className={`p-1.5 rounded-md border text-[10px] font-bold flex items-center gap-1 transition cursor-pointer ${
+                        thresholds.enabled
+                          ? 'bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950 dark:text-rose-300'
+                          : 'bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-800 dark:text-slate-400'
+                      }`}
+                      title="Bật/Tắt hoàn toàn cảnh báo lưu lượng vượt ngưỡng"
+                    >
+                      <Bell className="w-3 h-3" />
+                      <span>{thresholds.enabled ? 'Cảnh Báo: ĐANG BẬT' : 'Cảnh Báo: ĐÃ TẮT'}</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => setSoundEnabled(!soundEnabled)}

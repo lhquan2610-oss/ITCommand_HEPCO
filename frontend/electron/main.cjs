@@ -1688,6 +1688,7 @@ ipcMain.handle('tracking-launch-cmsv6-app', async () => {
 // NETWORK TRAFFIC ANOMALY DETECTION & REALTIME MONITORING ENGINE
 // =========================================================================
 let trafficThresholds = {
+  enabled: false,         // Disabled traffic anomaly notifications per user request
   downLimitMbps: 50,      // Alert if download rate exceeds 50 Mbps
   upLimitMbps: 30,        // Alert if upload rate exceeds 30 Mbps
   broadcastLimitRate: 600,// Alert if non-unicast packet rate exceeds 600 pkts/s (storm)
@@ -1757,53 +1758,55 @@ function startTrafficMonitor() {
         const avgDown = trafficHistory.reduce((acc, cur) => acc + cur.downMbps, 0) / trafficHistory.length;
         const avgUp = trafficHistory.reduce((acc, cur) => acc + cur.upMbps, 0) / trafficHistory.length;
 
-        // Check for anomalies
+        // Check for anomalies only if notifications are enabled
         let anomalyDetected = null;
 
-        if (downMbps > trafficThresholds.downLimitMbps) {
-          anomalyDetected = {
-            id: `ANOMALY-${Date.now()}`,
-            type: 'DOWNLOAD_SPIKE',
-            severity: downMbps > trafficThresholds.downLimitMbps * 2 ? 'CRITICAL' : 'WARNING',
-            title: 'ĐỘT BIẾN LƯU LƯỢNG TẢI XUỐNG (DOWNLOAD SPIKE)',
-            message: `Lưu lượng tải xuống đạt ${downMbps} Mbps (Vượt ngưỡng cảnh báo ${trafficThresholds.downLimitMbps} Mbps)`,
-            measuredValue: `${downMbps} Mbps`,
-            threshold: `${trafficThresholds.downLimitMbps} Mbps`,
-            timestamp: new Date().toISOString()
-          };
-        } else if (upMbps > trafficThresholds.upLimitMbps) {
-          anomalyDetected = {
-            id: `ANOMALY-${Date.now()}`,
-            type: 'UPLOAD_SPIKE',
-            severity: upMbps > trafficThresholds.upLimitMbps * 2 ? 'CRITICAL' : 'WARNING',
-            title: 'ĐỘT BIẾN LƯU LƯỢNG TẢI LÊN (UPLOAD SPIKE)',
-            message: `Lưu lượng tải lên đạt ${upMbps} Mbps (Vượt ngưỡng cảnh báo ${trafficThresholds.upLimitMbps} Mbps)`,
-            measuredValue: `${upMbps} Mbps`,
-            threshold: `${trafficThresholds.upLimitMbps} Mbps`,
-            timestamp: new Date().toISOString()
-          };
-        } else if (broadcastRate > trafficThresholds.broadcastLimitRate) {
-          anomalyDetected = {
-            id: `ANOMALY-${Date.now()}`,
-            type: 'BROADCAST_STORM',
-            severity: 'CRITICAL',
-            title: 'CẢNH BÁO BÃO GÓI TIN BROADCAST / ARP STORM',
-            message: `Tần suất gói tin Broadcast/Multicast đạt ${broadcastRate} gói/giây (Vượt ngưỡng ${trafficThresholds.broadcastLimitRate} pkts/s)`,
-            measuredValue: `${broadcastRate} pkts/s`,
-            threshold: `${trafficThresholds.broadcastLimitRate} pkts/s`,
-            timestamp: new Date().toISOString()
-          };
-        } else if (downMbps > 15 && avgDown > 0.5 && downMbps > avgDown * trafficThresholds.spikeRatio) {
-          anomalyDetected = {
-            id: `ANOMALY-${Date.now()}`,
-            type: 'BURST_TRAFFIC',
-            severity: 'WARNING',
-            title: 'TĂNG VỌT BẤT THƯỜNG SO VỚI MỨC NỀN',
-            message: `Băng thông tăng đột ngột lên ${downMbps} Mbps (Gấp ${((downMbps / avgDown).toFixed(1))} lần mức nền trung bình)`,
-            measuredValue: `${downMbps} Mbps`,
-            threshold: `Trung bình: ${avgDown.toFixed(1)} Mbps`,
-            timestamp: new Date().toISOString()
-          };
+        if (trafficThresholds.enabled !== false) {
+          if (downMbps > trafficThresholds.downLimitMbps) {
+            anomalyDetected = {
+              id: `ANOMALY-${Date.now()}`,
+              type: 'DOWNLOAD_SPIKE',
+              severity: downMbps > trafficThresholds.downLimitMbps * 2 ? 'CRITICAL' : 'WARNING',
+              title: 'ĐỘT BIẾN LƯU LƯỢNG TẢI XUỐNG (DOWNLOAD SPIKE)',
+              message: `Lưu lượng tải xuống đạt ${downMbps} Mbps (Vượt ngưỡng cảnh báo ${trafficThresholds.downLimitMbps} Mbps)`,
+              measuredValue: `${downMbps} Mbps`,
+              threshold: `${trafficThresholds.downLimitMbps} Mbps`,
+              timestamp: new Date().toISOString()
+            };
+          } else if (upMbps > trafficThresholds.upLimitMbps) {
+            anomalyDetected = {
+              id: `ANOMALY-${Date.now()}`,
+              type: 'UPLOAD_SPIKE',
+              severity: upMbps > trafficThresholds.upLimitMbps * 2 ? 'CRITICAL' : 'WARNING',
+              title: 'ĐỘT BIẾN LƯU LƯỢNG TẢI LÊN (UPLOAD SPIKE)',
+              message: `Lưu lượng tải lên đạt ${upMbps} Mbps (Vượt ngưỡng cảnh báo ${trafficThresholds.upLimitMbps} Mbps)`,
+              measuredValue: `${upMbps} Mbps`,
+              threshold: `${trafficThresholds.upLimitMbps} Mbps`,
+              timestamp: new Date().toISOString()
+            };
+          } else if (broadcastRate > trafficThresholds.broadcastLimitRate) {
+            anomalyDetected = {
+              id: `ANOMALY-${Date.now()}`,
+              type: 'BROADCAST_STORM',
+              severity: 'CRITICAL',
+              title: 'CẢNH BÁO BÃO GÓI TIN BROADCAST / ARP STORM',
+              message: `Tần suất gói tin Broadcast/Multicast đạt ${broadcastRate} gói/giây (Vượt ngưỡng ${trafficThresholds.broadcastLimitRate} pkts/s)`,
+              measuredValue: `${broadcastRate} pkts/s`,
+              threshold: `${trafficThresholds.broadcastLimitRate} pkts/s`,
+              timestamp: new Date().toISOString()
+            };
+          } else if (downMbps > 15 && avgDown > 0.5 && downMbps > avgDown * trafficThresholds.spikeRatio) {
+            anomalyDetected = {
+              id: `ANOMALY-${Date.now()}`,
+              type: 'BURST_TRAFFIC',
+              severity: 'WARNING',
+              title: 'TĂNG VỌT BẤT THƯỜNG SO VỚI MỨC NỀN',
+              message: `Băng thông tăng đột ngột lên ${downMbps} Mbps (Gấp ${((downMbps / avgDown).toFixed(1))} lần mức nền trung bình)`,
+              measuredValue: `${downMbps} Mbps`,
+              threshold: `Trung bình: ${avgDown.toFixed(1)} Mbps`,
+              timestamp: new Date().toISOString()
+            };
+          }
         }
 
         // Notify if cooldown has elapsed
