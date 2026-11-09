@@ -37,6 +37,10 @@
         "to": "data/devices_inventory.json"
       },
       {
+        "from": "../data/security_policy.json",
+        "to": "data/security_policy.json"
+      },
+      {
         "from": "electron/dahua-sdk",
         "to": "dahua-sdk"
       }

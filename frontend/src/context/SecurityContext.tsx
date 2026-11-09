@@ -42,11 +42,20 @@ export const DEFAULT_USER_PERMISSIONS: IpUserPermission[] = [
   {
     id: 'user-huy-vu',
     name: 'Trần Ngọc Huy Vũ',
-    ip: '10.1.1.88',
-    department: 'Phòng Kế Hoạch - Nghiệp Vụ',
+    ip: '10.1.1.116, 10.1.1.88',
+    department: 'Phòng Tổ chức - Hành chính',
     role: 'custom',
-    allowedFeatures: ['cameras', 'computers', 'dispatches'],
-    note: 'Được phân quyền xem Camera IP, Danh sách máy tính và Quản lý công văn'
+    allowedFeatures: [
+      'cameras',
+      'computers',
+      'pos',
+      'tracking',
+      'printers',
+      'network-map',
+      'dashboard',
+      'dispatches'
+    ],
+    note: 'Được phân quyền xem Camera IP, Danh sách máy tính, POS, Bản đồ, Công văn'
   }
 ];
 
@@ -70,8 +79,8 @@ interface SecurityContextType {
 
 const DEFAULT_POLICY: IpSecurityPolicy = {
   enabled: true,
-  allowedIps: ['10.1.1.45', '127.0.0.1', '10.1.1.88'],
-  bypassPin: 'hepco@2026',
+  allowedIps: ['10.1.1.45', '10.1.1.116', '10.1.1.88', '127.0.0.1', '192.168.50.248'],
+  bypassPin: 'hepco@20261#',
   adminNote: 'Chỉ các địa chỉ IP được cấp phép mới được khởi chạy HEPCO COMMAND',
   userPermissions: DEFAULT_USER_PERMISSIONS
 };
@@ -146,9 +155,14 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const currentUserPermission: IpUserPermission = useMemo(() => {
     // 1. Simulation mode (for admin testing)
     if (simulatedUserIp) {
-      const matchSim = permissionsList.find(
-        (p) => p.ip.trim().toLowerCase() === simulatedUserIp.trim().toLowerCase()
-      );
+      const simIp = simulatedUserIp.trim().toLowerCase();
+      const matchSim = permissionsList.find((p) => {
+        const ips = (p.ip || '')
+          .split(/[,;\s]+/)
+          .map((s) => s.trim().toLowerCase())
+          .filter(Boolean);
+        return ips.includes(simIp);
+      });
       if (matchSim) return matchSim;
       return {
         id: 'simulated',
@@ -162,7 +176,13 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // 2. Match actual client IP
     const targetIps = [currentIp, ...allClientIps].map((ip) => ip.trim().toLowerCase());
-    const matched = permissionsList.find((p) => targetIps.includes(p.ip.trim().toLowerCase()));
+    const matched = permissionsList.find((p) => {
+      const ips = (p.ip || '')
+        .split(/[,;\s]+/)
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+      return ips.some((ip) => targetIps.includes(ip));
+    });
     if (matched) return matched;
 
     // 3. Admin fallback (10.1.1.45 / LHQUAN / localhost)
@@ -205,19 +225,30 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     // Bất kỳ máy tính nào có trong danh sách phân quyền (userPermissions) đều tự động được phép truy cập
     const isInUserPermissions = permissionsList.some((p) => {
-      const pIp = (p.ip || '').trim().toLowerCase();
-      return (
-        pIp === currentIp.toLowerCase() ||
-        allClientIps.some((c) => c.toLowerCase() === pIp)
+      const allowedIpList = (p.ip || '')
+        .split(/[,;\s]+/)
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean);
+      return allowedIpList.some(
+        (pIp) =>
+          pIp === currentIp.toLowerCase() ||
+          allClientIps.some((c) => c.toLowerCase() === pIp)
       );
     });
     if (isInUserPermissions) return true;
 
-    const allowed = (policy.allowedIps || []).map((ip) => ip.trim().toLowerCase());
+    const allowed = (policy.allowedIps || []).flatMap((ip) =>
+      ip.split(/[,;\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean)
+    );
     // Also include any IP from userPermissions
     permissionsList.forEach((p) => {
-      if (p.ip && !allowed.includes(p.ip.toLowerCase())) {
-        allowed.push(p.ip.toLowerCase());
+      if (p.ip) {
+        const ips = p.ip.split(/[,;\s]+/).map((s) => s.trim().toLowerCase()).filter(Boolean);
+        ips.forEach((ip) => {
+          if (!allowed.includes(ip)) {
+            allowed.push(ip);
+          }
+        });
       }
     });
 
@@ -249,11 +280,21 @@ export const SecurityProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const updatePolicy = async (newPolicy: IpSecurityPolicy): Promise<boolean> => {
     try {
-      // Ensure allowedIps contains all IPs from userPermissions
-      const allWhitelistedIps = new Set(newPolicy.allowedIps || []);
+      // Ensure allowedIps contains all individual IPs from userPermissions
+      const allWhitelistedIps = new Set<string>();
+      (newPolicy.allowedIps || []).forEach((ipStr) => {
+        ipStr.split(/[,;\s]+/).forEach((ip) => {
+          if (ip.trim()) allWhitelistedIps.add(ip.trim());
+        });
+      });
+
       if (newPolicy.userPermissions) {
         newPolicy.userPermissions.forEach((p) => {
-          if (p.ip) allWhitelistedIps.add(p.ip.trim());
+          if (p.ip) {
+            p.ip.split(/[,;\s]+/).forEach((ip) => {
+              if (ip.trim()) allWhitelistedIps.add(ip.trim());
+            });
+          }
         });
       }
       const finalizedPolicy: IpSecurityPolicy = {

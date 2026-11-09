@@ -871,23 +871,43 @@ ipcMain.handle('get-system-info', async () => {
 // ===========================================================================
 // IP Access Whitelist Security Policy Engine
 // ===========================================================================
-const SECURITY_POLICY_FILE = path.join(app.getPath('userData'), 'security_policy.json');
+function getSecurityPolicyPaths() {
+  const paths = [];
+  try {
+    paths.push(path.join(app.getPath('userData'), 'security_policy.json'));
+  } catch {}
+  if (process.resourcesPath) {
+    paths.push(path.join(process.resourcesPath, 'data', 'security_policy.json'));
+  }
+  paths.push(path.join(__dirname, '../../data/security_policy.json'));
+  paths.push('F:\\LinhTinh\\APP_TuPhatTrien\\HEPCO-IT-COMMAND-CENTER\\data\\security_policy.json');
+  try {
+    paths.push(path.join(path.dirname(app.getPath('exe')), 'data', 'security_policy.json'));
+  } catch {}
+  return paths;
+}
 
 ipcMain.handle('security-get-policy', async () => {
-  try {
-    if (fs.existsSync(SECURITY_POLICY_FILE)) {
-      const data = JSON.parse(fs.readFileSync(SECURITY_POLICY_FILE, 'utf8'));
-      return { success: true, policy: data };
+  for (const policyPath of getSecurityPolicyPaths()) {
+    try {
+      if (fs.existsSync(policyPath)) {
+        const raw = fs.readFileSync(policyPath, 'utf8');
+        const data = JSON.parse(raw);
+        if (data && typeof data === 'object') {
+          return { success: true, policy: data };
+        }
+      }
+    } catch (e) {
+      console.warn(`Could not read security policy from ${policyPath}:`, e.message);
     }
-  } catch (e) {
-    console.error('Error reading security policy:', e);
   }
+
   return {
     success: true,
     policy: {
       enabled: true,
-      allowedIps: ['10.1.1.45', '127.0.0.1', '10.1.1.88'],
-      bypassPin: 'hepco@2026',
+      allowedIps: ['10.1.1.45', '10.1.1.116', '10.1.1.88', '127.0.0.1', '192.168.50.248'],
+      bypassPin: 'hepco@20261#',
       adminNote: 'Chỉ các địa chỉ IP được cấp phép mới được khởi chạy HEPCO COMMAND',
       userPermissions: [
         {
@@ -905,11 +925,14 @@ ipcMain.handle('security-get-policy', async () => {
         {
           id: 'user-huy-vu',
           name: 'Trần Ngọc Huy Vũ',
-          ip: '10.1.1.88',
-          department: 'Phòng Kế Hoạch - Nghiệp Vụ',
+          ip: '10.1.1.116, 10.1.1.88',
+          department: 'Phòng Tổ chức - Hành chính',
           role: 'custom',
-          allowedFeatures: ['cameras', 'computers', 'dispatches'],
-          note: 'Được phân quyền xem Camera IP, Danh sách máy tính và Quản lý công văn'
+          allowedFeatures: [
+            'cameras', 'computers', 'pos', 'tracking', 'printers',
+            'network-map', 'dashboard', 'dispatches'
+          ],
+          note: 'Được phân quyền xem Camera IP, Danh sách máy tính, POS, Bản đồ, Công văn'
         }
       ]
     }
@@ -918,7 +941,23 @@ ipcMain.handle('security-get-policy', async () => {
 
 ipcMain.handle('security-save-policy', async (_, policy) => {
   try {
-    fs.writeFileSync(SECURITY_POLICY_FILE, JSON.stringify(policy, null, 2), 'utf8');
+    const userPolicyFile = path.join(app.getPath('userData'), 'security_policy.json');
+    fs.writeFileSync(userPolicyFile, JSON.stringify(policy, null, 2), 'utf8');
+
+    // Also persist to repo data/security_policy.json if available
+    const repoPolicyPaths = [
+      path.join(__dirname, '../../data/security_policy.json'),
+      'F:\\LinhTinh\\APP_TuPhatTrien\\HEPCO-IT-COMMAND-CENTER\\data\\security_policy.json'
+    ];
+    for (const rPath of repoPolicyPaths) {
+      try {
+        const dir = path.dirname(rPath);
+        if (fs.existsSync(dir)) {
+          fs.writeFileSync(rPath, JSON.stringify(policy, null, 2), 'utf8');
+        }
+      } catch {}
+    }
+
     return { success: true };
   } catch (err) {
     console.error('Error saving security policy:', err);

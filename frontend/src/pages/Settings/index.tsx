@@ -337,8 +337,9 @@ export const SettingsPage: React.FC = () => {
       updatedList = [...userPermissions, newPerm];
     }
 
-    // Automatically make sure this IP is also added into whitelist allowedIps
-    const nextAllowedIps = Array.from(new Set([...allowedIps, cleanIp]));
+    // Automatically make sure this IP (or multiple IPs) is also added into whitelist allowedIps
+    const individualIps = cleanIp.split(/[,;\s]+/).map((s) => s.trim()).filter(Boolean);
+    const nextAllowedIps = Array.from(new Set([...allowedIps, ...individualIps]));
 
     setUserPermissions(updatedList);
     setAllowedIps(nextAllowedIps);
@@ -1218,11 +1219,12 @@ export const SettingsPage: React.FC = () => {
                 <div>
                   <label className="font-bold text-slate-700 dark:text-slate-200 block mb-1">
                     Địa Chỉ IP Máy Tính <span className="text-rose-500">*</span>
+                    <span className="text-[11px] font-normal text-slate-500 dark:text-slate-400 ml-1.5">(Có thể nhập nhiều IP cách nhau dấu phẩy: LAN, Wi-Fi)</span>
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="Ví dụ: 10.1.1.88"
+                    placeholder="Ví dụ: 10.1.1.116 hoặc 10.1.1.116, 10.1.1.88"
                     value={permForm.ip}
                     onChange={(e) => setPermForm({ ...permForm, ip: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 font-mono font-bold focus:outline-none focus:border-indigo-500 bg-white dark:bg-slate-800"

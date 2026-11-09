@@ -1,0 +1,54 @@
+{
+  "enabled": true,
+  "allowedIps": [
+    "10.1.1.45",
+    "10.1.1.116",
+    "10.1.1.88",
+    "127.0.0.1",
+    "192.168.50.248"
+  ],
+  "bypassPin": "hepco@20261#",
+  "adminNote": "Chỉ các địa chỉ IP được cấp phép mới được khởi chạy HEPCO COMMAND",
+  "userPermissions": [
+    {
+      "id": "admin-default",
+      "name": "Lê Hồng Quân (Quản Trị Viên CNTT)",
+      "ip": "10.1.1.45",
+      "department": "Bộ phận CNTT HEPCO",
+      "role": "admin",
+      "allowedFeatures": [
+        "dashboard",
+        "traffic",
+        "computers",
+        "printers",
+        "cameras",
+        "pos",
+        "dispatches",
+        "switches",
+        "lookup",
+        "network-map",
+        "tracking",
+        "settings"
+      ],
+      "note": "Quản trị viên toàn quyền hệ thống"
+    },
+    {
+      "id": "user-huy-vu",
+      "name": "Trần Ngọc Huy Vũ",
+      "ip": "10.1.1.116, 10.1.1.88",
+      "department": "Phòng Tổ chức - Hành chính",
+      "role": "custom",
+      "allowedFeatures": [
+        "cameras",
+        "computers",
+        "pos",
+        "tracking",
+        "printers",
+        "network-map",
+        "dashboard",
+        "dispatches"
+      ],
+      "note": "Được phân quyền xem Camera IP, Danh sách máy tính, POS, Bản đồ, Công văn"
+    }
+  ]
+}
